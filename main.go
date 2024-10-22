@@ -9,13 +9,14 @@ import (
 )
 
 func main() {
-	r := mux.NewRouter()
-	r.().Set("Content-Type", "application/json")
-	r.HandleFunc("/", req_handler.DefaultHandler)
-	r.HandleFunc("/user", req_handler.UserGetHandler).Methods("GET")
-	r.HandleFunc("/user", req_handler.UserPostHandler).Methods("Post")
+	router := mux.NewRouter()
 
-	err := http.ListenAndServe(":8080", r)
+	router.HandleFunc("/user", req_handler.UserGetHandler).Methods("GET")
+	// router.HandleFunc("/user", req_handler.UserPostHandler).Methods("Post")
+
+	http.Handle("/", router)
+
+	err := http.ListenAndServe(":8080", router)
 	if err != nil {
 		log.Fatal(err)
 	}
