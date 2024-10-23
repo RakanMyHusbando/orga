@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -20,19 +21,32 @@ func (s *APIServer) handleUser(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error {
-	var lol *LeagueOfLegends = nil
+	var lol *LeagueOfLegends
 
-	queryParam := r.URL.Query().Get("property")
+	queryProperty := r.URL.Query().Get("property")
 
-	if queryParam != "" {
-		properties := strings.Split(queryParam, ",")
+	if queryProperty != "" {
+		properties := strings.Split(queryProperty, ",")
 		for _, property := range properties {
 			switch property {
-			case "LeagueOfLegends":
-				lol := NewLeagueOfLegends("top", "jungle", []string{"a", "b"}, []string{"a", "b"})
+			case "league_of_legends":
+				lol = NewLeagueOfLegends("top", "jungle", []string{"a", "b"}, []string{"a", "b"})
 			}
 		}
 	}
+
+	var search map[string]string
+
+	queryName := r.URL.Query().Get("name")
+	queryDiscordId := r.URL.Query().Get("discord_id")
+
+	if queryName != "" {
+		search = map[string]string{"name": queryName}
+	} else if queryDiscordId != "" {
+		search = map[string]string{"discord_id": queryDiscordId}
+	}
+
+	log.Println(search)
 
 	err := WriteJSON(w, http.StatusOK, NewUser(1, "john", lol))
 	if err != nil {

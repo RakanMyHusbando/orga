@@ -12,10 +12,10 @@ func (s *SQLiteStorage) UpdateUser(user *User) error {
 	return nil
 }
 
-func (s *SQLiteStorage) GetUserById(id int) (*User, error) {
+func (s *SQLiteStorage) GetUser() ([]*User, error) {
 	return nil, nil
 }
 
-func (s *SQLiteStorage) GetUserByName(name string) (*User, error) {
+func (s *SQLiteStorage) SearchUser(search map[string]string) ([]*User, error) {
 	return nil, nil
 }
