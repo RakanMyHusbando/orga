@@ -8,24 +8,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func WriteJSON(w http.ResponseWriter, status int, v any) error {
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(status)
-	return json.NewEncoder(w).Encode(v)
-}
-
 type apiFunc func(http.ResponseWriter, *http.Request) error
 
 type ApiError struct {
 	Error string
-}
-
-func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if err := f(w, r); err != nil {
-			WriteJSON(w, http.StatusBadRequest, ApiError{err.Error()})
-		}
-	}
 }
 
 type APIServer struct {
@@ -48,5 +34,19 @@ func (s *APIServer) Run() {
 	err := http.ListenAndServe(s.listenAddr, router)
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+func WriteJSON(w http.ResponseWriter, status int, v any) error {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(status)
+	return json.NewEncoder(w).Encode(v)
+}
+
+func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := f(w, r); err != nil {
+			WriteJSON(w, http.StatusBadRequest, ApiError{err.Error()})
+		}
 	}
 }

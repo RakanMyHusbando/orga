@@ -19,7 +19,8 @@ func (s *APIServer) handleUser(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error {
-	user := NewUser(1, "john")
+	lol := NewLeagueOfLegends("top", "jungle", []string{"a", "b"}, []string{"a", "b"})
+	user := NewUser(1, "john", lol)
 	WriteJSON(w, http.StatusOK, user)
 	return nil
 }

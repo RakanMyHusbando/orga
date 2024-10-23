@@ -1,9 +1,27 @@
 package main
 
-import "fmt"
+import (
+	"log"
+	"os"
+)
 
 func main() {
-	server := NewAPIServer(":8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("PORT must be set in .env file")
+	}
+
+	dbFile := os.Getenv("DB_FILE")
+	if dbFile == "" {
+		log.Fatal("DB_FILE must be set in .env file")
+	}
+
+	server := NewAPIServer(":" + port)
 	server.Run()
-	fmt.Println("Hello, World!")
+
+	db, err := NewSQLiteStorage(dbFile)
+	CreateSQLiteTable(db)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
