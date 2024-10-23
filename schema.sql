@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS User (
 CREATE TABLE IF NOT EXISTS AccountLeagueOfLegends (
     user_id INTEGER NOT NULL,
     name TEXT,
-    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (user_id) REFERENCES User(id)
 );
 CREATE TABLE IF NOT EXISTS UserLeagueOfLegends (
     user_id INTEGER NOT NULL UNIQUE,
