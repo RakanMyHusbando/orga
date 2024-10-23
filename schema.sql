@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS User (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT
+    name TEXT,
+    discord_id TEXT
 );
 CREATE TABLE IF NOT EXISTS AccountLeagueOfLegends (
     user_id INTEGER NOT NULL,
