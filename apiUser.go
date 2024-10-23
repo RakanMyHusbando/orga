@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 func (s *APIServer) handleUser(w http.ResponseWriter, r *http.Request) error {
@@ -19,9 +20,25 @@ func (s *APIServer) handleUser(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error {
-	lol := NewLeagueOfLegends("top", "jungle", []string{"a", "b"}, []string{"a", "b"})
-	user := NewUser(1, "john", lol)
-	WriteJSON(w, http.StatusOK, user)
+	var lol *LeagueOfLegends = nil
+
+	queryParam := r.URL.Query().Get("property")
+
+	if queryParam != "" {
+		properties := strings.Split(queryParam, ",")
+		for _, property := range properties {
+			switch property {
+			case "LeagueOfLegends":
+				lol := NewLeagueOfLegends("top", "jungle", []string{"a", "b"}, []string{"a", "b"})
+			}
+		}
+	}
+
+	err := WriteJSON(w, http.StatusOK, NewUser(1, "john", lol))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
