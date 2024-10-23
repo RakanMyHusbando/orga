@@ -6,10 +6,11 @@ import (
 )
 
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		log.Fatal("PORT must be set in .env file")
-	}
+	// port := os.Getenv("PORT")
+	// if port == "" {
+	// 	log.Fatal("PORT must be set in .env file")
+	// }
+	port := "8080"
 
 	dbFile := os.Getenv("DB_FILE")
 	if dbFile == "" {
