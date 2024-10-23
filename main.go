@@ -2,26 +2,15 @@ package main
 
 import (
 	"log"
-	"os"
 )
 
 func main() {
-	// port := os.Getenv("PORT")
-	// if port == "" {
-	// 	log.Fatal("PORT must be set in .env file")
-	// }
-	port := "8080"
+	const PORT, DB_FILE string = "8080", "data.db"
 
-	dbFile := os.Getenv("DB_FILE")
-	if dbFile == "" {
-		log.Fatal("DB_FILE must be set in .env file")
-	}
+	// server := NewAPIServer(":" + PORT)
+	// server.Run()
 
-	server := NewAPIServer(":" + port)
-	server.Run()
-
-	db, err := NewSQLiteStorage(dbFile)
-	CreateSQLiteTable(db)
+	_, err := NewSQLiteStorage(DB_FILE)
 	if err != nil {
 		log.Fatal(err)
 	}
