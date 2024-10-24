@@ -17,3 +17,4 @@ CREATE TABLE IF NOT EXISTS UserLeagueOfLegends (
     champ_2 TEXT,
     FOREIGN KEY (user_id) REFERENCES User(id)
 );
+-- TODO: Add more tables

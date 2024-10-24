@@ -2,27 +2,19 @@ package main
 
 import "database/sql"
 
+/* =================== request struct =================== */
+
 type CreateUserRequest struct {
 	Name      string `json:"name"`
 	DiscordID string `json:"discord_id"`
 }
 
-/*===========================================================================*/
+/* =================== response struct =================== */
 
 type User struct {
-	Id        int    `json:"id"`
-	Name      string `json:"name"`
-	DiscordID string `json:"discord_id"`
-}
-
-type UserGames struct {
-	Id        int    `json:"id"`
-	Name      string `json:"name"`
-	DiscordID string `json:"discord_id"`
-	Games     *Games `json:"games"`
-}
-
-type Games struct {
+	Id              int              `json:"id"`
+	Name            string           `json:"name"`
+	DiscordID       string           `json:"discord_id"`
 	LeagueOfLegends *LeagueOfLegends `json:"league_of_legends"`
 }
 
@@ -33,19 +25,12 @@ type LeagueOfLegends struct {
 	Accounts   []string `json:"accounts"`
 }
 
+/* =================== Constructor =================== */
+
 func NewUser(name string, discordId string) *User {
 	return &User{
 		Name:      name,
 		DiscordID: discordId,
-	}
-}
-
-func NewUserGames(name string, discordId string, lol *LeagueOfLegends) *UserGames {
-	return &UserGames{
-		Name: name,
-		Games: &Games{
-			LeagueOfLegends: lol,
-		},
 	}
 }
 
@@ -58,14 +43,30 @@ func NewLeagueOfLegends(mainRole string, secondRole string, mainChamps []string,
 	}
 }
 
-func scanIntoUser(rows *sql.Rows) (*User, error) {
-	user := new(User)
-	if err := rows.Scan(
-		&user.Id,
-		&user.Name,
-		&user.DiscordID,
+/* =================== scan into =================== */
+
+func scanIntoUser(row *sql.Rows) (*User, error) {
+	res := new(User)
+	if err := row.Scan(
+		&res.Id,
+		&res.Name,
+		&res.DiscordID,
 	); err != nil {
 		return nil, err
 	}
-	return user, nil
+	return res, nil
+}
+
+func scanIntoLeagueOfLegends(row *sql.Rows) (*LeagueOfLegends, error) {
+	res := new(LeagueOfLegends)
+	if err := row.Scan(
+		&res.MainRole,
+		&res.SecondRole,
+		&res.MainChamps[0],
+		&res.MainChamps[1],
+		&res.MainChamps[2],
+	); err != nil {
+		return nil, err
+	}
+	return res, nil
 }

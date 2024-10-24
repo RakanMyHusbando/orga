@@ -48,6 +48,8 @@ func NewSQLiteStorage(dbFile string) (*SQLiteStorage, error) {
 	}, nil
 }
 
+/* =================== Storage user handlers =================== */
+
 func (s *SQLiteStorage) CreateUser(user *User) error {
 	if _, err := s.db.Exec(
 		"INSERT INTO User (name, discord_id) VALUES ($1, $2)",
@@ -71,13 +73,13 @@ func (s *SQLiteStorage) UpdateUser(user *User) error {
 func (s *SQLiteStorage) GetUser() ([]*User, error) {
 	userList := []*User{}
 
-	rows, err := s.db.Query(`SELECT * FROM User`)
+	row, err := s.db.Query(`SELECT * FROM User`)
 	if err != nil {
 		return nil, err
 	}
 
-	for rows.Next() {
-		newUser, err := scanIntoUser(rows)
+	for row.Next() {
+		newUser, err := scanIntoUser(row)
 		if err != nil {
 			return nil, err
 		}
@@ -90,12 +92,17 @@ func (s *SQLiteStorage) GetUser() ([]*User, error) {
 func (s *SQLiteStorage) GetUserById(id int) ([]*User, error) {
 	userList := []*User{}
 
-	rows, err := s.db.Query(`SELECT * FROM User WHERE id = $1`, id)
+	row, err := s.db.Query(`SELECT * FROM User WHERE id = $1`, id)
 	if err != nil {
 		return nil, err
 	}
 
-	newUser, err := scanIntoUser(rows)
+	newUser, err := scanIntoUser(row)
+	if err != nil {
+		return nil, err
+	}
+
+	newUser.LeagueOfLegends, err = s.GetLeagueOfLegendsUserById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -104,3 +111,39 @@ func (s *SQLiteStorage) GetUserById(id int) ([]*User, error) {
 
 	return userList, nil
 }
+
+/* =================== Storage league handlers =================== */
+
+func (s *SQLiteStorage) GetLeagueOfLegendsUserById(id int) (*LeagueOfLegends, error) {
+	userLolQuery := `SELECT main_role, second_role, champ_0, champ_1, champ_2  FROM UserLeagueOfLegends WHERE user_id =` + string(id)
+	AccLolQuery := `SELECT name  FROM AccountLeagueOfLegends WHERE user_id =` + string(id)
+
+	row, err := s.db.Query(userLolQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	lol, err := scanIntoLeagueOfLegends(row)
+	if err != nil {
+		return nil, err
+	}
+
+	row, err = s.db.Query(AccLolQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	for row.Next() {
+		var name string
+		if err := row.Scan(&name); err != nil {
+			return nil, err
+		}
+		lol.Accounts = append(lol.Accounts, name)
+	}
+
+	return lol, nil
+}
+
+/* =================== Storage team handlers =================== */
+
+// TODO

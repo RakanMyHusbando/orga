@@ -131,4 +131,6 @@ func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) err
 	return nil
 }
 
-/* =================== API Team Handlers =================== */
+/* =================== API team handlers =================== */
+
+// TODO
