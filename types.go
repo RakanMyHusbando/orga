@@ -1,5 +1,7 @@
 package main
 
+import "database/sql"
+
 type CreateUserRequest struct {
 	Name      string `json:"name"`
 	DiscordID string `json:"discord_id"`
@@ -54,4 +56,16 @@ func NewLeagueOfLegends(mainRole string, secondRole string, mainChamps []string,
 		MainChamps: mainChamps,
 		Accounts:   accounts,
 	}
+}
+
+func scanIntoUser(rows *sql.Rows) (*User, error) {
+	user := new(User)
+	if err := rows.Scan(
+		&user.Id,
+		&user.Name,
+		&user.DiscordID,
+	); err != nil {
+		return nil, err
+	}
+	return user, nil
 }

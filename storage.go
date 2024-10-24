@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"errors"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -15,7 +15,7 @@ type Storage interface {
 	DeletUser(int) error
 	UpdateUser(*User) error
 	GetUser() ([]*User, error)
-	GetUserById(int) (*User, error)
+	GetUserById(int) ([]*User, error)
 }
 
 type SQLiteStorage struct {
@@ -28,21 +28,20 @@ func NewSQLiteStorage(dbFile string) (*SQLiteStorage, error) {
 		return nil, err
 	}
 
+	// read sql file with create table statements
 	byteContent, err := os.ReadFile("schema.sql")
 	if err != nil {
 		return nil, err
 	}
-
+	// execute sql create table statements
 	queries := strings.Split(string(byteContent), ";")
 	for i := range queries {
 		query := strings.TrimSpace(queries[i])
 		_, err := db.Exec(query)
 		if err != nil {
-			return nil, errors.New(err.Error() + " [Table:" + strings.Split(query, " ")[5] + "]")
+			return nil, fmt.Errorf("$1 [Table: $2]", err.Error(), strings.Split(query, " ")[5])
 		}
 	}
-
-	// defer db.Close()
 
 	return &SQLiteStorage{
 		db: db,
@@ -50,11 +49,14 @@ func NewSQLiteStorage(dbFile string) (*SQLiteStorage, error) {
 }
 
 func (s *SQLiteStorage) CreateUser(user *User) error {
-	resp, err := s.db.Exec(`INSERT INTO User (name, discord_id) VALUES ('$1', '$2')`, user.Name, user.DiscordID)
-	if err != nil {
+	if _, err := s.db.Exec(
+		"INSERT INTO User (name, discord_id) VALUES ($1, $2)",
+		user.Name,
+		user.DiscordID,
+	); err != nil {
 		return err
 	}
-	log.Printf("sqlite create user response: %v", resp)
+	log.Println("SQLite create user successful")
 	return nil
 }
 
@@ -67,9 +69,38 @@ func (s *SQLiteStorage) UpdateUser(user *User) error {
 }
 
 func (s *SQLiteStorage) GetUser() ([]*User, error) {
-	return nil, nil
+	userList := []*User{}
+
+	rows, err := s.db.Query(`SELECT * FROM User`)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		newUser, err := scanIntoUser(rows)
+		if err != nil {
+			return nil, err
+		}
+		userList = append(userList, newUser)
+	}
+
+	return userList, nil
 }
 
-func (s *SQLiteStorage) GetUserById(id int) (*User, error) {
-	return nil, nil
+func (s *SQLiteStorage) GetUserById(id int) ([]*User, error) {
+	userList := []*User{}
+
+	rows, err := s.db.Query(`SELECT * FROM User WHERE id = $1`, id)
+	if err != nil {
+		return nil, err
+	}
+
+	newUser, err := scanIntoUser(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	userList = append(userList, newUser)
+
+	return userList, nil
 }
