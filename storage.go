@@ -90,7 +90,13 @@ func (s *SQLiteStorage) GetUser() ([]*User, error) {
 		if err != nil {
 			return nil, err
 		}
-		newUser.LeagueOfLegends = s.GetLeagueOfLegendsUserById(newUser.Id)
+
+		lolUser, err := s.GetLeagueOfLegendsUserById(newUser.Id)
+		if err == nil {
+			newUser.LeagueOfLegends = lolUser
+		} else {
+			log.Println("League of Legends user not found")
+		}
 
 		userList = append(userList, newUser)
 	}
@@ -115,7 +121,12 @@ func (s *SQLiteStorage) GetUserById(id int) (*User, error) {
 		return nil, err
 	}
 
-	newUser.LeagueOfLegends = s.GetLeagueOfLegendsUserById(newUser.Id)
+	lolUser, err := s.GetLeagueOfLegendsUserById(newUser.Id)
+	if err == nil {
+		newUser.LeagueOfLegends = lolUser
+	} else {
+		log.Println("League of Legends user not found")
+	}
 
 	log.Println("SQLite get user by id successful")
 
@@ -137,7 +148,12 @@ func (s *SQLiteStorage) GetUserByName(name string) (*User, error) {
 		return nil, err
 	}
 
-	newUser.LeagueOfLegends = s.GetLeagueOfLegendsUserById(newUser.Id)
+	lolUser, err := s.GetLeagueOfLegendsUserById(newUser.Id)
+	if err == nil {
+		newUser.LeagueOfLegends = lolUser
+	} else {
+		log.Println("League of Legends user not found")
+	}
 
 	log.Println("SQLite get user by name successful")
 
@@ -146,36 +162,39 @@ func (s *SQLiteStorage) GetUserByName(name string) (*User, error) {
 
 /* =================== Storage league handlers =================== */
 
-func (s *SQLiteStorage) GetLeagueOfLegendsUserById(id int) *LeagueOfLegends {
-	var leagueOfLegends *LeagueOfLegends
+func (s *SQLiteStorage) GetLeagueOfLegendsUserById(id int) (*LeagueOfLegends, error) {
 	row, err := s.db.Query(`SELECT main_role, second_role, champ_0, champ_1, champ_2  FROM UserLeagueOfLegends WHERE user_id = $1`, id)
 	if err != nil {
-		return leagueOfLegends
+		return nil, err
 	}
+
+	if !row.Next() {
+		return nil, fmt.Errorf("User not found")
+	}
+
+	log.Println(row.Scan())
 
 	lol, err := scanIntoLeagueOfLegends(row)
 	if err != nil {
-		return leagueOfLegends
+		return nil, err
 	}
 
-	leagueOfLegends = lol
-
-	row, err = s.db.Query(`SELECT name FROM AccountLeagueOfLegends WHERE user_id = $1`, id)
+	row, err = s.db.Query(`SELECT name  FROM AccountLeagueOfLegends WHERE user_id = $1`, id)
 	if err != nil {
-		return leagueOfLegends
+		return nil, err
 	}
 
 	for row.Next() {
 		var name string
 		if err := row.Scan(&name); err != nil {
-			return leagueOfLegends
+			return nil, err
 		}
-		leagueOfLegends.Accounts = append(leagueOfLegends.Accounts, name)
+		lol.Accounts = append(lol.Accounts, name)
 	}
 
 	log.Println("SQLite get league of legends user by id successful")
 
-	return leagueOfLegends
+	return lol, nil
 }
 
 /* =================== Storage team handlers =================== */
