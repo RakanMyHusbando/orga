@@ -1,0 +1,25 @@
+[
+    {
+        "name": "someName0",
+        "discord_id": "1203123823708912",
+        "league_of_legends": None
+    },
+    {
+        "name": "someName1",
+        "discord_id": "028347893479834",
+        "league_of_legends": {
+            "main_role": "top",
+            "second_role": "adc",
+            "main_champs": [
+                "champ0",
+                "champ1",
+                "champ2"
+            ],
+            "accounts" : [
+                "someAccName0",
+                "someAccName1",
+                "someAccName2"
+            ]
+        }
+    },
+]
