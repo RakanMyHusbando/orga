@@ -11,11 +11,12 @@ import (
 )
 
 type Storage interface {
-	CreateUser(*User) error
+	CreateUser(*CreateUser) error
 	DeletUser(int) error
 	UpdateUser(*User) error
 	GetUser() ([]*User, error)
-	GetUserById(int) ([]*User, error)
+	GetUserById(int) (*User, error)
+	GetUserByName(string) (*User, error)
 }
 
 type SQLiteStorage struct {
@@ -39,7 +40,7 @@ func NewSQLiteStorage(dbFile string) (*SQLiteStorage, error) {
 		query := strings.TrimSpace(queries[i])
 		_, err := db.Exec(query)
 		if err != nil {
-			return nil, fmt.Errorf("$1 [Table: $2]", err.Error(), strings.Split(query, " ")[5])
+			return nil, fmt.Errorf("%v [Table: %v]", err.Error(), strings.Split(query, " ")[5])
 		}
 	}
 
@@ -50,12 +51,9 @@ func NewSQLiteStorage(dbFile string) (*SQLiteStorage, error) {
 
 /* =================== Storage user handlers =================== */
 
-func (s *SQLiteStorage) CreateUser(user *User) error {
-	if _, err := s.db.Exec(
-		"INSERT INTO User (name, discord_id) VALUES ($1, $2)",
-		user.Name,
-		user.DiscordID,
-	); err != nil {
+func (s *SQLiteStorage) CreateUser(user *CreateUser) error {
+	_, err := s.db.Exec(`INSERT INTO User (name, discord_id) VALUES ($1, $2)`, user.Name, user.DiscordID)
+	if err != nil {
 		return err
 	}
 	log.Println("SQLite create user successful")
@@ -63,38 +61,53 @@ func (s *SQLiteStorage) CreateUser(user *User) error {
 }
 
 func (s *SQLiteStorage) DeletUser(id int) error {
+	_, err := s.db.Exec(`DELETE FROM User WHERE id = $1`, id)
+	if err != nil {
+		return err
+	}
+	log.Println("SQLite delete user successful")
 	return nil
 }
 
 func (s *SQLiteStorage) UpdateUser(user *User) error {
+	_, err := s.db.Exec(`UPDATE User SET name = $1, discord_id = $2 WHERE id = $3`, user.Name, user.DiscordID, user.Id)
+	if err != nil {
+		return err
+	}
+	log.Println("SQLite update user successful")
 	return nil
 }
 
 func (s *SQLiteStorage) GetUser() ([]*User, error) {
-	userList := []*User{}
-
 	row, err := s.db.Query(`SELECT * FROM User`)
 	if err != nil {
 		return nil, err
 	}
 
+	userList := []*User{}
 	for row.Next() {
 		newUser, err := scanIntoUser(row)
 		if err != nil {
 			return nil, err
 		}
+		newUser.LeagueOfLegends = s.GetLeagueOfLegendsUserById(newUser.Id)
+
 		userList = append(userList, newUser)
 	}
+
+	log.Println("SQLite get user successful")
 
 	return userList, nil
 }
 
-func (s *SQLiteStorage) GetUserById(id int) ([]*User, error) {
-	userList := []*User{}
-
+func (s *SQLiteStorage) GetUserById(id int) (*User, error) {
 	row, err := s.db.Query(`SELECT * FROM User WHERE id = $1`, id)
 	if err != nil {
 		return nil, err
+	}
+
+	if !row.Next() {
+		return nil, fmt.Errorf("User not found")
 	}
 
 	newUser, err := scanIntoUser(row)
@@ -102,46 +115,67 @@ func (s *SQLiteStorage) GetUserById(id int) ([]*User, error) {
 		return nil, err
 	}
 
-	newUser.LeagueOfLegends, err = s.GetLeagueOfLegendsUserById(id)
+	newUser.LeagueOfLegends = s.GetLeagueOfLegendsUserById(newUser.Id)
+
+	log.Println("SQLite get user by id successful")
+
+	return newUser, nil
+}
+
+func (s *SQLiteStorage) GetUserByName(name string) (*User, error) {
+	row, err := s.db.Query(`SELECT * FROM User WHERE name = $1`, name)
 	if err != nil {
 		return nil, err
 	}
 
-	userList = append(userList, newUser)
+	if !row.Next() {
+		return nil, fmt.Errorf("User not found")
+	}
 
-	return userList, nil
+	newUser, err := scanIntoUser(row)
+	if err != nil {
+		return nil, err
+	}
+
+	newUser.LeagueOfLegends = s.GetLeagueOfLegendsUserById(newUser.Id)
+
+	log.Println("SQLite get user by name successful")
+
+	return newUser, nil
 }
 
 /* =================== Storage league handlers =================== */
 
-func (s *SQLiteStorage) GetLeagueOfLegendsUserById(id int) (*LeagueOfLegends, error) {
-	userLolQuery := `SELECT main_role, second_role, champ_0, champ_1, champ_2  FROM UserLeagueOfLegends WHERE user_id =` + string(id)
-	AccLolQuery := `SELECT name  FROM AccountLeagueOfLegends WHERE user_id =` + string(id)
-
-	row, err := s.db.Query(userLolQuery)
+func (s *SQLiteStorage) GetLeagueOfLegendsUserById(id int) *LeagueOfLegends {
+	var leagueOfLegends *LeagueOfLegends
+	row, err := s.db.Query(`SELECT main_role, second_role, champ_0, champ_1, champ_2  FROM UserLeagueOfLegends WHERE user_id = $1`, id)
 	if err != nil {
-		return nil, err
+		return leagueOfLegends
 	}
 
 	lol, err := scanIntoLeagueOfLegends(row)
 	if err != nil {
-		return nil, err
+		return leagueOfLegends
 	}
 
-	row, err = s.db.Query(AccLolQuery)
+	leagueOfLegends = lol
+
+	row, err = s.db.Query(`SELECT name FROM AccountLeagueOfLegends WHERE user_id = $1`, id)
 	if err != nil {
-		return nil, err
+		return leagueOfLegends
 	}
 
 	for row.Next() {
 		var name string
 		if err := row.Scan(&name); err != nil {
-			return nil, err
+			return leagueOfLegends
 		}
-		lol.Accounts = append(lol.Accounts, name)
+		leagueOfLegends.Accounts = append(leagueOfLegends.Accounts, name)
 	}
 
-	return lol, nil
+	log.Println("SQLite get league of legends user by id successful")
+
+	return leagueOfLegends
 }
 
 /* =================== Storage team handlers =================== */

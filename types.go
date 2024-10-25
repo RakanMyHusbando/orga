@@ -4,7 +4,7 @@ import "database/sql"
 
 /* =================== request struct =================== */
 
-type CreateUserRequest struct {
+type CreateUser struct {
 	Name      string `json:"name"`
 	DiscordID string `json:"discord_id"`
 }

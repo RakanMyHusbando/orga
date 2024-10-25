@@ -56,6 +56,19 @@ func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 	}
 }
 
+func GetId(r *http.Request) (int, error) {
+	var intId int
+	if strId := mux.Vars(r)["id"]; strId != "" {
+		res, err := strconv.Atoi(strId)
+		if err != nil {
+			return intId, err
+		}
+		intId = res
+		return intId, nil
+	}
+	return intId, nil
+}
+
 /* =================== API User Handlers =================== */
 
 func (s *APIServer) handleUser(w http.ResponseWriter, r *http.Request) error {
@@ -92,43 +105,66 @@ func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error 
 }
 
 func (s *APIServer) handleGetUserById(w http.ResponseWriter, r *http.Request) error {
-	stringId := mux.Vars(r)["id"]
-	if stringId == "" {
-		return fmt.Errorf("id is required")
-	}
-
-	intId, err := strconv.Atoi(stringId)
+	id, err := GetId(r)
 	if err != nil {
 		return err
 	}
 
-	userList, err := s.store.GetUserById(intId)
+	user, err := s.store.GetUserById(id)
 	if err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, userList)
+	return WriteJSON(w, http.StatusOK, user)
 }
 
 func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) error {
-	createUserReq := new(CreateUserRequest)
-	if err := json.NewDecoder(r.Body).Decode(&createUserReq); err != nil {
+	createUser := new(CreateUser)
+	if err := json.NewDecoder(r.Body).Decode(&createUser); err != nil {
 		return err
 	}
 
-	if err := s.store.CreateUser(NewUser(createUserReq.Name, createUserReq.DiscordID)); err != nil {
+	if err := s.store.CreateUser(createUser); err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, createUserReq)
+	user, err := s.store.GetUserByName(createUser.Name)
+	if err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, user)
 }
 
 func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) error {
-	return nil
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+
+	user, err := s.store.GetUserById(id)
+	if err != nil {
+		return err
+	}
+
+	if err := s.store.DeletUser(id); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, user)
 }
 
 func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) error {
-	return nil
+	user := new(User)
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		return err
+	}
+
+	if err := s.store.UpdateUser(user); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, user)
 }
 
 /* =================== API team handlers =================== */
