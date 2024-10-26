@@ -33,8 +33,8 @@ func (s *APIServer) Run() {
 
 	router.HandleFunc("/user", makeHTTPHandleFunc(s.handleUser))
 	router.HandleFunc("/user/{id}", makeHTTPHandleFunc(s.handleUser))
-	router.HandleFunc("/user/{id}/league_of_legends", makeHTTPHandleFunc(s.handleUser))
-	router.HandleFunc("/user/{id}/game_account", makeHTTPHandleFunc(s.handleUser))
+	router.HandleFunc("/user/{id}/league_of_legends", makeHTTPHandleFunc(s.handleLeagueOfLegends))
+	router.HandleFunc("/user/{id}/game_account", makeHTTPHandleFunc(s.handleCreateGameAccount)).Methods("POST")
 
 	log.Println("API server running on ", s.listenAddr)
 
@@ -71,7 +71,7 @@ func GetId(r *http.Request) (int, error) {
 	return intId, nil
 }
 
-/* =================== API User Handlers =================== */
+/* =================== method handler user =================== */
 
 func (s *APIServer) handleUser(w http.ResponseWriter, r *http.Request) error {
 	var err error = fmt.Errorf("unsupported method: %s", r.Method)
@@ -97,6 +97,26 @@ func (s *APIServer) handleUser(w http.ResponseWriter, r *http.Request) error {
 	return err
 }
 
+/* =================== method handler league of legends =================== */
+
+func (s *APIServer) handleLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
+	var err error = fmt.Errorf("unsupported method: %s", r.Method)
+
+	switch r.Method {
+	case "POST":
+		err = s.handleCreateLeagueOfLegends(w, r)
+	case "PUT":
+		// TODO
+	case "DELETE":
+		// TODO
+	}
+
+	return err
+}
+
+/* =================== handleruser =================== */
+
+// POST
 func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) error {
 	createUser := new(CreateUser)
 	if err := json.NewDecoder(r.Body).Decode(&createUser); err != nil {
@@ -110,6 +130,7 @@ func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) err
 	return WriteJSON(w, http.StatusOK, createUser)
 }
 
+// GET
 func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error {
 	userList, err := s.store.GetUser()
 	if err != nil {
@@ -119,6 +140,7 @@ func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error 
 	return WriteJSON(w, http.StatusOK, userList)
 }
 
+// GET
 func (s *APIServer) handleGetUserById(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
@@ -133,6 +155,7 @@ func (s *APIServer) handleGetUserById(w http.ResponseWriter, r *http.Request) er
 	return WriteJSON(w, http.StatusOK, user)
 }
 
+// DELETE
 func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
@@ -146,6 +169,7 @@ func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) err
 	return WriteJSON(w, http.StatusOK, "User deleted")
 }
 
+// PUT
 func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) error {
 	user := new(User)
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
@@ -159,6 +183,37 @@ func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) err
 	return WriteJSON(w, http.StatusOK, user)
 }
 
-/* =================== API team handlers =================== */
+/* =================== handler league of legends =================== */
 
-// TODO
+// POST
+func (s *APIServer) handleCreateLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
+	createUserLol := new(CreateUserLeagueOfLegends)
+	if err := json.NewDecoder(r.Body).Decode(&createUserLol); err != nil {
+		return err
+	}
+
+	if err := s.store.CreateUserLeagueOfLegends(createUserLol); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, createUserLol)
+}
+
+/* =================== handler game account =================== */
+
+func (s *APIServer) handleCreateGameAccount(w http.ResponseWriter, r *http.Request) error {
+	createGameAccount := new(CreateGameAccount)
+	if err := json.NewDecoder(r.Body).Decode(&createGameAccount); err != nil {
+		return err
+	}
+
+	if err := s.store.CreateGameAccount(createGameAccount); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, createGameAccount)
+}
+
+/* =================== handler team =================== */
+
+/* =================== handler guide =================== */

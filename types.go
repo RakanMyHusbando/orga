@@ -9,8 +9,9 @@ type CreateUser struct {
 	DiscordID string `json:"discord_id"`
 }
 
-type CreateAccountLeagueOfLegends struct {
+type CreateGameAccount struct {
 	UserId int    `json:"user_id"`
+	Game   string `json:"game"`
 	Name   string `json:"name"`
 }
 
@@ -31,10 +32,10 @@ type User struct {
 }
 
 type LeagueOfLegends struct {
-	MainRole   string    `json:"main_role"`
-	SecondRole string    `json:"second_role"`
-	MainChamps []string  `json:"main_champs"`
-	Accounts   []*string `json:"accounts"`
+	MainRole   string   `json:"main_role"`
+	SecondRole string   `json:"second_role"`
+	MainChamps []string `json:"main_champs"`
+	Accounts   []string `json:"accounts"`
 }
 
 /* =================== Constructor =================== */
