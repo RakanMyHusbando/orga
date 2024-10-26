@@ -31,25 +31,10 @@ func NewAPIServer(listenAddr string, store Storage) *APIServer {
 func (s *APIServer) Run() {
 	router := mux.NewRouter()
 
-	router.HandleFunc(
-		"/user",
-		makeHTTPHandleFunc(s.handleUser),
-	).Methods("GET", "POST", "PUT", "DELETE")
-
-	router.HandleFunc(
-		"/user/{id}",
-		makeHTTPHandleFunc(s.handleUser),
-	).Methods("GET", "POST", "PUT", "DELETE")
-
-	router.HandleFunc(
-		"/user/{id}/league_of_legends",
-		makeHTTPHandleFunc(s.handleLeagueOfLegends),
-	).Methods("POST", "PUT", "DELETE")
-
-	router.HandleFunc(
-		"/user/{id}/game_account",
-		makeHTTPHandleFunc(s.handleCreateGameAccount),
-	).Methods("POST", "PUT", "DELETE")
+	router.HandleFunc("/user", makeHTTPHandleFunc(s.handleUser))
+	router.HandleFunc("/user/{id}", makeHTTPHandleFunc(s.handleUser))
+	router.HandleFunc("/user/{id}/league_of_legends", makeHTTPHandleFunc(s.handleLeagueOfLegends))
+	router.HandleFunc("/user/{id}/game_account", makeHTTPHandleFunc(s.handleGameAccount))
 
 	log.Println("API server running on ", s.listenAddr)
 
@@ -89,42 +74,47 @@ func GetId(r *http.Request) (int, error) {
 /* ============================== method handler ============================== */
 
 func (s *APIServer) handleUser(w http.ResponseWriter, r *http.Request) error {
-	var err error = fmt.Errorf("unsupported method: %s", r.Method)
-	id := mux.Vars(r)["id"]
-
 	switch r.Method {
-	case "POST":
-		err = s.handleCreateUser(w, r)
 	case "GET":
-		if id != "" {
-			err = s.handleGetUserById(w, r)
-		} else {
-			err = s.handleGetUser(w, r)
+		if mux.Vars(r)["id"] != "" {
+			return s.handleGetUserById(w, r)
 		}
-	case "DELETE":
-		if id != "" {
-			err = s.handleDeleteUser(w, r)
-		}
+		return s.handleGetUser(w, r)
+	case "POST":
+		return s.handleCreateUser(w, r)
 	case "PUT":
-		err = s.handleUpdateUser(w, r)
+		return s.handleUpdateUser(w, r)
+	case "DELETE":
+		return s.handleDeleteUser(w, r)
+	default:
+		return fmt.Errorf("unsupported method: %s", r.Method)
 	}
-
-	return err
 }
 
 func (s *APIServer) handleLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
-	var err error = fmt.Errorf("unsupported method: %s", r.Method)
-
 	switch r.Method {
 	case "POST":
-		err = s.handleCreateLeagueOfLegends(w, r)
+		return s.handleCreateLeagueOfLegends(w, r)
 	case "DELETE":
-		err = s.handleDeleteGameAccount(w, r)
+		return s.handleDeleteGameAccount(w, r)
 	case "PUT":
-		err = s.handleUpdateGameAccount(w, r)
+		return s.handleUpdateGameAccount(w, r)
+	default:
+		return fmt.Errorf("unsupported method: %s", r.Method)
 	}
+}
 
-	return err
+func (s *APIServer) handleGameAccount(w http.ResponseWriter, r *http.Request) error {
+	switch r.Method {
+	case "POST":
+		return s.handleCreateGameAccount(w, r)
+	case "DELETE":
+		return s.handleDeleteGameAccount(w, r)
+	case "PUT":
+		return s.handleUpdateGameAccount(w, r)
+	default:
+		return fmt.Errorf("unsupported method: %s", r.Method)
+	}
 }
 
 /* ------------------------------ handler user ------------------------------ */
@@ -179,21 +169,28 @@ func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, "User deleted")
+	return WriteJSON(w, http.StatusOK, "'user' deleted")
 }
 
 // PUT
 func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) error {
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+
 	user := new(User)
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		return err
 	}
 
+	user.Id = id
+
 	if err := s.store.UpdateUser(user); err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, user)
+	return WriteJSON(w, http.StatusOK, "'user' updated")
 }
 
 /* ------------------------------ handler league of legends ------------------------------ */
@@ -228,8 +225,23 @@ func (s *APIServer) handleDeleteLeagueOfLegends(w http.ResponseWriter, r *http.R
 
 // PUT
 func (s *APIServer) handleUpdateLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
-	// TODO
-	return nil
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+
+	userLol := new(ReqUserLeagueOfLegends)
+	if err := json.NewDecoder(r.Body).Decode(&userLol); err != nil {
+		return err
+	}
+
+	userLol.Id = id
+
+	if err := s.store.UpdateUserLeagueOfLegends(userLol); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, "'league_of_legends' updated for user.")
 }
 
 /* ------------------------------ handler game account ------------------------------ */
