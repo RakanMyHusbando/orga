@@ -33,6 +33,8 @@ func (s *APIServer) Run() {
 
 	router.HandleFunc("/user", makeHTTPHandleFunc(s.handleUser))
 	router.HandleFunc("/user/{id}", makeHTTPHandleFunc(s.handleUser))
+	router.HandleFunc("/user/{id}/league_of_legends", makeHTTPHandleFunc(s.handleUser))
+	router.HandleFunc("/user/{id}/game_account", makeHTTPHandleFunc(s.handleUser))
 
 	log.Println("API server running on ", s.listenAddr)
 
