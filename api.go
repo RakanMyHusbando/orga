@@ -31,10 +31,25 @@ func NewAPIServer(listenAddr string, store Storage) *APIServer {
 func (s *APIServer) Run() {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/user", makeHTTPHandleFunc(s.handleUser))
-	router.HandleFunc("/user/{id}", makeHTTPHandleFunc(s.handleUser))
-	router.HandleFunc("/user/{id}/league_of_legends", makeHTTPHandleFunc(s.handleLeagueOfLegends))
-	router.HandleFunc("/user/{id}/game_account", makeHTTPHandleFunc(s.handleCreateGameAccount)).Methods("POST")
+	router.HandleFunc(
+		"/user",
+		makeHTTPHandleFunc(s.handleUser),
+	).Methods("GET", "POST", "PUT", "DELETE")
+
+	router.HandleFunc(
+		"/user/{id}",
+		makeHTTPHandleFunc(s.handleUser),
+	).Methods("GET", "POST", "PUT", "DELETE")
+
+	router.HandleFunc(
+		"/user/{id}/league_of_legends",
+		makeHTTPHandleFunc(s.handleLeagueOfLegends),
+	).Methods("POST", "PUT", "DELETE")
+
+	router.HandleFunc(
+		"/user/{id}/game_account",
+		makeHTTPHandleFunc(s.handleCreateGameAccount),
+	).Methods("POST", "PUT", "DELETE")
 
 	log.Println("API server running on ", s.listenAddr)
 
@@ -71,7 +86,7 @@ func GetId(r *http.Request) (int, error) {
 	return intId, nil
 }
 
-/* =================== method handler user =================== */
+/* ============================== method handler ============================== */
 
 func (s *APIServer) handleUser(w http.ResponseWriter, r *http.Request) error {
 	var err error = fmt.Errorf("unsupported method: %s", r.Method)
@@ -97,28 +112,26 @@ func (s *APIServer) handleUser(w http.ResponseWriter, r *http.Request) error {
 	return err
 }
 
-/* =================== method handler league of legends =================== */
-
 func (s *APIServer) handleLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
 	var err error = fmt.Errorf("unsupported method: %s", r.Method)
 
 	switch r.Method {
 	case "POST":
 		err = s.handleCreateLeagueOfLegends(w, r)
-	case "PUT":
-		// TODO
 	case "DELETE":
-		// TODO
+		err = s.handleDeleteGameAccount(w, r)
+	case "PUT":
+		err = s.handleUpdateGameAccount(w, r)
 	}
 
 	return err
 }
 
-/* =================== handleruser =================== */
+/* ------------------------------ handler user ------------------------------ */
 
 // POST
 func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) error {
-	createUser := new(CreateUser)
+	createUser := new(ReqUser)
 	if err := json.NewDecoder(r.Body).Decode(&createUser); err != nil {
 		return err
 	}
@@ -183,11 +196,11 @@ func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) err
 	return WriteJSON(w, http.StatusOK, user)
 }
 
-/* =================== handler league of legends =================== */
+/* ------------------------------ handler league of legends ------------------------------ */
 
 // POST
 func (s *APIServer) handleCreateLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
-	createUserLol := new(CreateUserLeagueOfLegends)
+	createUserLol := new(ReqUserLeagueOfLegends)
 	if err := json.NewDecoder(r.Body).Decode(&createUserLol); err != nil {
 		return err
 	}
@@ -199,10 +212,30 @@ func (s *APIServer) handleCreateLeagueOfLegends(w http.ResponseWriter, r *http.R
 	return WriteJSON(w, http.StatusOK, createUserLol)
 }
 
-/* =================== handler game account =================== */
+// DELETE
+func (s *APIServer) handleDeleteLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+
+	if err := s.store.DeleteUserLeagueOfLegends(id); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, "'league_of_legends' deleted from user.")
+}
+
+// PUT
+func (s *APIServer) handleUpdateLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
+	// TODO
+	return nil
+}
+
+/* ------------------------------ handler game account ------------------------------ */
 
 func (s *APIServer) handleCreateGameAccount(w http.ResponseWriter, r *http.Request) error {
-	createGameAccount := new(CreateGameAccount)
+	createGameAccount := new(ReqGameAccount)
 	if err := json.NewDecoder(r.Body).Decode(&createGameAccount); err != nil {
 		return err
 	}
@@ -214,6 +247,16 @@ func (s *APIServer) handleCreateGameAccount(w http.ResponseWriter, r *http.Reque
 	return WriteJSON(w, http.StatusOK, createGameAccount)
 }
 
-/* =================== handler team =================== */
+func (s *APIServer) handleDeleteGameAccount(w http.ResponseWriter, r *http.Request) error {
+	// TODO
+	return nil
+}
 
-/* =================== handler guide =================== */
+func (s *APIServer) handleUpdateGameAccount(w http.ResponseWriter, r *http.Request) error {
+	// TODO
+	return nil
+}
+
+/* ------------------------------ handler team ------------------------------ */
+
+/* ------------------------------ handler guide ------------------------------ */
