@@ -50,42 +50,6 @@ func NewSQLiteStorage(dbFile string) (*SQLiteStorage, error) {
 
 /* =================== Storage user handlers =================== */
 
-func (s *SQLiteStorage) CreateUser(user *CreateUser) error {
-	prep, err := s.db.Prepare(`INSERT INTO User (name, discord_id) VALUES (?, ?)`)
-	if err != nil {
-		return err
-	}
-	_, err = prep.Exec(user.Name, user.DiscordID)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s *SQLiteStorage) DeletUser(id int) error {
-	prep, err := s.db.Prepare(`DELETE FROM User WHERE id = ?`)
-	if err != nil {
-		return err
-	}
-	if _, err = prep.Exec(id); err != nil {
-		return err
-	}
-	log.Println("SQLite delete user successful")
-	return nil
-}
-
-func (s *SQLiteStorage) UpdateUser(user *User) error {
-	prep, err := s.db.Prepare(`UPDATE User SET name = ?, discord_id = ? WHERE id = ?`)
-	if err != nil {
-		return err
-	}
-	if _, err = prep.Exec(user.Name, user.DiscordID, user.Id); err != nil {
-		return err
-	}
-	log.Println("SQLite update user successful")
-	return nil
-}
-
 func (s *SQLiteStorage) GetUser() ([]*User, error) {
 	row, err := s.db.Query(`SELECT * FROM User`)
 	if err != nil {
@@ -103,20 +67,19 @@ func (s *SQLiteStorage) GetUser() ([]*User, error) {
 		if err == nil {
 			newUser.LeagueOfLegends = lolUser
 		} else {
-			log.Println("League of Legends user not found")
+			log.Println(err)
 		}
 
 		userList = append(userList, newUser)
 	}
-	defer row.Close()
 
-	log.Println("SQLite get user successful")
+	log.Println("Storage: get user successful")
 
 	return userList, nil
 }
 
 func (s *SQLiteStorage) GetUserById(id int) (*User, error) {
-	row, err := s.db.Query(`SELECT * FROM User WHERE id = $1`, id)
+	row, err := s.db.Query(`SELECT * FROM User WHERE id = ?`, id)
 	if err != nil {
 		return nil, err
 	}
@@ -134,34 +97,69 @@ func (s *SQLiteStorage) GetUserById(id int) (*User, error) {
 	if err == nil {
 		newUser.LeagueOfLegends = lolUser
 	} else {
-		log.Println("League of Legends user not found")
+		log.Println(err)
 	}
 
-	log.Println("SQLite get user by id successful")
+	log.Println("Storage: get user by id successful")
 
 	return newUser, nil
+}
+
+func (s *SQLiteStorage) CreateUser(user *CreateUser) error {
+	prep, err := s.db.Prepare(`INSERT INTO User (name, discord_id) VALUES (?, ?)`)
+	if err != nil {
+		return err
+	}
+	_, err = prep.Exec(user.Name, user.DiscordID)
+	if err != nil {
+		return err
+	}
+	log.Println("Storage: create user successful")
+	return nil
+}
+
+func (s *SQLiteStorage) DeletUser(id int) error {
+	prep, err := s.db.Prepare(`DELETE FROM User WHERE id = ?`)
+	if err != nil {
+		return err
+	}
+	if _, err = prep.Exec(id); err != nil {
+		return err
+	}
+	log.Println("Storage: delete user successful")
+	return nil
+}
+
+func (s *SQLiteStorage) UpdateUser(user *User) error {
+	prep, err := s.db.Prepare(`UPDATE User SET name = ?, discord_id = ? WHERE id = ?`)
+	if err != nil {
+		return err
+	}
+	if _, err = prep.Exec(user.Name, user.DiscordID, user.Id); err != nil {
+		return err
+	}
+	log.Println("Storage: update user successful")
+	return nil
 }
 
 /* =================== Storage league_of_legends handlers =================== */
 
 func (s *SQLiteStorage) GetLeagueOfLegendsUserById(id int) (*LeagueOfLegends, error) {
-	row, err := s.db.Query(`SELECT main_role, second_role, champ_0, champ_1, champ_2  FROM UserLeagueOfLegends WHERE user_id = $1`, id)
+	row, err := s.db.Query(`SELECT main_role, second_role, champ_0, champ_1, champ_2  FROM UserLeagueOfLegends WHERE user_id = ?`, id)
 	if err != nil {
 		return nil, err
 	}
 
 	if !row.Next() {
-		return nil, fmt.Errorf("User not found")
+		return nil, fmt.Errorf("Storage: no league of legends user found")
 	}
-
-	log.Println(row.Scan())
 
 	lol, err := scanIntoLeagueOfLegends(row)
 	if err != nil {
 		return nil, err
 	}
 
-	row, err = s.db.Query(`SELECT name  FROM AccountLeagueOfLegends WHERE user_id = $1`, id)
+	row, err = s.db.Query(`SELECT name  FROM AccountLeagueOfLegends WHERE user_id = ?`, id)
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +172,7 @@ func (s *SQLiteStorage) GetLeagueOfLegendsUserById(id int) (*LeagueOfLegends, er
 		lol.Accounts = append(lol.Accounts, name)
 	}
 
-	log.Println("SQLite get league of legends user by id successful")
+	log.Println("Storage: get league of legends user by id successful")
 
 	return lol, nil
 }

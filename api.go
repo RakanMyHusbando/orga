@@ -13,7 +13,7 @@ import (
 type apiFunc func(http.ResponseWriter, *http.Request) error
 
 type ApiError struct {
-	Error string
+	Error string `json:"error"`
 }
 
 type APIServer struct {
