@@ -135,12 +135,12 @@ func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) err
 
 // GET
 func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error {
-	userList, err := s.store.GetUser()
+	test, err := s.store.GetUserLeagueOfLegendsById(0)
 	if err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, userList)
+	return WriteJSON(w, http.StatusOK, test)
 }
 
 // GET

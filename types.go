@@ -36,6 +36,14 @@ type LeagueOfLegends struct {
 	Accounts   []string `json:"accounts"`
 }
 
+/* ------------------------------ helper struct ------------------------------ */
+
+type mainChamps struct {
+	champ_0 string
+	champ_1 string
+	champ_2 string
+}
+
 /* ------------------------------ constructor ------------------------------ */
 
 func NewUser(name string, discordId string) *User {

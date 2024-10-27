@@ -68,11 +68,14 @@ func (s *SQLiteStorage) CreateUser(user *ReqUser) error {
 	if err != nil {
 		return err
 	}
+
 	_, err = prep.Exec(user.Name, user.DiscordID)
 	if err != nil {
 		return err
 	}
+
 	log.Println("Storage: create user successful")
+
 	return nil
 }
 
@@ -90,12 +93,14 @@ func (s *SQLiteStorage) GetUser() ([]*User, error) {
 		if err := rows.Scan(&user.Id, &user.Name, &user.DiscordID); err != nil {
 			return nil, err
 		}
+
 		lolUser, err := s.GetUserLeagueOfLegendsById(user.Id)
 		if err == nil {
 			user.LeagueOfLegends = lolUser
 		} else {
 			log.Println(err)
 		}
+
 		userList = append(userList, user)
 	}
 
@@ -180,22 +185,32 @@ func (s *SQLiteStorage) CreateUserLeagueOfLegends(user *ReqUserLeagueOfLegends) 
 
 // GET
 func (s *SQLiteStorage) GetUserLeagueOfLegendsById(userId int) (*LeagueOfLegends, error) {
-	row := s.db.QueryRow(`SELECT main_role, second_role, champ_0, champ_1, champ_2  FROM UserLeagueOfLegends WHERE user_id = ?`, userId)
+	row := s.db.QueryRow(`SELECT main_role, second_role, champ_0, champ_1, champ_2 FROM UserLeagueOfLegends WHERE user_id = ?`, userId)
 
 	userLol := new(LeagueOfLegends)
-	if err := row.Scan(&userLol.MainRole, &userLol.SecondRole, &userLol.MainChamps[0], &userLol.MainChamps[1], &userLol.MainChamps[2]); err != nil {
+	mainChamps := []string{"", "", ""}
+
+	if err := row.Scan(&userLol.MainRole, &userLol.SecondRole, &mainChamps[0], &mainChamps[1], &mainChamps[2]); err != nil {
+		fmt.Println(err)
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errors.New("league of legends user not found")
+			return nil, os.ErrNotExist
 		}
 		return nil, err
 	}
+
+	for i := range mainChamps {
+		if mainChamps[i] != "" {
+			userLol.MainChamps = append(userLol.MainChamps, mainChamps[i])
+		}
+	}
+
+	log.Println("Storage: get league of legends user successful")
 
 	accounts, err := s.GetGameAccountByUserId(userId)
 	if err != nil {
 		log.Println(err)
 		return userLol, nil
 	}
-
 	userLol.Accounts = accounts
 
 	return userLol, nil
@@ -260,8 +275,7 @@ func (s *SQLiteStorage) GetGameAccountByUserId(userId int) ([]string, error) {
 	}
 	defer rows.Close()
 
-	var accounts []string
-
+	accounts := []string{}
 	for rows.Next() {
 		var account string
 		if err := rows.Scan(&account); err != nil {
