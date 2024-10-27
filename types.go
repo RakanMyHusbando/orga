@@ -1,7 +1,5 @@
 package main
 
-import "database/sql"
-
 /* ------------------------------ request struct ------------------------------ */
 
 type ReqUser struct {
@@ -54,32 +52,4 @@ func NewLeagueOfLegends(mainRole string, secondRole string, mainChamps []string,
 		MainChamps: mainChamps,
 		Accounts:   accounts,
 	}
-}
-
-/* ------------------------------ scan into ------------------------------ */
-
-func scanIntoUser(row *sql.Rows) (*User, error) {
-	res := new(User)
-	if err := row.Scan(
-		&res.Id,
-		&res.Name,
-		&res.DiscordID,
-	); err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-func scanIntoLeagueOfLegends(row *sql.Rows) (*LeagueOfLegends, error) {
-	res := new(LeagueOfLegends)
-	if err := row.Scan(
-		&res.MainRole,
-		&res.SecondRole,
-		&res.MainChamps[0],
-		&res.MainChamps[1],
-		&res.MainChamps[2],
-	); err != nil {
-		return nil, err
-	}
-	return res, nil
 }

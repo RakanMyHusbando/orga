@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -77,26 +78,25 @@ func (s *SQLiteStorage) CreateUser(user *ReqUser) error {
 
 // GET
 func (s *SQLiteStorage) GetUser() ([]*User, error) {
-	row, err := s.db.Query(`SELECT * FROM User`)
+	rows, err := s.db.Query(`SELECT * FROM User`)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	userList := []*User{}
-	for row.Next() {
-		newUser, err := scanIntoUser(row)
-		if err != nil {
+	for rows.Next() {
+		user := new(User)
+		if err := rows.Scan(&user.Id, &user.Name, &user.DiscordID); err != nil {
 			return nil, err
 		}
-
-		lolUser, err := s.GetUserLeagueOfLegendsById(newUser.Id)
+		lolUser, err := s.GetUserLeagueOfLegendsById(user.Id)
 		if err == nil {
-			newUser.LeagueOfLegends = lolUser
+			user.LeagueOfLegends = lolUser
 		} else {
 			log.Println(err)
 		}
-
-		userList = append(userList, newUser)
+		userList = append(userList, user)
 	}
 
 	log.Println("Storage: get user successful")
@@ -106,30 +106,26 @@ func (s *SQLiteStorage) GetUser() ([]*User, error) {
 
 // GET
 func (s *SQLiteStorage) GetUserById(id int) (*User, error) {
-	row, err := s.db.Query(`SELECT * FROM User WHERE id = ?`, id)
-	if err != nil {
+	row := s.db.QueryRow(`SELECT * FROM User WHERE id = ?`, id)
+
+	user := new(User)
+	if err := row.Scan(&user.Id, &user.Name, &user.DiscordID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("user not found")
+		}
 		return nil, err
 	}
 
-	if !row.Next() {
-		return nil, fmt.Errorf("User not found")
-	}
-
-	newUser, err := scanIntoUser(row)
-	if err != nil {
-		return nil, err
-	}
-
-	lolUser, err := s.GetUserLeagueOfLegendsById(newUser.Id)
+	lolUser, err := s.GetUserLeagueOfLegendsById(user.Id)
 	if err == nil {
-		newUser.LeagueOfLegends = lolUser
+		user.LeagueOfLegends = lolUser
 	} else {
 		log.Println(err)
 	}
 
 	log.Println("Storage: get user by id successful")
 
-	return newUser, nil
+	return user, nil
 }
 
 // DELETE
@@ -138,10 +134,13 @@ func (s *SQLiteStorage) DeletUser(id int) error {
 	if err != nil {
 		return err
 	}
+
 	if _, err = prep.Exec(id); err != nil {
 		return err
 	}
+
 	log.Println("Storage: delete user successful")
+
 	return nil
 }
 
@@ -151,10 +150,13 @@ func (s *SQLiteStorage) UpdateUser(user *User) error {
 	if err != nil {
 		return err
 	}
+
 	if _, err = prep.Exec(user.Name, user.DiscordID, user.Id); err != nil {
 		return err
 	}
+
 	log.Println("Storage: update user successful")
+
 	return nil
 }
 
@@ -178,29 +180,25 @@ func (s *SQLiteStorage) CreateUserLeagueOfLegends(user *ReqUserLeagueOfLegends) 
 
 // GET
 func (s *SQLiteStorage) GetUserLeagueOfLegendsById(userId int) (*LeagueOfLegends, error) {
-	row, err := s.db.Query(`SELECT main_role, second_role, champ_0, champ_1, champ_2  FROM UserLeagueOfLegends WHERE user_id = ?`, userId)
-	if err != nil {
-		return nil, err
-	}
+	row := s.db.QueryRow(`SELECT main_role, second_role, champ_0, champ_1, champ_2  FROM UserLeagueOfLegends WHERE user_id = ?`, userId)
 
-	if !row.Next() {
-		return nil, fmt.Errorf("Storage: league of legends user with id %v not found", userId)
-	}
-
-	user, err := scanIntoLeagueOfLegends(row)
-	if err != nil {
+	userLol := new(LeagueOfLegends)
+	if err := row.Scan(&userLol.MainRole, &userLol.SecondRole, &userLol.MainChamps[0], &userLol.MainChamps[1], &userLol.MainChamps[2]); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("league of legends user not found")
+		}
 		return nil, err
 	}
 
 	accounts, err := s.GetGameAccountByUserId(userId)
 	if err != nil {
 		log.Println(err)
-		return user, nil
+		return userLol, nil
 	}
 
-	user.Accounts = accounts
+	userLol.Accounts = accounts
 
-	return user, nil
+	return userLol, nil
 }
 
 // DELETE
@@ -256,21 +254,21 @@ func (s *SQLiteStorage) CreateGameAccount(account *ReqGameAccount) error {
 
 // GET
 func (s *SQLiteStorage) GetGameAccountByUserId(userId int) ([]string, error) {
-	row, err := s.db.Query(`SELECT name FROM GameAccount WHERE user_id = ?`, userId)
+	rows, err := s.db.Query(`SELECT name FROM GameAccount WHERE user_id = ?`, userId)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	var accounts []string
-	for row.Next() {
+
+	for rows.Next() {
 		var account string
-		if err = row.Scan(&account); err != nil {
+		if err := rows.Scan(&account); err != nil {
 			return nil, err
 		}
 		accounts = append(accounts, account)
 	}
-
-	log.Println("Storage: get league of legends account successful")
 
 	return accounts, nil
 }
