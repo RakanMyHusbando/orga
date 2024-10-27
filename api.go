@@ -121,16 +121,16 @@ func (s *APIServer) handleGameAccount(w http.ResponseWriter, r *http.Request) er
 
 // POST
 func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) error {
-	createUser := new(ReqUser)
-	if err := json.NewDecoder(r.Body).Decode(&createUser); err != nil {
+	reqUser := new(ReqUser)
+	if err := json.NewDecoder(r.Body).Decode(&reqUser); err != nil {
 		return err
 	}
 
-	if err := s.store.CreateUser(createUser); err != nil {
+	if err := s.store.CreateUser(reqUser); err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, createUser)
+	return WriteJSON(w, http.StatusOK, "'user' created")
 }
 
 // GET
@@ -190,23 +190,23 @@ func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, "'user' updated")
+	return WriteJSON(w, http.StatusOK, user)
 }
 
 /* ------------------------------ handler league of legends ------------------------------ */
 
 // POST
 func (s *APIServer) handleCreateLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
-	createUserLol := new(ReqUserLeagueOfLegends)
-	if err := json.NewDecoder(r.Body).Decode(&createUserLol); err != nil {
+	reqUserLol := new(ReqUserLeagueOfLegends)
+	if err := json.NewDecoder(r.Body).Decode(&reqUserLol); err != nil {
 		return err
 	}
 
-	if err := s.store.CreateUserLeagueOfLegends(createUserLol); err != nil {
+	if err := s.store.CreateUserLeagueOfLegends(reqUserLol); err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, createUserLol)
+	return WriteJSON(w, http.StatusOK, reqUserLol)
 }
 
 // DELETE
@@ -230,18 +230,18 @@ func (s *APIServer) handleUpdateLeagueOfLegends(w http.ResponseWriter, r *http.R
 		return err
 	}
 
-	userLol := new(ReqUserLeagueOfLegends)
-	if err := json.NewDecoder(r.Body).Decode(&userLol); err != nil {
+	reqUserLol := new(ReqUserLeagueOfLegends)
+	if err := json.NewDecoder(r.Body).Decode(&reqUserLol); err != nil {
 		return err
 	}
 
-	userLol.Id = id
+	reqUserLol.Id = id
 
-	if err := s.store.UpdateUserLeagueOfLegends(userLol); err != nil {
+	if err := s.store.UpdateUserLeagueOfLegends(reqUserLol); err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, "'league_of_legends' updated for user.")
+	return WriteJSON(w, http.StatusOK, reqUserLol)
 }
 
 /* ------------------------------ handler game account ------------------------------ */
@@ -260,13 +260,36 @@ func (s *APIServer) handleCreateGameAccount(w http.ResponseWriter, r *http.Reque
 }
 
 func (s *APIServer) handleDeleteGameAccount(w http.ResponseWriter, r *http.Request) error {
-	// TODO
-	return nil
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+
+	if err := s.store.DeleteGameAccount(id); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, "'game_account' deleted from user.")
 }
 
 func (s *APIServer) handleUpdateGameAccount(w http.ResponseWriter, r *http.Request) error {
-	// TODO
-	return nil
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+
+	createGameAccount := new(ReqGameAccount)
+	if err := json.NewDecoder(r.Body).Decode(&createGameAccount); err != nil {
+		return err
+	}
+
+	createGameAccount.UserId = id
+
+	if err := s.store.UpdateGameAccount(createGameAccount); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, createGameAccount)
 }
 
 /* ------------------------------ handler team ------------------------------ */

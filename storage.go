@@ -24,7 +24,7 @@ type Storage interface {
 	UpdateUserLeagueOfLegends(*ReqUserLeagueOfLegends) error
 	// handlergame account
 	CreateGameAccount(*ReqGameAccount) error
-	GetGameAccountsUserId(int) ([]string, error)
+	GetGameAccountByUserId(int) ([]string, error)
 	DeleteGameAccount(int) error
 	UpdateGameAccount(*ReqGameAccount) error
 }
@@ -162,29 +162,12 @@ func (s *SQLiteStorage) UpdateUser(user *User) error {
 
 // POST
 func (s *SQLiteStorage) CreateUserLeagueOfLegends(user *ReqUserLeagueOfLegends) error {
-	prep, err := s.db.Prepare(`
-		INSERT INTO UserLeagueOfLegends (
-			user_id, 
-			main_role, 
-			second_role, 
-			champ_0, 
-			champ_1, 
-			champ_2
-		) VALUES (?, ?, ?, ?, ?, ?)
-	`)
+	prep, err := s.db.Prepare(`INSERT INTO UserLeagueOfLegends (user_id, main_role, second_role, champ_0, champ_1, champ_2) VALUES (?, ?, ?, ?, ?, ?)`)
 	if err != nil {
 		return err
 	}
 
-	_, err = prep.Exec(
-		user.Id,
-		user.MainRole,
-		user.SecondRole,
-		user.MainChamps[0],
-		user.MainChamps[1],
-		user.MainChamps[2],
-	)
-	if err != nil {
+	if _, err = prep.Exec(user.Id, user.MainRole, user.SecondRole, user.MainChamps[0], user.MainChamps[1], user.MainChamps[2]); err != nil {
 		return err
 	}
 
@@ -209,7 +192,7 @@ func (s *SQLiteStorage) GetUserLeagueOfLegendsById(userId int) (*LeagueOfLegends
 		return nil, err
 	}
 
-	accounts, err := s.GetGameAccountsUserId(userId)
+	accounts, err := s.GetGameAccountByUserId(userId)
 	if err != nil {
 		log.Println(err)
 		return user, nil
@@ -243,14 +226,7 @@ func (s *SQLiteStorage) UpdateUserLeagueOfLegends(user *ReqUserLeagueOfLegends) 
 		return err
 	}
 
-	if _, err = prep.Exec(
-		user.MainRole,
-		user.SecondRole,
-		user.MainChamps[0],
-		user.MainChamps[1],
-		user.MainChamps[2],
-		user.Id,
-	); err != nil {
+	if _, err = prep.Exec(user.MainRole, user.SecondRole, user.MainChamps[0], user.MainChamps[1], user.MainChamps[2], user.Id); err != nil {
 		return err
 	}
 
@@ -279,7 +255,7 @@ func (s *SQLiteStorage) CreateGameAccount(account *ReqGameAccount) error {
 }
 
 // GET
-func (s *SQLiteStorage) GetGameAccountsUserId(userId int) ([]string, error) {
+func (s *SQLiteStorage) GetGameAccountByUserId(userId int) ([]string, error) {
 	row, err := s.db.Query(`SELECT name FROM GameAccount WHERE user_id = ?`, userId)
 	if err != nil {
 		return nil, err
