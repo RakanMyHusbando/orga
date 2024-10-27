@@ -26,7 +26,7 @@ type Storage interface {
 	UpdateUserLeagueOfLegends(*ReqUserLeagueOfLegends) error
 	// handlergame account
 	CreateGameAccount(*ReqGameAccount) error
-	GetGameAccountByUserId(int) ([]string, error)
+	GetGameAccountByUserId(int, string) ([]string, error)
 	DeleteGameAccount(int) error
 	UpdateGameAccount(*ReqGameAccount) error
 }
@@ -218,7 +218,7 @@ func (s *SQLiteStorage) GetUserLeagueOfLegendsById(userId int) (*LeagueOfLegends
 
 	log.Println("Storage: get league of legends user successful")
 
-	accounts, err := s.GetGameAccountByUserId(userId)
+	accounts, err := s.GetGameAccountByUserId(userId, "league_of_legends")
 	if err != nil {
 		log.Println(err)
 		return userLol, nil
@@ -230,6 +230,7 @@ func (s *SQLiteStorage) GetUserLeagueOfLegendsById(userId int) (*LeagueOfLegends
 
 // DELETE
 func (s *SQLiteStorage) DeleteUserLeagueOfLegends(userId int) error {
+	log.Println(userId)
 	prep, err := s.db.Prepare(`DELETE FROM UserLeagueOfLegends WHERE user_id = ?`)
 	if err != nil {
 		return err
@@ -264,24 +265,24 @@ func (s *SQLiteStorage) UpdateUserLeagueOfLegends(user *ReqUserLeagueOfLegends) 
 
 // POST
 func (s *SQLiteStorage) CreateGameAccount(account *ReqGameAccount) error {
-	prep, err := s.db.Prepare(`INSERT INTO GameAccount (user_id,name) VALUES (?, ?)`)
+	prep, err := s.db.Prepare(`INSERT INTO GameAccount (user_id, game, name) VALUES (?, ?, ?)`)
 	if err != nil {
 		return err
 	}
 
-	_, err = prep.Exec(account.UserId, account.Name)
+	_, err = prep.Exec(account.UserId, account.Game, account.Name) // TODO
 	if err != nil {
 		return err
 	}
 
-	log.Println("Storage: create league of legends account successful")
+	log.Printf("Storage: create %v account successful", account.Game)
 
 	return nil
 }
 
 // GET
-func (s *SQLiteStorage) GetGameAccountByUserId(userId int) ([]string, error) {
-	rows, err := s.db.Query(`SELECT name FROM GameAccount WHERE user_id = ?`, userId)
+func (s *SQLiteStorage) GetGameAccountByUserId(userId int, game string) ([]string, error) {
+	rows, err := s.db.Query(`SELECT name FROM GameAccount WHERE user_id = ? AND game = ?`, userId, game)
 	if err != nil {
 		return nil, err
 	}

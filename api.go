@@ -96,9 +96,9 @@ func (s *APIServer) handleLeagueOfLegends(w http.ResponseWriter, r *http.Request
 	case "POST":
 		return s.handleCreateLeagueOfLegends(w, r)
 	case "DELETE":
-		return s.handleDeleteGameAccount(w, r)
+		return s.handleDeleteLeagueOfLegends(w, r)
 	case "PUT":
-		return s.handleUpdateGameAccount(w, r)
+		return s.handleUpdateLeagueOfLegends(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
 	}
@@ -254,10 +254,17 @@ func (s *APIServer) handleUpdateLeagueOfLegends(w http.ResponseWriter, r *http.R
 /* ------------------------------ handler game account ------------------------------ */
 
 func (s *APIServer) handleCreateGameAccount(w http.ResponseWriter, r *http.Request) error {
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+
 	createGameAccount := new(ReqGameAccount)
 	if err := json.NewDecoder(r.Body).Decode(&createGameAccount); err != nil {
 		return err
 	}
+
+	createGameAccount.UserId = id
 
 	if err := s.store.CreateGameAccount(createGameAccount); err != nil {
 		return err
