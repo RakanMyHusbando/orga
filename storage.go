@@ -171,24 +171,21 @@ func (s *SQLiteStorage) UpdateUser(user *User) error {
 // POST
 func (s *SQLiteStorage) CreateUserLeagueOfLegends(user *ReqUserLeagueOfLegends) error {
 	insertKeys := "user_id, main_role, second_role"
-	insertValues := "?, ?, ?"
+	insertValues := strconv.Itoa(user.Id) + ", '" + user.MainRole + "', '" + user.SecondRole + "'"
 
 	if user.MainChamps != nil {
 		for i := range user.MainChamps {
 			insertKeys += ", champ_" + strconv.Itoa(i)
-			insertValues += ", " + user.MainChamps[i]
+			insertValues += ", '" + user.MainChamps[i] + "'"
 		}
 	}
-
-	log.Println(insertKeys)
-	log.Println(insertValues)
 
 	prep, err := s.db.Prepare("INSERT INTO UserLeagueOfLegends (" + insertKeys + ") VALUES (" + insertValues + ")")
 	if err != nil {
 		return err
 	}
 
-	if _, err = prep.Exec(user.Id, user.MainRole, user.SecondRole); err != nil {
+	if _, err = prep.Exec(); err != nil {
 		return err
 	}
 
@@ -213,7 +210,6 @@ func (s *SQLiteStorage) GetUserLeagueOfLegendsById(userId int) (*LeagueOfLegends
 	}
 
 	userLol.MainChamps = []string{}
-
 	for i := range mainChamps {
 		if mainChamps[i] != "" {
 			userLol.MainChamps = append(userLol.MainChamps, mainChamps[i])
