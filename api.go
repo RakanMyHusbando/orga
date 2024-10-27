@@ -197,10 +197,17 @@ func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) err
 
 // POST
 func (s *APIServer) handleCreateLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+
 	reqUserLol := new(ReqUserLeagueOfLegends)
 	if err := json.NewDecoder(r.Body).Decode(&reqUserLol); err != nil {
 		return err
 	}
+
+	reqUserLol.Id = id
 
 	if err := s.store.CreateUserLeagueOfLegends(reqUserLol); err != nil {
 		return err
