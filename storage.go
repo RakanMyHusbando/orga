@@ -44,7 +44,7 @@ type Storage interface {
 	CreateGuildRole(*ReqGuildRole) error
 	GetGuildRoleById(int) (*ReqGuildRole, error)
 	DeleteGuildRole(int) error
-	UpdateGuildRole(*ReqGuildRole) error
+	UpdateGuildRole(*ReqUpdateGuildRole) error
 
 	// guild member
 	CreateGuildMember(*ReqGuildMember) error

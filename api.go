@@ -480,16 +480,16 @@ func (s *APIServer) handleDeleteGuildRole(w http.ResponseWriter, r *http.Request
 
 // PUT
 func (s *APIServer) handleUpdateGuildRole(w http.ResponseWriter, r *http.Request) error {
-	reqGuildRole := new(ReqGuildRole)
-	if err := json.NewDecoder(r.Body).Decode(&reqGuildRole); err != nil {
+	reqUpdateGuildRole := new(ReqUpdateGuildRole)
+	if err := json.NewDecoder(r.Body).Decode(&reqUpdateGuildRole); err != nil {
 		return err
 	}
 
-	if err := s.store.UpdateGuildRole(reqGuildRole); err != nil {
+	if err := s.store.UpdateGuildRole(reqUpdateGuildRole); err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, reqGuildRole)
+	return WriteJSON(w, http.StatusOK, reqUpdateGuildRole)
 }
 
 /* --------------------------------- handler guild member --------------------------------- */
