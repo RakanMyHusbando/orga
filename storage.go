@@ -40,7 +40,18 @@ type Storage interface {
 	DeleteGuild(int) error
 	UpdateGuild(*ResGuild) error
 
-	// guild user
+	// guild role
+	CreateGuildRole(*ReqGuildRole) error
+	GetGuildRoleById(int) (*ReqGuildRole, error)
+	DeleteGuildRole(int) error
+	UpdateGuildRole(*ReqGuildRole) error
+
+	// guild member
+	CreateGuildMember(*ReqGuildMember) error
+	GetGuildMemberByGuildId(int) ([]*ReqGuildMember, error)
+	GetGuildRoleNameMemberNameByGuildId(int) (map[string][]string, error)
+	DeleteGuildMember(int) error
+	UpdateGuildMember(*ReqGuildMember) error
 }
 
 type SQLiteStorage struct {
@@ -474,7 +485,7 @@ func (s *SQLiteStorage) GetGuild() ([]*ResGuild, error) {
 		); err != nil {
 			return nil, err
 		}
-		roleUserList, err := s.GetGuildRoleNameUserNameByGuildId(guild.Id)
+		roleUserList, err := s.GetGuildRoleNameMemberNameByGuildId(guild.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -502,7 +513,7 @@ func (s *SQLiteStorage) GetGuildById(id int) (*ResGuild, error) {
 		return nil, err
 	}
 
-	roleUserList, err := s.GetGuildRoleNameUserNameByGuildId(guild.Id)
+	roleUserList, err := s.GetGuildRoleNameMemberNameByGuildId(guild.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -596,7 +607,7 @@ func (s *SQLiteStorage) DeleteGuildRole(id int) error {
 }
 
 // PUT
-func (s *SQLiteStorage) UpdateGuildRole(guildRole *ReqGuildRole) error {
+func (s *SQLiteStorage) UpdateGuildRole(guildRole *ReqUpdateGuildRole) error {
 	prep, err := s.db.Prepare(`
 		UPDATE 
 			GuildRole 
@@ -604,24 +615,24 @@ func (s *SQLiteStorage) UpdateGuildRole(guildRole *ReqGuildRole) error {
 			name = ?, 
 			description = ? 
 		WHERE 
-			id = ?
+			name = ?
 	`)
 	if err != nil {
 		return err
 	}
 
-	if _, err = prep.Exec(guildRole.Name, guildRole.Description, guildRole.Id); err != nil {
+	if _, err = prep.Exec(guildRole.NameNew, guildRole.DescriptionNew, guildRole.NameOld); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-/* ------------------------------ guild user ------------------------------ */
+/* ------------------------------ guild member ------------------------------ */
 
 // POST
-func (s *SQLiteStorage) CreateGuildUser(guildUser *ReqGuildUser) error {
-	prep, err := s.db.Prepare(`INSERT INTO GuildMember (user_id, guild_id, role_id) VALUES (?, ?, ?)`)
+func (s *SQLiteStorage) CreateGuildMember(guildUser *ReqGuildMember) error {
+	prep, err := s.db.Prepare(`INSERT INTO GuildUser (user_id, guild_id, role_id) VALUES (?, ?, ?)`)
 	if err != nil {
 		return err
 	}
@@ -634,16 +645,16 @@ func (s *SQLiteStorage) CreateGuildUser(guildUser *ReqGuildUser) error {
 }
 
 // GET
-func (s *SQLiteStorage) GetGuildUserByGuildId(guildId int) ([]*ReqGuildUser, error) {
-	rows, err := s.db.Query(`SELECT user_id, role_id FROM GuildMember WHERE guild_id = ?`, guildId)
+func (s *SQLiteStorage) GetGuildMemberByGuildId(guildId int) ([]*ReqGuildMember, error) {
+	rows, err := s.db.Query(`SELECT user_id, role_id FROM GuildUser WHERE guild_id = ?`, guildId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	guildUsers := []*ReqGuildUser{}
+	guildUsers := []*ReqGuildMember{}
 	for rows.Next() {
-		guildUser := new(ReqGuildUser)
+		guildUser := new(ReqGuildMember)
 		if err := rows.Scan(&guildUser.UserId, &guildUser.RoleId); err != nil {
 			return nil, err
 		}
@@ -654,13 +665,13 @@ func (s *SQLiteStorage) GetGuildUserByGuildId(guildId int) ([]*ReqGuildUser, err
 }
 
 // GET
-func (s *SQLiteStorage) GetGuildRoleNameUserNameByGuildId(guildId int) (map[string][]string, error) {
-	guildUser, err := s.GetGuildUserByGuildId(guildId)
+func (s *SQLiteStorage) GetGuildRoleNameMemberNameByGuildId(guildId int) (map[string][]string, error) {
+	guildUser, err := s.GetGuildMemberByGuildId(guildId)
 	if err != nil {
 		return nil, err
 	}
 
-	var roleUserMap map[string][]string
+	var roleUserMap map[string][]string = make(map[string][]string)
 
 	for _, guildUser := range guildUser {
 		role, err := s.GetGuildRoleById(guildUser.RoleId)
@@ -684,8 +695,8 @@ func (s *SQLiteStorage) GetGuildRoleNameUserNameByGuildId(guildId int) (map[stri
 }
 
 // DELETE
-func (s *SQLiteStorage) DeleteGuildUser(user_id int) error {
-	prep, err := s.db.Prepare(`DELETE FROM GuildMember WHERE user_id = ? `)
+func (s *SQLiteStorage) DeleteGuildMember(user_id int) error {
+	prep, err := s.db.Prepare(`DELETE FROM GuildUser WHERE user_id = ? `)
 	if err != nil {
 		return err
 	}
@@ -698,8 +709,8 @@ func (s *SQLiteStorage) DeleteGuildUser(user_id int) error {
 }
 
 // PUT
-func (s *SQLiteStorage) UpdateGuildUser(guildUser *ReqGuildUser) error {
-	prep, err := s.db.Prepare(`UPDATE GuildMember SET role_id = ?, guild_id = ? WHERE user_id = ?`)
+func (s *SQLiteStorage) UpdateGuildMember(guildUser *ReqGuildMember) error {
+	prep, err := s.db.Prepare(`UPDATE GuildUser SET role_id = ?, guild_id = ? WHERE user_id = ?`)
 	if err != nil {
 		return err
 	}

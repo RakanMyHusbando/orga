@@ -39,10 +39,16 @@ type ReqGuildRole struct {
 	Description string `json:"description"`
 }
 
-type ReqGuildUser struct {
+type ReqGuildMember struct {
 	UserId  int `json:"user_id"`
 	GuildId int `json:"guild_id"`
 	RoleId  int `json:"role_id"`
+}
+
+type ReqUpdateGuildRole struct {
+	NameOld        string `json:"name_old"`
+	NameNew        string `json:"name_new"`
+	DescriptionNew string `json:"description_new"`
 }
 
 /* ------------------------------ response struct ------------------------------ */

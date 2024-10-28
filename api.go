@@ -33,8 +33,20 @@ func (s *APIServer) Run() {
 
 	router.HandleFunc("/user", makeHTTPHandleFunc(s.handleUser))
 	router.HandleFunc("/user/{id}", makeHTTPHandleFunc(s.handleUser))
+
 	router.HandleFunc("/user/{id}/league_of_legends", makeHTTPHandleFunc(s.handleLeagueOfLegends))
+
 	router.HandleFunc("/user/{id}/game_account", makeHTTPHandleFunc(s.handleGameAccount))
+	router.HandleFunc("/user/{id}/game_account/{accountName}", makeHTTPHandleFunc(s.handleGameAccount))
+
+	router.HandleFunc("/user/guild", makeHTTPHandleFunc(s.handlerGuildMember))
+	router.HandleFunc("/user/guild/{id}", makeHTTPHandleFunc(s.handlerGuildMember))
+
+	router.HandleFunc("/guild", makeHTTPHandleFunc(s.handlerGuild))
+	router.HandleFunc("/guild/{id}", makeHTTPHandleFunc(s.handlerGuild))
+
+	router.HandleFunc("/guild_role", makeHTTPHandleFunc(s.handlerGuildRole))
+	router.HandleFunc("/guild_role/{id}", makeHTTPHandleFunc(s.handlerGuildRole))
 
 	log.Println("API server running on ", s.listenAddr)
 
@@ -112,6 +124,50 @@ func (s *APIServer) handleGameAccount(w http.ResponseWriter, r *http.Request) er
 		return s.handleDeleteGameAccount(w, r)
 	case "PUT":
 		return s.handleUpdateGameAccount(w, r)
+	default:
+		return fmt.Errorf("unsupported method: %s", r.Method)
+	}
+}
+
+func (s *APIServer) handlerGuild(w http.ResponseWriter, r *http.Request) error {
+	switch r.Method {
+	case "POST":
+		return s.handleCreateGuild(w, r)
+	case "GET":
+		if mux.Vars(r)["id"] != "" {
+			return s.handleGetGuildById(w, r)
+		}
+		return s.handleGetGuild(w, r)
+	case "DELETE":
+		return s.handleDeleteGuild(w, r)
+	case "PUT":
+		return s.handleUpdateGuild(w, r)
+	default:
+		return fmt.Errorf("unsupported method: %s", r.Method)
+	}
+}
+
+func (s *APIServer) handlerGuildRole(w http.ResponseWriter, r *http.Request) error {
+	switch r.Method {
+	case "POST":
+		return s.handleCreateGuildRole(w, r)
+	case "DELETE":
+		return s.handleDeleteGuildRole(w, r)
+	case "PUT":
+		return s.handleUpdateGuildRole(w, r)
+	default:
+		return fmt.Errorf("unsupported method: %s", r.Method)
+	}
+}
+
+func (s *APIServer) handlerGuildMember(w http.ResponseWriter, r *http.Request) error {
+	switch r.Method {
+	case "POST":
+		return s.handleCreateGuildMember(w, r)
+	case "DELETE":
+		return s.handleDeleteGuildMember(w, r)
+	case "PUT":
+		return s.handleUpdateGuildMember(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
 	}
@@ -253,6 +309,7 @@ func (s *APIServer) handleUpdateLeagueOfLegends(w http.ResponseWriter, r *http.R
 
 /* ------------------------------ handler game account ------------------------------ */
 
+// POST
 func (s *APIServer) handleCreateGameAccount(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
@@ -273,6 +330,7 @@ func (s *APIServer) handleCreateGameAccount(w http.ResponseWriter, r *http.Reque
 	return WriteJSON(w, http.StatusOK, reqGameAcc)
 }
 
+// DELETE
 func (s *APIServer) handleDeleteGameAccount(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
@@ -293,6 +351,7 @@ func (s *APIServer) handleDeleteGameAccount(w http.ResponseWriter, r *http.Reque
 	return WriteJSON(w, http.StatusOK, "game account deleted from user with id "+strconv.Itoa(id))
 }
 
+// PUT
 func (s *APIServer) handleUpdateGameAccount(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
@@ -311,4 +370,177 @@ func (s *APIServer) handleUpdateGameAccount(w http.ResponseWriter, r *http.Reque
 	}
 
 	return WriteJSON(w, http.StatusOK, updateGameAccount)
+}
+
+/* --------------------------------- handler guild --------------------------------- */
+
+// POST
+func (s *APIServer) handleCreateGuild(w http.ResponseWriter, r *http.Request) error {
+	reqGuild := new(ReqGuild)
+	if err := json.NewDecoder(r.Body).Decode(&reqGuild); err != nil {
+		return err
+	}
+
+	if err := s.store.CreateGuild(reqGuild); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, "guild created")
+}
+
+// GET
+func (s *APIServer) handleGetGuild(w http.ResponseWriter, r *http.Request) error {
+	guildList, err := s.store.GetGuild()
+	if err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, guildList)
+}
+
+// GET
+func (s *APIServer) handleGetGuildById(w http.ResponseWriter, r *http.Request) error {
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+
+	guild, err := s.store.GetGuildById(id)
+	if err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, guild)
+}
+
+// DELETE
+func (s *APIServer) handleDeleteGuild(w http.ResponseWriter, r *http.Request) error {
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+
+	if err := s.store.DeleteGuild(id); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, "deleted guild with id "+strconv.Itoa(id))
+}
+
+// PUT
+func (s *APIServer) handleUpdateGuild(w http.ResponseWriter, r *http.Request) error {
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+
+	resGuild := new(ResGuild)
+	if err := json.NewDecoder(r.Body).Decode(&resGuild); err != nil {
+		return err
+	}
+
+	resGuild.Id = id
+
+	if err := s.store.UpdateGuild(resGuild); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, resGuild)
+}
+
+/* --------------------------------- handler guild role --------------------------------- */
+
+// POST
+func (s *APIServer) handleCreateGuildRole(w http.ResponseWriter, r *http.Request) error {
+	reqGuildRole := new(ReqGuildRole)
+	if err := json.NewDecoder(r.Body).Decode(&reqGuildRole); err != nil {
+		return err
+	}
+
+	if err := s.store.CreateGuildRole(reqGuildRole); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, reqGuildRole)
+}
+
+// DELETE
+func (s *APIServer) handleDeleteGuildRole(w http.ResponseWriter, r *http.Request) error {
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+
+	if err := s.store.DeleteGuildRole(id); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, "deleted guild role with id "+strconv.Itoa(id))
+}
+
+// PUT
+func (s *APIServer) handleUpdateGuildRole(w http.ResponseWriter, r *http.Request) error {
+	reqGuildRole := new(ReqGuildRole)
+	if err := json.NewDecoder(r.Body).Decode(&reqGuildRole); err != nil {
+		return err
+	}
+
+	if err := s.store.UpdateGuildRole(reqGuildRole); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, reqGuildRole)
+}
+
+/* --------------------------------- handler guild member --------------------------------- */
+
+// POST
+func (s *APIServer) handleCreateGuildMember(w http.ResponseWriter, r *http.Request) error {
+	guildMember := new(ReqGuildMember)
+
+	if err := json.NewDecoder(r.Body).Decode(&guildMember); err != nil {
+		return err
+	}
+
+	if err := s.store.CreateGuildMember(guildMember); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, guildMember)
+}
+
+// DELETE
+func (s *APIServer) handleDeleteGuildMember(w http.ResponseWriter, r *http.Request) error {
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+
+	if err := s.store.DeleteGuildMember(id); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, "deleted guild member with id "+strconv.Itoa(id))
+}
+
+// PUT
+func (s *APIServer) handleUpdateGuildMember(w http.ResponseWriter, r *http.Request) error {
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+
+	guildMember := new(ReqGuildMember)
+
+	if err := json.NewDecoder(r.Body).Decode(&guildMember); err != nil {
+		return err
+	}
+
+	guildMember.UserId = id
+
+	if err := s.store.UpdateGuildMember(guildMember); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, guildMember)
 }
