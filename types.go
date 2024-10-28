@@ -33,6 +33,18 @@ type ReqGuild struct {
 	Description  string `json:"description"`
 }
 
+type ReqGuildRole struct {
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type ReqGuildUser struct {
+	UserId  int `json:"user_id"`
+	GuildId int `json:"guild_id"`
+	RoleId  int `json:"role_id"`
+}
+
 /* ------------------------------ response struct ------------------------------ */
 
 type ResUser struct {
@@ -50,10 +62,11 @@ type ResLeagueOfLegends struct {
 }
 
 type ResGuild struct {
-	Id           int    `json:"id"`
-	Name         string `json:"name"`
-	Abbreviation string `json:"abbreviation"`
-	Description  string `json:"description"`
+	Id           int                 `json:"id"`
+	Name         string              `json:"name"`
+	Abbreviation string              `json:"abbreviation"`
+	Description  string              `json:"description"`
+	Member       map[string][]string `json:"member"`
 }
 
 /* ------------------------------ helper struct ------------------------------ */
@@ -62,6 +75,11 @@ type mainChamps struct {
 	champ_0 string
 	champ_1 string
 	champ_2 string
+}
+
+type GuildRoleNameUserName struct {
+	RoleName string
+	UserName string
 }
 
 /* ------------------------------ constructor ------------------------------ */

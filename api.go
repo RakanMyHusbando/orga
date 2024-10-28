@@ -312,7 +312,3 @@ func (s *APIServer) handleUpdateGameAccount(w http.ResponseWriter, r *http.Reque
 
 	return WriteJSON(w, http.StatusOK, updateGameAccount)
 }
-
-/* ------------------------------ handler team ------------------------------ */
-
-/* ------------------------------ handler guide ------------------------------ */

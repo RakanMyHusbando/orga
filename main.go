@@ -1,9 +1,17 @@
 package main
 
-import "log"
+import (
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
+)
 
 func main() {
-	const PORT, DB_FILE string = ":8080", "data.db"
+	godotenv.Load(".env")
+
+	DB_FILE := os.Getenv("DB_FILE")
+	PORT := ":" + os.Getenv("PORT")
 
 	db, err := NewSQLiteStorage(DB_FILE)
 	if err != nil {
