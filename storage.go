@@ -12,25 +12,35 @@ import (
 )
 
 type Storage interface {
-	// handler user
+	// user
 	CreateUser(*ReqUser) error
-	GetUser() ([]*User, error)
-	GetUserById(int) (*User, error)
+	GetUser() ([]*ResUser, error)
+	GetUserById(int) (*ResUser, error)
 	GetUserIds() ([]*int, error)
 	DeletUser(int) error
-	UpdateUser(*User) error
+	UpdateUser(*ResUser) error
 
-	// handler league of legends
+	// league of legends
 	CreateUserLeagueOfLegends(*ReqUserLeagueOfLegends) error
-	GetUserLeagueOfLegendsById(int) (*LeagueOfLegends, error)
+	GetUserLeagueOfLegendsById(int) (*ResLeagueOfLegends, error)
+	GetUserLeagueOfLegendsWithAccountsById(int) (*ResLeagueOfLegends, error)
 	DeleteUserLeagueOfLegends(int) error
 	UpdateUserLeagueOfLegends(*ReqUserLeagueOfLegends) error
 
-	// handlergame account
+	// game account
 	CreateGameAccount(*ReqGameAccount) error
 	GetGameAccountByUserId(int, string) ([]string, error)
 	DeleteGameAccount(*ReqGameAccount) error
 	UpdateGameAccount(*ReqUpdateGameAccount) error
+
+	// guild
+	CreateGuild(*ReqGuild) error
+	GetGuild() ([]*ResGuild, error)
+	GetGuildById(int) (*ResGuild, error)
+	DeleteGuild(int) error
+	UpdateGuild(*ResGuild) error
+
+	// guild user
 }
 
 type SQLiteStorage struct {
@@ -63,7 +73,7 @@ func NewSQLiteStorage(dbFile string) (*SQLiteStorage, error) {
 	}, nil
 }
 
-/* ------------------------------ handler user ------------------------------ */
+/* ------------------------------ user ------------------------------ */
 
 // POST
 func (s *SQLiteStorage) CreateUser(user *ReqUser) error {
@@ -83,21 +93,21 @@ func (s *SQLiteStorage) CreateUser(user *ReqUser) error {
 }
 
 // GET
-func (s *SQLiteStorage) GetUser() ([]*User, error) {
+func (s *SQLiteStorage) GetUser() ([]*ResUser, error) {
 	rows, err := s.db.Query(`SELECT * FROM User`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	userList := []*User{}
+	userList := []*ResUser{}
 	for rows.Next() {
-		user := new(User)
+		user := new(ResUser)
 		if err := rows.Scan(&user.Id, &user.Name, &user.DiscordID); err != nil {
 			return nil, err
 		}
 
-		lolUser, err := s.GetUserLeagueOfLegendsById(user.Id)
+		lolUser, err := s.GetUserLeagueOfLegendsWithAccountsById(user.Id)
 		if err == nil {
 			user.LeagueOfLegends = lolUser
 		} else {
@@ -113,15 +123,15 @@ func (s *SQLiteStorage) GetUser() ([]*User, error) {
 }
 
 // GET
-func (s *SQLiteStorage) GetUserById(id int) (*User, error) {
+func (s *SQLiteStorage) GetUserById(id int) (*ResUser, error) {
 	row := s.db.QueryRow(`SELECT * FROM User WHERE id = ?`, id)
 
-	user := new(User)
+	user := new(ResUser)
 	if err := row.Scan(&user.Id, &user.Name, &user.DiscordID); err != nil {
 		return nil, err
 	}
 
-	lolUser, err := s.GetUserLeagueOfLegendsById(user.Id)
+	lolUser, err := s.GetUserLeagueOfLegendsWithAccountsById(user.Id)
 	if err == nil {
 		user.LeagueOfLegends = lolUser
 	} else {
@@ -173,7 +183,7 @@ func (s *SQLiteStorage) DeletUser(id int) error {
 }
 
 // PUT
-func (s *SQLiteStorage) UpdateUser(user *User) error {
+func (s *SQLiteStorage) UpdateUser(user *ResUser) error {
 	prep, err := s.db.Prepare(`UPDATE User SET name = ?, discord_id = ? WHERE id = ?`)
 	if err != nil {
 		return err
@@ -188,12 +198,12 @@ func (s *SQLiteStorage) UpdateUser(user *User) error {
 	return nil
 }
 
-/* ------------------------------ handler league of legends ------------------------------ */
+/* ------------------------------ league of legends ------------------------------ */
 
 // POST
 func (s *SQLiteStorage) CreateUserLeagueOfLegends(user *ReqUserLeagueOfLegends) error {
 	insertKeys := "user_id, main_role, second_role"
-	insertValues := strconv.Itoa(user.Id) + ", '" + user.MainRole + "', '" + user.SecondRole + "'"
+	insertValues := strconv.Itoa(user.UserId) + ", '" + user.MainRole + "', '" + user.SecondRole + "'"
 
 	if user.MainChamps != nil {
 		for i := range user.MainChamps {
@@ -213,13 +223,13 @@ func (s *SQLiteStorage) CreateUserLeagueOfLegends(user *ReqUserLeagueOfLegends) 
 		return err
 	}
 
-	log.Printf("Storage: successfully added league_of_legends to user with id %v", user.Id)
+	log.Printf("Storage: successfully added league_of_legends to user with id %v", user.UserId)
 
 	return nil
 }
 
 // GET
-func (s *SQLiteStorage) GetUserLeagueOfLegendsById(userId int) (*LeagueOfLegends, error) {
+func (s *SQLiteStorage) GetUserLeagueOfLegendsById(userId int) (*ResLeagueOfLegends, error) {
 	row := s.db.QueryRow(`
 		SELECT 
 			main_role, 
@@ -234,7 +244,7 @@ func (s *SQLiteStorage) GetUserLeagueOfLegendsById(userId int) (*LeagueOfLegends
 		userId,
 	)
 
-	userLol := new(LeagueOfLegends)
+	userLol := new(ResLeagueOfLegends)
 	mainChamps := []string{"", "", ""}
 
 	if err := row.Scan(
@@ -255,12 +265,23 @@ func (s *SQLiteStorage) GetUserLeagueOfLegendsById(userId int) (*LeagueOfLegends
 
 	log.Printf("Storage: successfully get league_of_legends from user with id %v", userId)
 
+	return userLol, nil
+}
+
+// GET
+func (s *SQLiteStorage) GetUserLeagueOfLegendsWithAccountsById(userId int) (*ResLeagueOfLegends, error) {
+	userLol, err := s.GetUserLeagueOfLegendsById(userId)
+	if err != nil {
+		return nil, err
+	}
+
 	accounts, err := s.GetGameAccountByUserId(userId, "league_of_legends")
 	if err != nil {
 		log.Println(err)
-		return userLol, nil
+		userLol.Accounts = []string{}
+	} else {
+		userLol.Accounts = accounts
 	}
-	userLol.Accounts = accounts
 
 	return userLol, nil
 }
@@ -307,20 +328,21 @@ func (s *SQLiteStorage) UpdateUserLeagueOfLegends(user *ReqUserLeagueOfLegends) 
 		user.MainChamps[0],
 		user.MainChamps[1],
 		user.MainChamps[2],
-		user.Id,
+		user.UserId,
 	); err != nil {
 		return err
 	}
 
-	log.Printf("Storage: successfully update league of legends user with id %v", user.Id)
+	log.Printf("Storage: successfully update league of legends user with id %v", user.UserId)
 
 	return nil
 }
 
-/* ------------------------------ handlergame account ------------------------------ */
+/* ------------------------------ game account ------------------------------ */
 
 // POST
 func (s *SQLiteStorage) CreateGameAccount(account *ReqGameAccount) error {
+
 	prep, err := s.db.Prepare(`INSERT INTO GameAccount (user_id, game, name) VALUES (?, ?, ?)`)
 	if err != nil {
 		return err
@@ -401,7 +423,9 @@ func (s *SQLiteStorage) UpdateGameAccount(reqUpdateAccount *ReqUpdateGameAccount
 	}
 
 	if _, err = prep.Exec(
-		reqUpdateAccount.NameNew, reqUpdateAccount.UserId, reqUpdateAccount.NameOld,
+		reqUpdateAccount.NameNew,
+		reqUpdateAccount.UserId,
+		reqUpdateAccount.NameOld,
 	); err != nil {
 		return err
 	}
@@ -411,6 +435,108 @@ func (s *SQLiteStorage) UpdateGameAccount(reqUpdateAccount *ReqUpdateGameAccount
 	return nil
 }
 
-/* ------------------------------ handler team ------------------------------ */
+/* ------------------------------ Guild ------------------------------ */
 
-/* ------------------------------ handler guide ------------------------------ */
+// POST
+func (s *SQLiteStorage) CreateGuild(Guild *ReqGuild) error {
+	prep, err := s.db.Prepare(`INSERT INTO Guild (name,abbreviation,description) VALUES (?, ?)`)
+	if err != nil {
+		return err
+	}
+
+	if _, err = prep.Exec(
+		Guild.Name,
+		Guild.Abbreviation,
+		Guild.Description,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GET
+func (s *SQLiteStorage) GetGuild() ([]*ResGuild, error) {
+	rows, err := s.db.Query(`SELECT * FROM Guild`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	guilds := []*ResGuild{}
+	for rows.Next() {
+		guild := new(ResGuild)
+		if err := rows.Scan(
+			&guild.Id,
+			&guild.Name,
+			&guild.Abbreviation,
+			&guild.Description,
+		); err != nil {
+			return nil, err
+		}
+		guilds = append(guilds, guild)
+	}
+
+	log.Println("Storage: successfully get guilds")
+
+	return guilds, nil
+}
+
+// GET
+func (s *SQLiteStorage) GetGuildById(id int) (*ResGuild, error) {
+	row := s.db.QueryRow(`SELECT * FROM Guild WHERE id = ?`, id)
+
+	guild := new(ResGuild)
+	if err := row.Scan(
+		&guild.Id,
+		&guild.Name,
+		&guild.Abbreviation,
+		&guild.Description,
+	); err != nil {
+		return nil, err
+	}
+
+	return guild, nil
+}
+
+// DELETE
+func (s *SQLiteStorage) DeleteGuild(id int) error {
+	prep, err := s.db.Prepare(`DELETE FROM Guild WHERE id = ?`)
+	if err != nil {
+		return err
+	}
+
+	if _, err = prep.Exec(id); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// PUT
+func (s *SQLiteStorage) UpdateGuild(guild *ResGuild) error {
+	prep, err := s.db.Prepare(`
+		UPDATE 
+			Guild 
+		SET 
+			name = ?, 
+			abbreviation = ?, 
+			description = ? 
+		WHERE 
+			id = ?
+	`)
+	if err != nil {
+		return err
+	}
+
+	if _, err = prep.Exec(
+		guild.Name,
+		guild.Abbreviation,
+		guild.Description,
+		guild.Id,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
