@@ -69,19 +69,6 @@ type ResGuild struct {
 	Member       map[string][]string `json:"member"`
 }
 
-/* ------------------------------ helper struct ------------------------------ */
-
-type mainChamps struct {
-	champ_0 string
-	champ_1 string
-	champ_2 string
-}
-
-type GuildRoleNameUserName struct {
-	RoleName string
-	UserName string
-}
-
 /* ------------------------------ constructor ------------------------------ */
 
 func NewUser(name string, discordId string) *ResUser {
