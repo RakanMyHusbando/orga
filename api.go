@@ -130,7 +130,7 @@ func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, "'user' created")
+	return WriteJSON(w, http.StatusOK, "user created")
 }
 
 // GET
@@ -169,7 +169,7 @@ func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, "'user' deleted")
+	return WriteJSON(w, http.StatusOK, "user with id "+strconv.Itoa(id)+" deleted")
 }
 
 // PUT
@@ -227,7 +227,7 @@ func (s *APIServer) handleDeleteLeagueOfLegends(w http.ResponseWriter, r *http.R
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, "'league_of_legends' deleted from user.")
+	return WriteJSON(w, http.StatusOK, "league_of_legends deleted from user with id "+strconv.Itoa(id))
 }
 
 // PUT
@@ -259,18 +259,18 @@ func (s *APIServer) handleCreateGameAccount(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
-	createGameAccount := new(ReqGameAccount)
-	if err := json.NewDecoder(r.Body).Decode(&createGameAccount); err != nil {
+	reqGameAcc := new(ReqGameAccount)
+	if err := json.NewDecoder(r.Body).Decode(&reqGameAcc); err != nil {
 		return err
 	}
 
-	createGameAccount.UserId = id
+	reqGameAcc.UserId = id
 
-	if err := s.store.CreateGameAccount(createGameAccount); err != nil {
+	if err := s.store.CreateGameAccount(reqGameAcc); err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, createGameAccount)
+	return WriteJSON(w, http.StatusOK, reqGameAcc)
 }
 
 func (s *APIServer) handleDeleteGameAccount(w http.ResponseWriter, r *http.Request) error {
@@ -279,11 +279,18 @@ func (s *APIServer) handleDeleteGameAccount(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
-	if err := s.store.DeleteGameAccount(id); err != nil {
+	reqGameAcc := new(ReqGameAccount)
+	if err := json.NewDecoder(r.Body).Decode(&reqGameAcc); err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, "'game_account' deleted from user.")
+	reqGameAcc.UserId = id
+
+	if err := s.store.DeleteGameAccount(reqGameAcc); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, "game account deleted from user with id "+strconv.Itoa(id))
 }
 
 func (s *APIServer) handleUpdateGameAccount(w http.ResponseWriter, r *http.Request) error {

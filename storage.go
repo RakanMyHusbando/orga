@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -19,15 +18,17 @@ type Storage interface {
 	GetUserById(int) (*User, error)
 	DeletUser(int) error
 	UpdateUser(*User) error
+
 	// handler league of legends
 	CreateUserLeagueOfLegends(*ReqUserLeagueOfLegends) error
 	GetUserLeagueOfLegendsById(int) (*LeagueOfLegends, error)
 	DeleteUserLeagueOfLegends(int) error
 	UpdateUserLeagueOfLegends(*ReqUserLeagueOfLegends) error
+
 	// handlergame account
 	CreateGameAccount(*ReqGameAccount) error
 	GetGameAccountByUserId(int, string) ([]string, error)
-	DeleteGameAccount(int) error
+	DeleteGameAccount(*ReqGameAccount) error
 	UpdateGameAccount(*ReqGameAccount) error
 }
 
@@ -75,7 +76,7 @@ func (s *SQLiteStorage) CreateUser(user *ReqUser) error {
 		return err
 	}
 
-	log.Println("Storage: create user successful")
+	log.Printf("Storage: successfully create user %v", user.Name)
 
 	return nil
 }
@@ -105,7 +106,7 @@ func (s *SQLiteStorage) GetUser() ([]*User, error) {
 		userList = append(userList, user)
 	}
 
-	log.Println("Storage: get user successful")
+	log.Println("Storage: successfully get user")
 
 	return userList, nil
 }
@@ -116,9 +117,6 @@ func (s *SQLiteStorage) GetUserById(id int) (*User, error) {
 
 	user := new(User)
 	if err := row.Scan(&user.Id, &user.Name, &user.DiscordID); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errors.New("user not found")
-		}
 		return nil, err
 	}
 
@@ -129,7 +127,7 @@ func (s *SQLiteStorage) GetUserById(id int) (*User, error) {
 		log.Println(err)
 	}
 
-	log.Println("Storage: get user by id successful")
+	log.Printf("Storage: successfully get user with id %v", id)
 
 	return user, nil
 }
@@ -145,7 +143,7 @@ func (s *SQLiteStorage) DeletUser(id int) error {
 		return err
 	}
 
-	log.Println("Storage: delete user successful")
+	log.Printf("Storage: successfully delete user with id %v", id)
 
 	return nil
 }
@@ -161,7 +159,7 @@ func (s *SQLiteStorage) UpdateUser(user *User) error {
 		return err
 	}
 
-	log.Println("Storage: update user successful")
+	log.Printf("Storage: successfully update user with id %v", user.Id)
 
 	return nil
 }
@@ -189,7 +187,7 @@ func (s *SQLiteStorage) CreateUserLeagueOfLegends(user *ReqUserLeagueOfLegends) 
 		return err
 	}
 
-	log.Println("Storage: create league of legends user successful")
+	log.Printf("Storage: successfully added league_of_legends to user with id %v", user.Id)
 
 	return nil
 }
@@ -202,10 +200,6 @@ func (s *SQLiteStorage) GetUserLeagueOfLegendsById(userId int) (*LeagueOfLegends
 	mainChamps := []string{"", "", ""}
 
 	if err := row.Scan(&userLol.MainRole, &userLol.SecondRole, &mainChamps[0], &mainChamps[1], &mainChamps[2]); err != nil {
-		fmt.Println(err)
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, os.ErrNotExist
-		}
 		return nil, err
 	}
 
@@ -216,7 +210,7 @@ func (s *SQLiteStorage) GetUserLeagueOfLegendsById(userId int) (*LeagueOfLegends
 		}
 	}
 
-	log.Println("Storage: get league of legends user successful")
+	log.Printf("Storage: successfully get league_of_legends from user with id %v", userId)
 
 	accounts, err := s.GetGameAccountByUserId(userId, "league_of_legends")
 	if err != nil {
@@ -240,7 +234,7 @@ func (s *SQLiteStorage) DeleteUserLeagueOfLegends(userId int) error {
 		return err
 	}
 
-	log.Println("Storage: delete league of legends user successful")
+	log.Printf("Storage: successfully delete league_of_legends from user with id %v", userId)
 
 	return nil
 }
@@ -256,7 +250,7 @@ func (s *SQLiteStorage) UpdateUserLeagueOfLegends(user *ReqUserLeagueOfLegends) 
 		return err
 	}
 
-	log.Println("Storage: update league of legends user successful")
+	log.Printf("Storage: successfully update league of legends user with id %v", user.Id)
 
 	return nil
 }
@@ -275,7 +269,7 @@ func (s *SQLiteStorage) CreateGameAccount(account *ReqGameAccount) error {
 		return err
 	}
 
-	log.Printf("Storage: create %v account successful", account.Game)
+	log.Printf("Storage: successfully create game account for user with id %v and game %v", account.UserId, account.Game)
 
 	return nil
 }
@@ -301,17 +295,17 @@ func (s *SQLiteStorage) GetGameAccountByUserId(userId int, game string) ([]strin
 }
 
 // DELETE
-func (s *SQLiteStorage) DeleteGameAccount(userId int) error {
+func (s *SQLiteStorage) DeleteGameAccount(reqGameAccount *ReqGameAccount) error {
 	prep, err := s.db.Prepare(`DELETE FROM GameAccount WHERE user_id = ?`)
 	if err != nil {
 		return err
 	}
 
-	if _, err = prep.Exec(userId); err != nil {
+	if _, err = prep.Exec(reqGameAccount.UserId); err != nil {
 		return err
 	}
 
-	log.Println("Storage: delete league of legends account successful")
+	log.Println("Storage: successfully delete game account")
 
 	return nil
 }
