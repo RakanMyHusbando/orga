@@ -299,18 +299,18 @@ func (s *APIServer) handleUpdateGameAccount(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
-	createGameAccount := new(ReqGameAccount)
-	if err := json.NewDecoder(r.Body).Decode(&createGameAccount); err != nil {
+	updateGameAccount := new(ReqUpdateGameAccount)
+	if err := json.NewDecoder(r.Body).Decode(&updateGameAccount); err != nil {
 		return err
 	}
 
-	createGameAccount.UserId = id
+	updateGameAccount.UserId = id
 
-	if err := s.store.UpdateGameAccount(createGameAccount); err != nil {
+	if err := s.store.UpdateGameAccount(updateGameAccount); err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, createGameAccount)
+	return WriteJSON(w, http.StatusOK, updateGameAccount)
 }
 
 /* ------------------------------ handler team ------------------------------ */

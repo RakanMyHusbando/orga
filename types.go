@@ -13,6 +13,13 @@ type ReqGameAccount struct {
 	Name   string `json:"name"`
 }
 
+type ReqUpdateGameAccount struct {
+	UserId  int    `json:"user_id"`
+	Game    string `json:"game"`
+	NameOld string `json:"name_old"`
+	NameNew string `json:"name_new"`
+}
+
 type ReqUserLeagueOfLegends struct {
 	Id         int      `json:"id"`
 	MainRole   string   `json:"main_role"`
