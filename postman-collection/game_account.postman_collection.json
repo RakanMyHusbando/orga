@@ -1,0 +1,55 @@
+{
+	"info": {
+		"_postman_id": "6a1fa63b-8ce1-4058-8d18-64ef96bb0abe",
+		"name": "game_account",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "38817525"
+	},
+	"item": [
+		{
+			"name": "create_by_user_id",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"game\": \"\",\n    \"name\": \"\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:8080/user/1/game_account"
+			},
+			"response": []
+		},
+		{
+			"name": "delete_by_user_id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": "http://127.0.0.1:8080/user/1/game_account"
+			},
+			"response": []
+		},
+		{
+			"name": "update_game_account",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"game\": \"\",\n    \"name\": \"\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:8080/user/1/game_account"
+			},
+			"response": []
+		}
+	]
+}

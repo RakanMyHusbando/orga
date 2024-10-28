@@ -269,7 +269,7 @@ func (s *SQLiteStorage) CreateGameAccount(account *ReqGameAccount) error {
 		return err
 	}
 
-	log.Printf("Storage: successfully create game account for user with id %v and game %v", account.UserId, account.Game)
+	log.Printf("Storage: successfully create  %v account for user with id %v", account.Game, account.UserId)
 
 	return nil
 }

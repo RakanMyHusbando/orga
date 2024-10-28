@@ -1,0 +1,91 @@
+{
+	"info": {
+		"_postman_id": "bcb76615-0dfb-46d3-8739-9883ee015a48",
+		"name": "user",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "38817525"
+	},
+	"item": [
+		{
+			"name": "create",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"test2\",\n    \"discord_id\": \"2331251205971\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:8080/user"
+			},
+			"response": []
+		},
+		{
+			"name": "get",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:8080/user"
+			},
+			"response": []
+		},
+		{
+			"name": "get_by_id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:8080/user/1"
+			},
+			"response": []
+		},
+		{
+			"name": "delete_by_id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": "http://127.0.0.1:8080/user/1"
+			},
+			"response": []
+		},
+		{
+			"name": "update_by_id",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"\",\n    \"discord_id\": \"\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:8080/user/1"
+			},
+			"response": []
+		},
+		{
+			"name": "update_by_user_id",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"main_role\": \"\",\n    \"second_role\": \"\",\n    \"main_champs\": [\n        \"\",\n        \"\",\n        \"\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:8080/user/1/league_of_legends"
+			},
+			"response": []
+		}
+	]
+}
