@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -213,23 +212,22 @@ func (s *SQLiteStorage) UpdateUser(user *ResUser) error {
 
 // POST
 func (s *SQLiteStorage) CreateLeagueOfLegends(lol *ReqLeagueOfLegends) error {
-	insertKeys := "user_id, main_role, second_role"
-	insertValues := strconv.Itoa(lol.UserId) + ", '" + lol.MainRole + "', '" + lol.SecondRole + "'"
-
+	var insertKeys, insertValues string
 	if lol.MainChamps != nil {
 		for i := range lol.MainChamps {
-			insertKeys += ", champ_" + strconv.Itoa(i)
-			insertValues += ", '" + lol.MainChamps[i] + "'"
+			insertKeys += fmt.Sprintf(", champ_%d", i)
+			insertValues += fmt.Sprintf(", '%s'", lol.MainChamps[i])
 		}
 	}
-
-	prep, err := s.db.Prepare(
-		"INSERT INTO UserLeagueOfLegends (" + insertKeys + ") VALUES (" + insertValues + ")",
+	query := fmt.Sprintf(
+		"INSERT INTO UserLeagueOfLegends (user_id, main_role, second_role %s) VALUES (%d, '%s', '%s' %s)",
+		insertKeys, lol.UserId, lol.MainRole, lol.SecondRole, insertValues,
 	)
+
+	prep, err := s.db.Prepare(query)
 	if err != nil {
 		return err
 	}
-
 	if _, err = prep.Exec(); err != nil {
 		return err
 	}
@@ -257,7 +255,6 @@ func (s *SQLiteStorage) GetLeagueOfLegendsById(userId int) (*ResLeagueOfLegends,
 
 	userLol := new(ResLeagueOfLegends)
 	mainChamps := []string{"", "", ""}
-
 	if err := row.Scan(
 		&userLol.MainRole,
 		&userLol.SecondRole,
