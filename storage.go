@@ -21,11 +21,11 @@ type Storage interface {
 	UpdateUser(*ResUser) error
 
 	// league of legends
-	CreateUserLeagueOfLegends(*ReqUserLeagueOfLegends) error
-	GetUserLeagueOfLegendsById(int) (*ResLeagueOfLegends, error)
-	GetUserLeagueOfLegendsWithAccountsById(int) (*ResLeagueOfLegends, error)
-	DeleteUserLeagueOfLegends(int) error
-	UpdateUserLeagueOfLegends(*ReqUserLeagueOfLegends) error
+	CreateLeagueOfLegends(*ReqLeagueOfLegends) error
+	GetLeagueOfLegendsById(int) (*ResLeagueOfLegends, error)
+	GetLeagueOfLegendsWithAccountsById(int) (*ResLeagueOfLegends, error)
+	DeleteLeagueOfLegends(int) error
+	UpdateLeagueOfLegends(*ReqLeagueOfLegends) error
 
 	// game account
 	CreateGameAccount(*ReqGameAccount) error
@@ -118,7 +118,7 @@ func (s *SQLiteStorage) GetUser() ([]*ResUser, error) {
 			return nil, err
 		}
 
-		lolUser, err := s.GetUserLeagueOfLegendsWithAccountsById(user.Id)
+		lolUser, err := s.GetLeagueOfLegendsWithAccountsById(user.Id)
 		if err == nil {
 			user.LeagueOfLegends = lolUser
 		} else {
@@ -142,7 +142,7 @@ func (s *SQLiteStorage) GetUserById(id int) (*ResUser, error) {
 		return nil, err
 	}
 
-	lolUser, err := s.GetUserLeagueOfLegendsWithAccountsById(user.Id)
+	lolUser, err := s.GetLeagueOfLegendsWithAccountsById(user.Id)
 	if err == nil {
 		user.LeagueOfLegends = lolUser
 	} else {
@@ -212,14 +212,14 @@ func (s *SQLiteStorage) UpdateUser(user *ResUser) error {
 /* ------------------------------ league of legends ------------------------------ */
 
 // POST
-func (s *SQLiteStorage) CreateUserLeagueOfLegends(user *ReqUserLeagueOfLegends) error {
+func (s *SQLiteStorage) CreateLeagueOfLegends(lol *ReqLeagueOfLegends) error {
 	insertKeys := "user_id, main_role, second_role"
-	insertValues := strconv.Itoa(user.UserId) + ", '" + user.MainRole + "', '" + user.SecondRole + "'"
+	insertValues := strconv.Itoa(lol.UserId) + ", '" + lol.MainRole + "', '" + lol.SecondRole + "'"
 
-	if user.MainChamps != nil {
-		for i := range user.MainChamps {
+	if lol.MainChamps != nil {
+		for i := range lol.MainChamps {
 			insertKeys += ", champ_" + strconv.Itoa(i)
-			insertValues += ", '" + user.MainChamps[i] + "'"
+			insertValues += ", '" + lol.MainChamps[i] + "'"
 		}
 	}
 
@@ -234,13 +234,13 @@ func (s *SQLiteStorage) CreateUserLeagueOfLegends(user *ReqUserLeagueOfLegends) 
 		return err
 	}
 
-	log.Printf("Storage: successfully added league_of_legends to user with id %v", user.UserId)
+	log.Printf("Storage: successfully added league_of_legends to user with id %v", lol.UserId)
 
 	return nil
 }
 
 // GET
-func (s *SQLiteStorage) GetUserLeagueOfLegendsById(userId int) (*ResLeagueOfLegends, error) {
+func (s *SQLiteStorage) GetLeagueOfLegendsById(userId int) (*ResLeagueOfLegends, error) {
 	row := s.db.QueryRow(`
 		SELECT 
 			main_role, 
@@ -280,8 +280,8 @@ func (s *SQLiteStorage) GetUserLeagueOfLegendsById(userId int) (*ResLeagueOfLege
 }
 
 // GET
-func (s *SQLiteStorage) GetUserLeagueOfLegendsWithAccountsById(userId int) (*ResLeagueOfLegends, error) {
-	userLol, err := s.GetUserLeagueOfLegendsById(userId)
+func (s *SQLiteStorage) GetLeagueOfLegendsWithAccountsById(userId int) (*ResLeagueOfLegends, error) {
+	userLol, err := s.GetLeagueOfLegendsById(userId)
 	if err != nil {
 		return nil, err
 	}
@@ -298,7 +298,7 @@ func (s *SQLiteStorage) GetUserLeagueOfLegendsWithAccountsById(userId int) (*Res
 }
 
 // DELETE
-func (s *SQLiteStorage) DeleteUserLeagueOfLegends(userId int) error {
+func (s *SQLiteStorage) DeleteLeagueOfLegends(userId int) error {
 	log.Println(userId)
 	prep, err := s.db.Prepare(`DELETE FROM UserLeagueOfLegends WHERE user_id = ?`)
 	if err != nil {
@@ -315,7 +315,7 @@ func (s *SQLiteStorage) DeleteUserLeagueOfLegends(userId int) error {
 }
 
 // PUT
-func (s *SQLiteStorage) UpdateUserLeagueOfLegends(user *ReqUserLeagueOfLegends) error {
+func (s *SQLiteStorage) UpdateLeagueOfLegends(lol *ReqLeagueOfLegends) error {
 	prep, err := s.db.Prepare(`
 		UPDATE 
 			UserLeagueOfLegends 
@@ -334,17 +334,17 @@ func (s *SQLiteStorage) UpdateUserLeagueOfLegends(user *ReqUserLeagueOfLegends) 
 	}
 
 	if _, err = prep.Exec(
-		user.MainRole,
-		user.SecondRole,
-		user.MainChamps[0],
-		user.MainChamps[1],
-		user.MainChamps[2],
-		user.UserId,
+		lol.MainRole,
+		lol.SecondRole,
+		lol.MainChamps[0],
+		lol.MainChamps[1],
+		lol.MainChamps[2],
+		lol.UserId,
 	); err != nil {
 		return err
 	}
 
-	log.Printf("Storage: successfully update league of legends user with id %v", user.UserId)
+	log.Printf("Storage: successfully update league of legends user with id %v", lol.UserId)
 
 	return nil
 }

@@ -258,14 +258,14 @@ func (s *APIServer) handleCreateLeagueOfLegends(w http.ResponseWriter, r *http.R
 		return err
 	}
 
-	reqUserLol := new(ReqUserLeagueOfLegends)
+	reqUserLol := new(ReqLeagueOfLegends)
 	if err := json.NewDecoder(r.Body).Decode(&reqUserLol); err != nil {
 		return err
 	}
 
 	reqUserLol.UserId = id
 
-	if err := s.store.CreateUserLeagueOfLegends(reqUserLol); err != nil {
+	if err := s.store.CreateLeagueOfLegends(reqUserLol); err != nil {
 		return err
 	}
 
@@ -279,7 +279,7 @@ func (s *APIServer) handleDeleteLeagueOfLegends(w http.ResponseWriter, r *http.R
 		return err
 	}
 
-	if err := s.store.DeleteUserLeagueOfLegends(id); err != nil {
+	if err := s.store.DeleteLeagueOfLegends(id); err != nil {
 		return err
 	}
 
@@ -293,14 +293,14 @@ func (s *APIServer) handleUpdateLeagueOfLegends(w http.ResponseWriter, r *http.R
 		return err
 	}
 
-	reqUserLol := new(ReqUserLeagueOfLegends)
+	reqUserLol := new(ReqLeagueOfLegends)
 	if err := json.NewDecoder(r.Body).Decode(&reqUserLol); err != nil {
 		return err
 	}
 
 	reqUserLol.UserId = id
 
-	if err := s.store.UpdateUserLeagueOfLegends(reqUserLol); err != nil {
+	if err := s.store.UpdateLeagueOfLegends(reqUserLol); err != nil {
 		return err
 	}
 

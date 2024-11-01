@@ -20,7 +20,7 @@ type ReqUpdateGameAccount struct {
 	NameNew string `json:"name_new"`
 }
 
-type ReqUserLeagueOfLegends struct {
+type ReqLeagueOfLegends struct {
 	UserId     int      `json:"user_id"`
 	MainRole   string   `json:"main_role"`
 	SecondRole string   `json:"second_role"`
