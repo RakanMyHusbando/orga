@@ -261,7 +261,8 @@ func (s *SQLiteStorage) GetLeagueOfLegendsById(userId int) (*ResLeagueOfLegends,
 	if err := row.Scan(
 		&userLol.MainRole,
 		&userLol.SecondRole,
-		&mainChamps[0], &mainChamps[1],
+		&mainChamps[0],
+		&mainChamps[1],
 		&mainChamps[2],
 	); err != nil {
 		return nil, err
@@ -316,31 +317,23 @@ func (s *SQLiteStorage) DeleteLeagueOfLegends(userId int) error {
 
 // PUT
 func (s *SQLiteStorage) UpdateLeagueOfLegends(lol *ReqLeagueOfLegends) error {
-	prep, err := s.db.Prepare(`
-		UPDATE 
-			UserLeagueOfLegends 
-		SET 
-			main_role = ?, 
-			second_role = ?, 
-			champ_0 = ?, 
-			champ_1 = ?, 
-			champ_2 = ? 
-		WHERE 
-			user_id = ?
-	`)
+	var champs string
+	if lol.MainChamps != nil {
+		for i := range lol.MainChamps {
+			champs += fmt.Sprintf(", champ_%d = '%s'", i, lol.MainChamps[i])
+		}
+	}
+	query := fmt.Sprintf(
+		`UPDATE UserLeagueOfLegends SET main_role = '%s', second_role = '%s' %s WHERE user_id = %d`,
+		lol.MainRole, lol.SecondRole, champs, lol.UserId,
+	)
 
+	prep, err := s.db.Prepare(query)
 	if err != nil {
 		return err
 	}
 
-	if _, err = prep.Exec(
-		lol.MainRole,
-		lol.SecondRole,
-		lol.MainChamps[0],
-		lol.MainChamps[1],
-		lol.MainChamps[2],
-		lol.UserId,
-	); err != nil {
+	if _, err = prep.Exec(); err != nil {
 		return err
 	}
 
