@@ -329,7 +329,6 @@ func (s *SQLiteStorage) UpdateLeagueOfLegends(lol *ReqLeagueOfLegends) error {
 	if err != nil {
 		return err
 	}
-
 	if _, err = prep.Exec(); err != nil {
 		return err
 	}
