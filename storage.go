@@ -29,8 +29,9 @@ type Storage interface {
 	// game account
 	CreateGameAccount(*ReqGameAccount) error
 	GetGameAccountByUserId(int, string) ([]string, error)
+	CheckIfGameAccountExists(*ReqGameAccount) error
 	DeleteGameAccount(*ReqGameAccount) error
-	UpdateGameAccount(*ReqUpdateGameAccount) error
+	UpdateGameAccount(*ReqGameAccount, string) error
 
 	// guild
 	CreateGuild(*ReqGuild) error
@@ -382,14 +383,32 @@ func (s *SQLiteStorage) GetGameAccountByUserId(userId int, game string) ([]strin
 	return accounts, nil
 }
 
+// GET
+func (s *SQLiteStorage) CheckIfGameAccountExists(account *ReqGameAccount) error {
+	row, err := s.db.Query(
+		`SELECT name FROM GameAccount WHERE user_id = ? AND name = ?`,
+		account.UserId,
+		account.Name,
+	)
+	if err != nil {
+		return err
+	}
+
+	if !row.Next() {
+		return fmt.Errorf("account '%v' from user with id %v not found", account.Name, account.UserId)
+	}
+
+	return nil
+}
+
 // DELETE
-func (s *SQLiteStorage) DeleteGameAccount(reqAccount *ReqGameAccount) error {
+func (s *SQLiteStorage) DeleteGameAccount(account *ReqGameAccount) error {
 	prep, err := s.db.Prepare(`DELETE FROM GameAccount WHERE user_id = ? AND name = ?`)
 	if err != nil {
 		return err
 	}
 
-	if _, err = prep.Exec(reqAccount.UserId, reqAccount.Name); err != nil {
+	if _, err = prep.Exec(account.UserId, account.Name); err != nil {
 		return err
 	}
 
@@ -399,22 +418,11 @@ func (s *SQLiteStorage) DeleteGameAccount(reqAccount *ReqGameAccount) error {
 }
 
 // PUT
-func (s *SQLiteStorage) UpdateGameAccount(reqUpdateAccount *ReqUpdateGameAccount) error {
-	row, err := s.db.Query(
-		`SELECT name FROM GameAccount WHERE user_id = ? AND name = ?`,
-		reqUpdateAccount.UserId,
-		reqUpdateAccount.NameOld,
-	)
+func (s *SQLiteStorage) UpdateGameAccount(account *ReqGameAccount, oldName string) error {
+	oldAcc := NewReqGameAccount(account.UserId, oldName, account.Game)
+	err := s.CheckIfGameAccountExists(oldAcc)
 	if err != nil {
 		return err
-	}
-
-	if !row.Next() {
-		return fmt.Errorf(
-			"account '%v' from user with id %v not found",
-			reqUpdateAccount.NameOld,
-			reqUpdateAccount.UserId,
-		)
 	}
 
 	prep, err := s.db.Prepare(`UPDATE GameAccount SET name = ? WHERE user_id = ? AND name = ?`)
@@ -423,9 +431,9 @@ func (s *SQLiteStorage) UpdateGameAccount(reqUpdateAccount *ReqUpdateGameAccount
 	}
 
 	if _, err = prep.Exec(
-		reqUpdateAccount.NameNew,
-		reqUpdateAccount.UserId,
-		reqUpdateAccount.NameOld,
+		account.Name,
+		account.UserId,
+		oldName,
 	); err != nil {
 		return err
 	}

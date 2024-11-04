@@ -337,12 +337,12 @@ func (s *APIServer) handleDeleteGameAccount(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
-	reqGameAcc := new(ReqGameAccount)
-	if err := json.NewDecoder(r.Body).Decode(&reqGameAcc); err != nil {
-		return err
+	accountName := mux.Vars(r)["accountName"]
+	if accountName == "" {
+		return fmt.Errorf("account name is empty")
 	}
 
-	reqGameAcc.UserId = id
+	reqGameAcc := NewReqGameAccount(id, accountName, "")
 
 	if err := s.store.DeleteGameAccount(reqGameAcc); err != nil {
 		return err
@@ -358,18 +358,23 @@ func (s *APIServer) handleUpdateGameAccount(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
-	updateGameAccount := new(ReqUpdateGameAccount)
-	if err := json.NewDecoder(r.Body).Decode(&updateGameAccount); err != nil {
+	reqGameAcc := new(ReqGameAccount)
+	if err := json.NewDecoder(r.Body).Decode(&reqGameAcc); err != nil {
 		return err
 	}
 
-	updateGameAccount.UserId = id
+	reqGameAcc.UserId = id
 
-	if err := s.store.UpdateGameAccount(updateGameAccount); err != nil {
+	accountName := mux.Vars(r)["accountName"]
+	if accountName == "" {
+		return fmt.Errorf("account name is empty")
+	}
+
+	if err := s.store.UpdateGameAccount(reqGameAcc, accountName); err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, updateGameAccount)
+	return WriteJSON(w, http.StatusOK, reqGameAcc)
 }
 
 /* --------------------------------- handler guild --------------------------------- */

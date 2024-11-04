@@ -13,13 +13,6 @@ type ReqGameAccount struct {
 	Name   string `json:"name"`
 }
 
-type ReqUpdateGameAccount struct {
-	UserId  int    `json:"user_id"`
-	Game    string `json:"game"`
-	NameOld string `json:"name_old"`
-	NameNew string `json:"name_new"`
-}
-
 type ReqLeagueOfLegends struct {
 	UserId     int      `json:"user_id"`
 	MainRole   string   `json:"main_role"`
@@ -90,5 +83,13 @@ func NewLeagueOfLegends(mainRole string, secondRole string, mainChamps []string,
 		SecondRole: secondRole,
 		MainChamps: mainChamps,
 		Accounts:   accounts,
+	}
+}
+
+func NewReqGameAccount(userId int, name string, game string) *ReqGameAccount {
+	return &ReqGameAccount{
+		UserId: userId,
+		Name:   name,
+		Game:   game,
 	}
 }
