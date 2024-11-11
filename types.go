@@ -1,5 +1,13 @@
 package main
 
+/* ------------------------------ helper ------------------------------ */
+
+type HelperSQLite struct {
+	Table  string
+	Where  []map[string]string
+	Values []map[string]string
+}
+
 /* ------------------------------ request struct ------------------------------ */
 
 type ReqUser struct {
@@ -69,6 +77,14 @@ type ResGuild struct {
 }
 
 /* ------------------------------ constructor ------------------------------ */
+
+func NewHelperSQLite(table string, where []map[string]string, values []map[string]string) *HelperSQLite {
+	return &HelperSQLite{
+		Table:  table,
+		Where:  where,
+		Values: values,
+	}
+}
 
 func NewUser(name string, discordId string) *ResUser {
 	return &ResUser{

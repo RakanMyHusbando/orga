@@ -29,7 +29,6 @@ type Storage interface {
 	// game account
 	CreateGameAccount(*ReqGameAccount) error
 	GetGameAccountByUserId(int, string) ([]string, error)
-	CheckIfGameAccountExists(*ReqGameAccount) error
 	DeleteGameAccount(*ReqGameAccount) error
 	UpdateGameAccount(*ReqGameAccount, string) error
 
@@ -93,10 +92,11 @@ func (s *SQLiteStorage) CreateUser(user *ReqUser) error {
 		return err
 	}
 
-	_, err = prep.Exec(user.Name, user.DiscordID)
-	if err != nil {
+	if _, err = prep.Exec(user.Name, user.DiscordID); err != nil {
 		return err
 	}
+
+	prep.Close()
 
 	log.Printf("Storage: successfully create user %v", user.Name)
 
@@ -188,13 +188,28 @@ func (s *SQLiteStorage) DeletUser(id int) error {
 		return err
 	}
 
+	prep.Close()
+
 	log.Printf("Storage: successfully delete user with id %v", id)
 
 	return nil
 }
 
-// PUT
+// PATCH
 func (s *SQLiteStorage) UpdateUser(user *ResUser) error {
+	if user.Name == "" && user.DiscordID == "" {
+		oldUser, err := s.GetUserById(user.Id)
+		if err != nil {
+			return err
+		}
+		if user.Name == "" {
+			user.Name = oldUser.Name
+		}
+		if user.DiscordID == "" {
+			user.DiscordID = oldUser.DiscordID
+		}
+	}
+
 	prep, err := s.db.Prepare(`UPDATE User SET name = ?, discord_id = ? WHERE id = ?`)
 	if err != nil {
 		return err
@@ -203,6 +218,8 @@ func (s *SQLiteStorage) UpdateUser(user *ResUser) error {
 	if _, err = prep.Exec(user.Name, user.DiscordID, user.Id); err != nil {
 		return err
 	}
+
+	prep.Close()
 
 	log.Printf("Storage: successfully update user with id %v", user.Id)
 
@@ -232,6 +249,7 @@ func (s *SQLiteStorage) CreateLeagueOfLegends(lol *ReqLeagueOfLegends) error {
 	if _, err = prep.Exec(); err != nil {
 		return err
 	}
+	prep.Close()
 
 	log.Printf("Storage: successfully added league_of_legends to user with id %v", lol.UserId)
 
@@ -308,12 +326,14 @@ func (s *SQLiteStorage) DeleteLeagueOfLegends(userId int) error {
 		return err
 	}
 
+	prep.Close()
+
 	log.Printf("Storage: successfully delete league_of_legends from user with id %v", userId)
 
 	return nil
 }
 
-// PUT
+// PATCH
 func (s *SQLiteStorage) UpdateLeagueOfLegends(lol *ReqLeagueOfLegends) error {
 	var champs string
 	if lol.MainChamps != nil {
@@ -334,6 +354,8 @@ func (s *SQLiteStorage) UpdateLeagueOfLegends(lol *ReqLeagueOfLegends) error {
 		return err
 	}
 
+	prep.Close()
+
 	log.Printf("Storage: successfully update league of legends user with id %v", lol.UserId)
 
 	return nil
@@ -343,19 +365,17 @@ func (s *SQLiteStorage) UpdateLeagueOfLegends(lol *ReqLeagueOfLegends) error {
 
 // POST
 func (s *SQLiteStorage) CreateGameAccount(account *ReqGameAccount) error {
-
 	prep, err := s.db.Prepare(`INSERT INTO GameAccount (user_id, game, name) VALUES (?, ?, ?)`)
 	if err != nil {
 		return err
 	}
-
-	_, err = prep.Exec(account.UserId, account.Game, account.Name) // TODO
-	if err != nil {
+	if _, err = prep.Exec(account.UserId, account.Game, account.Name); err != nil {
 		return err
 	}
+	prep.Close()
 
 	log.Printf(
-		"Storage: successfully create  %v account for user with id %v",
+		"Storage: successfully create %v account from user with id %v",
 		account.Game,
 		account.UserId,
 	)
@@ -380,25 +400,9 @@ func (s *SQLiteStorage) GetGameAccountByUserId(userId int, game string) ([]strin
 		accounts = append(accounts, account)
 	}
 
+	fmt.Println(accounts)
+
 	return accounts, nil
-}
-
-// GET
-func (s *SQLiteStorage) CheckIfGameAccountExists(account *ReqGameAccount) error {
-	row, err := s.db.Query(
-		`SELECT name FROM GameAccount WHERE user_id = ? AND name = ?`,
-		account.UserId,
-		account.Name,
-	)
-	if err != nil {
-		return err
-	}
-
-	if !row.Next() {
-		return fmt.Errorf("account '%v' from user with id %v not found", account.Name, account.UserId)
-	}
-
-	return nil
 }
 
 // DELETE
@@ -407,24 +411,18 @@ func (s *SQLiteStorage) DeleteGameAccount(account *ReqGameAccount) error {
 	if err != nil {
 		return err
 	}
-
 	if _, err = prep.Exec(account.UserId, account.Name); err != nil {
 		return err
 	}
+	prep.Close()
 
-	log.Println("Storage: successfully delete game account")
+	log.Printf("Storage: successfully deleted %v account (%v) from user with id %v", account.Game, account.Name, account.UserId)
 
 	return nil
 }
 
-// PUT
+// PATCH
 func (s *SQLiteStorage) UpdateGameAccount(account *ReqGameAccount, oldName string) error {
-	oldAcc := NewReqGameAccount(account.UserId, oldName, account.Game)
-	err := s.CheckIfGameAccountExists(oldAcc)
-	if err != nil {
-		return err
-	}
-
 	prep, err := s.db.Prepare(`UPDATE GameAccount SET name = ? WHERE user_id = ? AND name = ?`)
 	if err != nil {
 		return err
@@ -438,7 +436,9 @@ func (s *SQLiteStorage) UpdateGameAccount(account *ReqGameAccount, oldName strin
 		return err
 	}
 
-	log.Println("Storage: update league of legends account successful")
+	prep.Close()
+
+	log.Printf("Storage: successfully updated %v account from user with id %v", account.Game, account.UserId)
 
 	return nil
 }
@@ -459,6 +459,8 @@ func (s *SQLiteStorage) CreateGuild(Guild *ReqGuild) error {
 	); err != nil {
 		return err
 	}
+
+	prep.Close()
 
 	return nil
 }
@@ -530,10 +532,12 @@ func (s *SQLiteStorage) DeleteGuild(id int) error {
 		return err
 	}
 
+	prep.Close()
+
 	return nil
 }
 
-// PUT
+// PATCH
 func (s *SQLiteStorage) UpdateGuild(guild *ResGuild) error {
 	prep, err := s.db.Prepare(`
 		UPDATE 
@@ -558,6 +562,8 @@ func (s *SQLiteStorage) UpdateGuild(guild *ResGuild) error {
 		return err
 	}
 
+	prep.Close()
+
 	return nil
 }
 
@@ -573,6 +579,8 @@ func (s *SQLiteStorage) CreateGuildRole(guildRole *ReqGuildRole) error {
 	if _, err = prep.Exec(guildRole.Name, guildRole.Description); err != nil {
 		return err
 	}
+
+	prep.Close()
 
 	return nil
 }
@@ -600,10 +608,12 @@ func (s *SQLiteStorage) DeleteGuildRole(id int) error {
 		return err
 	}
 
+	prep.Close()
+
 	return nil
 }
 
-// PUT
+// PATCH
 func (s *SQLiteStorage) UpdateGuildRole(guildRole *ReqUpdateGuildRole) error {
 	prep, err := s.db.Prepare(`
 		UPDATE 
@@ -622,6 +632,8 @@ func (s *SQLiteStorage) UpdateGuildRole(guildRole *ReqUpdateGuildRole) error {
 		return err
 	}
 
+	prep.Close()
+
 	return nil
 }
 
@@ -637,6 +649,8 @@ func (s *SQLiteStorage) CreateGuildMember(guildUser *ReqGuildMember) error {
 	if _, err = prep.Exec(guildUser.UserId, guildUser.GuildId, guildUser.RoleId); err != nil {
 		return err
 	}
+
+	prep.Close()
 
 	return nil
 }
@@ -702,10 +716,12 @@ func (s *SQLiteStorage) DeleteGuildMember(user_id int) error {
 		return err
 	}
 
+	prep.Close()
+
 	return nil
 }
 
-// PUT
+// PATCH
 func (s *SQLiteStorage) UpdateGuildMember(guildUser *ReqGuildMember) error {
 	prep, err := s.db.Prepare(`UPDATE GuildUser SET role_id = ?, guild_id = ? WHERE user_id = ?`)
 	if err != nil {
@@ -715,6 +731,8 @@ func (s *SQLiteStorage) UpdateGuildMember(guildUser *ReqGuildMember) error {
 	if _, err = prep.Exec(guildUser.RoleId, guildUser.GuildId, guildUser.UserId); err != nil {
 		return err
 	}
+
+	prep.Close()
 
 	return nil
 }

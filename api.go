@@ -94,7 +94,7 @@ func (s *APIServer) handleUser(w http.ResponseWriter, r *http.Request) error {
 		return s.handleGetUser(w, r)
 	case "POST":
 		return s.handleCreateUser(w, r)
-	case "PUT":
+	case "PATCH":
 		return s.handleUpdateUser(w, r)
 	case "DELETE":
 		return s.handleDeleteUser(w, r)
@@ -109,7 +109,7 @@ func (s *APIServer) handleLeagueOfLegends(w http.ResponseWriter, r *http.Request
 		return s.handleCreateLeagueOfLegends(w, r)
 	case "DELETE":
 		return s.handleDeleteLeagueOfLegends(w, r)
-	case "PUT":
+	case "PATCH":
 		return s.handleUpdateLeagueOfLegends(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
@@ -122,7 +122,7 @@ func (s *APIServer) handleGameAccount(w http.ResponseWriter, r *http.Request) er
 		return s.handleCreateGameAccount(w, r)
 	case "DELETE":
 		return s.handleDeleteGameAccount(w, r)
-	case "PUT":
+	case "PATCH":
 		return s.handleUpdateGameAccount(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
@@ -140,7 +140,7 @@ func (s *APIServer) handlerGuild(w http.ResponseWriter, r *http.Request) error {
 		return s.handleGetGuild(w, r)
 	case "DELETE":
 		return s.handleDeleteGuild(w, r)
-	case "PUT":
+	case "PATCH":
 		return s.handleUpdateGuild(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
@@ -153,7 +153,7 @@ func (s *APIServer) handlerGuildRole(w http.ResponseWriter, r *http.Request) err
 		return s.handleCreateGuildRole(w, r)
 	case "DELETE":
 		return s.handleDeleteGuildRole(w, r)
-	case "PUT":
+	case "PATCH":
 		return s.handleUpdateGuildRole(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
@@ -166,7 +166,7 @@ func (s *APIServer) handlerGuildMember(w http.ResponseWriter, r *http.Request) e
 		return s.handleCreateGuildMember(w, r)
 	case "DELETE":
 		return s.handleDeleteGuildMember(w, r)
-	case "PUT":
+	case "PATCH":
 		return s.handleUpdateGuildMember(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
@@ -228,7 +228,7 @@ func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) err
 	return WriteJSON(w, http.StatusOK, "user with id "+strconv.Itoa(id)+" deleted")
 }
 
-// PUT
+// PATCH
 func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
@@ -286,7 +286,7 @@ func (s *APIServer) handleDeleteLeagueOfLegends(w http.ResponseWriter, r *http.R
 	return WriteJSON(w, http.StatusOK, "league_of_legends deleted from user with id "+strconv.Itoa(id))
 }
 
-// PUT
+// PATCH
 func (s *APIServer) handleUpdateLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
@@ -351,7 +351,7 @@ func (s *APIServer) handleDeleteGameAccount(w http.ResponseWriter, r *http.Reque
 	return WriteJSON(w, http.StatusOK, "game account deleted from user with id "+strconv.Itoa(id))
 }
 
-// PUT
+// PATCH
 func (s *APIServer) handleUpdateGameAccount(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
@@ -432,7 +432,7 @@ func (s *APIServer) handleDeleteGuild(w http.ResponseWriter, r *http.Request) er
 	return WriteJSON(w, http.StatusOK, "deleted guild with id "+strconv.Itoa(id))
 }
 
-// PUT
+// PATCH
 func (s *APIServer) handleUpdateGuild(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
@@ -483,7 +483,7 @@ func (s *APIServer) handleDeleteGuildRole(w http.ResponseWriter, r *http.Request
 	return WriteJSON(w, http.StatusOK, "deleted guild role with id "+strconv.Itoa(id))
 }
 
-// PUT
+// PATCH
 func (s *APIServer) handleUpdateGuildRole(w http.ResponseWriter, r *http.Request) error {
 	reqUpdateGuildRole := new(ReqUpdateGuildRole)
 	if err := json.NewDecoder(r.Body).Decode(&reqUpdateGuildRole); err != nil {
@@ -528,7 +528,7 @@ func (s *APIServer) handleDeleteGuildMember(w http.ResponseWriter, r *http.Reque
 	return WriteJSON(w, http.StatusOK, "deleted guild member with id "+strconv.Itoa(id))
 }
 
-// PUT
+// PATCH
 func (s *APIServer) handleUpdateGuildMember(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
