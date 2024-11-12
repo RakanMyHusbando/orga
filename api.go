@@ -39,14 +39,14 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/user/{id}/game_account", makeHTTPHandleFunc(s.handleGameAccount))
 	router.HandleFunc("/user/{id}/game_account/{accountName}", makeHTTPHandleFunc(s.handleGameAccount))
 
-	router.HandleFunc("/user/guild", makeHTTPHandleFunc(s.handlerGuildMember))
-	router.HandleFunc("/user/guild/{id}", makeHTTPHandleFunc(s.handlerGuildMember))
-
 	router.HandleFunc("/guild", makeHTTPHandleFunc(s.handlerGuild))
 	router.HandleFunc("/guild/{id}", makeHTTPHandleFunc(s.handlerGuild))
 
-	router.HandleFunc("/guild_role", makeHTTPHandleFunc(s.handlerGuildRole))
-	router.HandleFunc("/guild_role/{id}", makeHTTPHandleFunc(s.handlerGuildRole))
+	router.HandleFunc("/guild/user", makeHTTPHandleFunc(s.handlerGuildMember))
+	router.HandleFunc("/guild/user/{id}", makeHTTPHandleFunc(s.handlerGuildMember))
+
+	router.HandleFunc("/guild/role", makeHTTPHandleFunc(s.handlerGuildRole))
+	router.HandleFunc("/guild/role/{id}", makeHTTPHandleFunc(s.handlerGuildRole))
 
 	log.Println("API server running on ", s.listenAddr)
 
@@ -225,7 +225,7 @@ func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, "user with id "+strconv.Itoa(id)+" deleted")
+	return WriteJSON(w, http.StatusOK, fmt.Sprintf("user with id %v deleted", id))
 }
 
 // PATCH
@@ -485,16 +485,23 @@ func (s *APIServer) handleDeleteGuildRole(w http.ResponseWriter, r *http.Request
 
 // PATCH
 func (s *APIServer) handleUpdateGuildRole(w http.ResponseWriter, r *http.Request) error {
-	reqUpdateGuildRole := new(ReqUpdateGuildRole)
-	if err := json.NewDecoder(r.Body).Decode(&reqUpdateGuildRole); err != nil {
+	id, err := GetId(r)
+	if err != nil {
 		return err
 	}
 
-	if err := s.store.UpdateGuildRole(reqUpdateGuildRole); err != nil {
+	reqGuildRole := new(ReqGuildRole)
+	if err := json.NewDecoder(r.Body).Decode(&reqGuildRole); err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, reqUpdateGuildRole)
+	reqGuildRole.Id = id
+
+	if err := s.store.UpdateGuildRole(reqGuildRole); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, reqGuildRole)
 }
 
 /* --------------------------------- handler guild member --------------------------------- */

@@ -43,12 +43,12 @@ type Storage interface {
 	CreateGuildRole(*ReqGuildRole) error
 	GetGuildRoleById(int) (*ReqGuildRole, error)
 	DeleteGuildRole(int) error
-	UpdateGuildRole(*ReqUpdateGuildRole) error
+	UpdateGuildRole(*ReqGuildRole) error
 
 	// guild member
 	CreateGuildMember(*ReqGuildMember) error
 	GetGuildMemberByGuildId(int) ([]*ReqGuildMember, error)
-	GetGuildRoleNameMemberNameByGuildId(int) (map[string][]string, error)
+	GetGuildMemberMapByGuildId(int) (map[string][]string, error)
 	DeleteGuildMember(int) error
 	UpdateGuildMember(*ReqGuildMember) error
 }
@@ -400,8 +400,6 @@ func (s *SQLiteStorage) GetGameAccountByUserId(userId int, game string) ([]strin
 		accounts = append(accounts, account)
 	}
 
-	fmt.Println(accounts)
-
 	return accounts, nil
 }
 
@@ -484,7 +482,7 @@ func (s *SQLiteStorage) GetGuild() ([]*ResGuild, error) {
 		); err != nil {
 			return nil, err
 		}
-		roleUserList, err := s.GetGuildRoleNameMemberNameByGuildId(guild.Id)
+		roleUserList, err := s.GetGuildMemberMapByGuildId(guild.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -512,7 +510,7 @@ func (s *SQLiteStorage) GetGuildById(id int) (*ResGuild, error) {
 		return nil, err
 	}
 
-	roleUserList, err := s.GetGuildRoleNameMemberNameByGuildId(guild.Id)
+	roleUserList, err := s.GetGuildMemberMapByGuildId(guild.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -614,7 +612,7 @@ func (s *SQLiteStorage) DeleteGuildRole(id int) error {
 }
 
 // PATCH
-func (s *SQLiteStorage) UpdateGuildRole(guildRole *ReqUpdateGuildRole) error {
+func (s *SQLiteStorage) UpdateGuildRole(guildRole *ReqGuildRole) error {
 	prep, err := s.db.Prepare(`
 		UPDATE 
 			GuildRole 
@@ -622,13 +620,13 @@ func (s *SQLiteStorage) UpdateGuildRole(guildRole *ReqUpdateGuildRole) error {
 			name = ?, 
 			description = ? 
 		WHERE 
-			name = ?
+			id = ?
 	`)
 	if err != nil {
 		return err
 	}
 
-	if _, err = prep.Exec(guildRole.NameNew, guildRole.DescriptionNew, guildRole.NameOld); err != nil {
+	if _, err = prep.Exec(guildRole.Name, guildRole.Description, guildRole.Id); err != nil {
 		return err
 	}
 
@@ -676,7 +674,7 @@ func (s *SQLiteStorage) GetGuildMemberByGuildId(guildId int) ([]*ReqGuildMember,
 }
 
 // GET
-func (s *SQLiteStorage) GetGuildRoleNameMemberNameByGuildId(guildId int) (map[string][]string, error) {
+func (s *SQLiteStorage) GetGuildMemberMapByGuildId(guildId int) (map[string][]string, error) {
 	guildUser, err := s.GetGuildMemberByGuildId(guildId)
 	if err != nil {
 		return nil, err
