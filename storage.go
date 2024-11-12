@@ -41,6 +41,7 @@ type Storage interface {
 
 	// guild role
 	CreateGuildRole(*ReqGuildRole) error
+	GetGuildRole() ([]*ReqGuildRole, error)
 	GetGuildRoleById(int) (*ReqGuildRole, error)
 	DeleteGuildRole(int) error
 	UpdateGuildRole(*ReqGuildRole) error
@@ -581,6 +582,26 @@ func (s *SQLiteStorage) CreateGuildRole(guildRole *ReqGuildRole) error {
 	prep.Close()
 
 	return nil
+}
+
+// GET
+func (s *SQLiteStorage) GetGuildRole() ([]*ReqGuildRole, error) {
+	rows, err := s.db.Query(`SELECT id, name, description FROM GuildRole`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	guildRoles := []*ReqGuildRole{}
+	for rows.Next() {
+		guildRole := new(ReqGuildRole)
+		if err := rows.Scan(&guildRole.Id, &guildRole.Name, &guildRole.Description); err != nil {
+			return nil, err
+		}
+		guildRoles = append(guildRoles, guildRole)
+	}
+
+	return guildRoles, nil
 }
 
 // GET

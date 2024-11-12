@@ -469,6 +469,16 @@ func (s *APIServer) handleCreateGuildRole(w http.ResponseWriter, r *http.Request
 	return WriteJSON(w, http.StatusOK, reqGuildRole)
 }
 
+// GET
+func (s *APIServer) handleGetGuildRole(w http.ResponseWriter, r *http.Request) error {
+	guildRoleList, err := s.store.GetGuildRole()
+	if err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, guildRoleList)
+}
+
 // DELETE
 func (s *APIServer) handleDeleteGuildRole(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
