@@ -1,0 +1,148 @@
+package storage
+
+import (
+	"log"
+
+	"github.com/RakanMyHusbando/shogun/types"
+)
+
+// POST
+func (s *SQLiteStorage) CreateUser(user *types.ReqUser) error {
+	prep, err := s.db.Prepare(`INSERT INTO User (name, discord_id) VALUES (?, ?)`)
+	if err != nil {
+		return err
+	}
+
+	if _, err = prep.Exec(user.Name, user.DiscordID); err != nil {
+		return err
+	}
+
+	prep.Close()
+
+	log.Printf("Storage: successfully create user %v", user.Name)
+
+	return nil
+}
+
+// GET
+func (s *SQLiteStorage) GetUser() ([]*types.ResUser, error) {
+	rows, err := s.db.Query(`SELECT * FROM User`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	userList := []*types.ResUser{}
+	for rows.Next() {
+		user := new(types.ResUser)
+		if err := rows.Scan(&user.Id, &user.Name, &user.DiscordID); err != nil {
+			return nil, err
+		}
+
+		lolUser, err := s.GetLeagueOfLegendsWithAccountsById(user.Id)
+		if err == nil {
+			user.LeagueOfLegends = lolUser
+		} else {
+			log.Println(err)
+		}
+
+		userList = append(userList, user)
+	}
+
+	log.Println("Storage: successfully get user")
+
+	return userList, nil
+}
+
+// GET
+func (s *SQLiteStorage) GetUserById(id int) (*types.ResUser, error) {
+	row := s.db.QueryRow(`SELECT * FROM User WHERE id = ?`, id)
+
+	user := new(types.ResUser)
+	if err := row.Scan(&user.Id, &user.Name, &user.DiscordID); err != nil {
+		return nil, err
+	}
+
+	lolUser, err := s.GetLeagueOfLegendsWithAccountsById(user.Id)
+	if err == nil {
+		user.LeagueOfLegends = lolUser
+	} else {
+		log.Println(err)
+	}
+
+	log.Printf("Storage: successfully get user with id %v", id)
+
+	return user, nil
+}
+
+// GET
+func (s *SQLiteStorage) GetUserIds() ([]*int, error) {
+	rows, err := s.db.Query(`SELECT id FROM User`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	userList := []*int{}
+	for rows.Next() {
+		user := new(int)
+		if err := rows.Scan(&user); err != nil {
+			return nil, err
+		}
+
+		userList = append(userList, user)
+	}
+
+	log.Println("Storage: successfully get user ids")
+
+	return userList, nil
+}
+
+// DELETE
+func (s *SQLiteStorage) DeletUser(id int) error {
+	prep, err := s.db.Prepare(`DELETE FROM User WHERE id = ?`)
+	if err != nil {
+		return err
+	}
+
+	if _, err = prep.Exec(id); err != nil {
+		return err
+	}
+
+	prep.Close()
+
+	log.Printf("Storage: successfully delete user with id %v", id)
+
+	return nil
+}
+
+// PATCH
+func (s *SQLiteStorage) UpdateUser(user *types.ResUser) error {
+	if user.Name == "" && user.DiscordID == "" {
+		oldUser, err := s.GetUserById(user.Id)
+		if err != nil {
+			return err
+		}
+		if user.Name == "" {
+			user.Name = oldUser.Name
+		}
+		if user.DiscordID == "" {
+			user.DiscordID = oldUser.DiscordID
+		}
+	}
+
+	prep, err := s.db.Prepare(`UPDATE User SET name = ?, discord_id = ? WHERE id = ?`)
+	if err != nil {
+		return err
+	}
+
+	if _, err = prep.Exec(user.Name, user.DiscordID, user.Id); err != nil {
+		return err
+	}
+
+	prep.Close()
+
+	log.Printf("Storage: successfully update user with id %v", user.Id)
+
+	return nil
+}

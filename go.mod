@@ -1,4 +1,4 @@
-module db-api
+module github.com/RakanMyHusbando/shogun
 
 go 1.23.2
 

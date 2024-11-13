@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/RakanMyHusbando/shogun/api"
+	"github.com/RakanMyHusbando/shogun/storage"
 	"github.com/joho/godotenv"
 )
 
@@ -13,11 +15,11 @@ func main() {
 	DB_FILE := os.Getenv("DB_FILE")
 	PORT := ":" + os.Getenv("PORT")
 
-	db, err := NewSQLiteStorage(DB_FILE)
+	db, err := storage.NewSQLiteStorage(DB_FILE)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	server := NewAPIServer(PORT, db)
+	server := api.NewAPIServer(PORT, db)
 	server.Run()
 }
