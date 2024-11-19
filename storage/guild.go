@@ -85,22 +85,6 @@ func (s *SQLiteStorage) GetGuildById(id int) (*types.ResGuild, error) {
 	return guild, nil
 }
 
-// DELETE
-func (s *SQLiteStorage) DeleteGuild(id int) error {
-	prep, err := s.db.Prepare(`DELETE FROM Guild WHERE id = ?`)
-	if err != nil {
-		return err
-	}
-
-	if _, err = prep.Exec(id); err != nil {
-		return err
-	}
-
-	prep.Close()
-	log.Println("Storage: successfully deleted guild")
-	return nil
-}
-
 // PATCH
 func (s *SQLiteStorage) UpdateGuild(guild *types.ResGuild) error {
 	prep, err := s.db.Prepare(`
@@ -175,20 +159,6 @@ func (s *SQLiteStorage) GetGuildRoleById(id int) (*types.ReqGuildRole, error) {
 	}
 	log.Println("Storage: successfully get guild role by id")
 	return guildRole, nil
-}
-
-// DELETE
-func (s *SQLiteStorage) DeleteGuildRole(id int) error {
-	prep, err := s.db.Prepare(`DELETE FROM GuildRole WHERE id = ?`)
-	if err != nil {
-		return err
-	}
-	if _, err = prep.Exec(id); err != nil {
-		return err
-	}
-	prep.Close()
-	log.Println("Storage: successfully deleted guild role")
-	return nil
 }
 
 // PATCH
@@ -275,20 +245,6 @@ func (s *SQLiteStorage) GetGuildMemberMapByGuildId(guildId int) (map[string][]st
 	}
 	log.Println("Storage: successfully get guild member map by guild id")
 	return roleUserMap, nil
-}
-
-// DELETE
-func (s *SQLiteStorage) DeleteGuildMember(user_id int) error {
-	prep, err := s.db.Prepare(`DELETE FROM GuildUser WHERE user_id = ? `)
-	if err != nil {
-		return err
-	}
-	if _, err = prep.Exec(user_id); err != nil {
-		return err
-	}
-	prep.Close()
-	log.Println("Storage: successfully deleted guild member")
-	return nil
 }
 
 // PATCH

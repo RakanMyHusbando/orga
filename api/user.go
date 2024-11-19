@@ -54,7 +54,7 @@ func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	if err := s.store.DeletUser(id); err != nil {
+	if err := s.store.Delete("User", "id", id); err != nil {
 		return err
 	}
 

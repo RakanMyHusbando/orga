@@ -35,3 +35,9 @@ type ReqGuildMember struct {
 	GuildId int `json:"guild_id"`
 	RoleId  int `json:"role_id"`
 }
+
+type ReqTeam struct {
+	GuildId      int    `json:"guild_id"`
+	Name         string `json:"name"`
+	Abbreviation string `json:"abbreviation"`
+}

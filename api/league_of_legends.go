@@ -36,7 +36,7 @@ func (s *APIServer) handleDeleteLeagueOfLegends(w http.ResponseWriter, r *http.R
 		return err
 	}
 
-	if err := s.store.DeleteLeagueOfLegends(id); err != nil {
+	if err := s.store.Delete("UserLeagueOfLegends", "user_id", id); err != nil {
 		return err
 	}
 

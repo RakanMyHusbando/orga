@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/RakanMyHusbando/shogun/types"
-	"github.com/gorilla/mux"
 )
 
 /* --------------------------------- handler guild --------------------------------- */
@@ -64,7 +63,7 @@ func (s *APIServer) handleDeleteGuild(w http.ResponseWriter, r *http.Request) er
 		return err
 	}
 
-	if err := s.store.DeleteGuild(id); err != nil {
+	if err := s.store.Delete("Guild", "id", id); err != nil {
 		log.Println("[api.guild.(s)handleDeleteGuild(w,r)] error while executing 's.store.DeleteGuild(id)': ", err)
 		return err
 	}
@@ -74,7 +73,6 @@ func (s *APIServer) handleDeleteGuild(w http.ResponseWriter, r *http.Request) er
 
 // PATCH
 func (s *APIServer) handleUpdateGuild(w http.ResponseWriter, r *http.Request) error {
-	fmt.Println(mux.Vars(r))
 	id, err := GetId(r)
 	if err != nil {
 		log.Println("[api.guild.(s)handleUpdateGuild(w,r)] error while executing 'GetId(r)': ", err)
@@ -134,7 +132,7 @@ func (s *APIServer) handleDeleteGuildRole(w http.ResponseWriter, r *http.Request
 		return err
 	}
 
-	if err := s.store.DeleteGuildRole(id); err != nil {
+	if err := s.store.Delete("GuildRole", "id", id); err != nil {
 		log.Println("[api.guild.(s)handleDeleteGuildRole(w,r)] error while executing 's.store.DeleteGuildRole(id)': ", err)
 		return err
 	}
@@ -193,7 +191,7 @@ func (s *APIServer) handleDeleteGuildMember(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
-	if err := s.store.DeleteGuildMember(id); err != nil {
+	if err := s.store.Delete("GuildUser", "user_id", id); err != nil {
 		log.Println("[api.guild.(s)handleDeleteGuildMember(w,r)] error while executing 's.store.DeleteGuildMember(id)': ", err)
 		return err
 	}

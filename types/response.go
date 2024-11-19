@@ -21,3 +21,11 @@ type ResGuild struct {
 	Description  string              `json:"description"`
 	Member       map[string][]string `json:"member"`
 }
+
+type ResTeam struct {
+	Id           int            `json:"id"`
+	GuildId      int            `json:"guild_id"`
+	Name         string         `json:"name"`
+	Abbreviation string         `json:"abbreviation"`
+	Member       map[string]any `json:"member"`
+}

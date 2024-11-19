@@ -98,24 +98,6 @@ func (s *SQLiteStorage) GetUserIds() ([]*int, error) {
 	return userList, nil
 }
 
-// DELETE
-func (s *SQLiteStorage) DeletUser(id int) error {
-	prep, err := s.db.Prepare(`DELETE FROM User WHERE id = ?`)
-	if err != nil {
-		return err
-	}
-
-	if _, err = prep.Exec(id); err != nil {
-		return err
-	}
-
-	prep.Close()
-
-	log.Printf("Storage: successfully delete user with id %v", id)
-
-	return nil
-}
-
 // PATCH
 func (s *SQLiteStorage) UpdateUser(user *types.ResUser) error {
 	if user.Name == "" && user.DiscordID == "" {

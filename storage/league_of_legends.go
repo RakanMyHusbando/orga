@@ -93,25 +93,6 @@ func (s *SQLiteStorage) GetLeagueOfLegendsWithAccountsById(userId int) (*types.R
 	return userLol, nil
 }
 
-// DELETE
-func (s *SQLiteStorage) DeleteLeagueOfLegends(userId int) error {
-	log.Println(userId)
-	prep, err := s.db.Prepare(`DELETE FROM UserLeagueOfLegends WHERE user_id = ?`)
-	if err != nil {
-		return err
-	}
-
-	if _, err = prep.Exec(userId); err != nil {
-		return err
-	}
-
-	prep.Close()
-
-	log.Printf("Storage: successfully delete league_of_legends from user with id %v", userId)
-
-	return nil
-}
-
 // PATCH
 func (s *SQLiteStorage) UpdateLeagueOfLegends(lol *types.ReqLeagueOfLegends) error {
 	var champs string
