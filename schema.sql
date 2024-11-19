@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS UserLeagueOfLegends (
 CREATE TABLE IF NOT EXISTS Guild (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL,
-    abbreviation TEXT UNIQUE NOT NULL,
+    abbreviation TEXT NOT NULL,
     description TEXT
 );
 CREATE TABLE IF NOT EXISTS GuildRole (

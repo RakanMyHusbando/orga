@@ -20,6 +20,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	err = storage.RunSQLiteStorage(db, "schema.sql")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	server := api.NewAPIServer(PORT, db)
 	server.Run()
 }

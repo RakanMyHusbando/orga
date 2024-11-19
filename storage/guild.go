@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/RakanMyHusbando/shogun/types"
@@ -161,7 +160,6 @@ func (s *SQLiteStorage) GetGuildRole() ([]*types.ReqGuildRole, error) {
 		if err := rows.Scan(&guildRole.Id, &guildRole.Name, &guildRole.Description); err != nil {
 			return nil, err
 		}
-		fmt.Println(guildRole)
 		guildRoles = append(guildRoles, guildRole)
 	}
 	log.Println("Storage: successfully get guild roles")

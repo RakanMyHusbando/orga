@@ -41,7 +41,6 @@ func (s *APIServer) handleGetGuild(w http.ResponseWriter, r *http.Request) error
 
 // GET
 func (s *APIServer) handleGetGuildById(w http.ResponseWriter, r *http.Request) error {
-	fmt.Println(mux.Vars(r))
 	id, err := GetId(r)
 	if err != nil {
 		log.Println("[api.guild.(s)handleGetGuildById(w,r)] error while executing 'GetId(r)': ", err)
@@ -59,7 +58,6 @@ func (s *APIServer) handleGetGuildById(w http.ResponseWriter, r *http.Request) e
 
 // DELETE
 func (s *APIServer) handleDeleteGuild(w http.ResponseWriter, r *http.Request) error {
-	fmt.Println(mux.Vars(r))
 	id, err := GetId(r)
 	if err != nil {
 		log.Println("[api.guild.handleDeleteGuild(w,r)] error while executing 'GetId(r)': ", err)
@@ -125,13 +123,11 @@ func (s *APIServer) handleGetGuildRole(w http.ResponseWriter, r *http.Request) e
 		log.Println("[api.guild.(s)handleGetGuildRole(w,r)] error while executing 's.store.GetGuildRole()': ", err)
 		return err
 	}
-
 	return WriteJSON(w, http.StatusOK, guildRoleList)
 }
 
 // DELETE
 func (s *APIServer) handleDeleteGuildRole(w http.ResponseWriter, r *http.Request) error {
-	fmt.Println(mux.Vars(r))
 	id, err := GetId(r)
 	if err != nil {
 		log.Println("[api.guild.(s)handleDeleteGuildRole(w,r)] error while executing 'GetId(r)': ", err)
@@ -148,7 +144,6 @@ func (s *APIServer) handleDeleteGuildRole(w http.ResponseWriter, r *http.Request
 
 // PATCH
 func (s *APIServer) handleUpdateGuildRole(w http.ResponseWriter, r *http.Request) error {
-	fmt.Println(mux.Vars(r))
 	id, err := GetId(r)
 	if err != nil {
 		log.Println("[api.guild.(s)handleUpdateGuildRole(w,r)] error while executing 'GetId(r)': ", err)
@@ -161,8 +156,6 @@ func (s *APIServer) handleUpdateGuildRole(w http.ResponseWriter, r *http.Request
 		return err
 	}
 
-	fmt.Println(reqGuildRole)
-	fmt.Println(id)
 	reqGuildRole.Id = id
 
 	if err := s.store.UpdateGuildRole(reqGuildRole); err != nil {

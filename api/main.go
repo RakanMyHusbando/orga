@@ -46,6 +46,7 @@ func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 func GetId(r *http.Request) (int, error) {
 	var intId int
 	if strId := mux.Vars(r)["id"]; strId != "" {
+		fmt.Println("strId: ", strId)
 		res, err := strconv.Atoi(strId)
 		if err != nil {
 			return intId, err
@@ -70,11 +71,11 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/guild", makeHTTPHandleFunc(s.handlerGuild))
 	router.HandleFunc("/guild/{id}", makeHTTPHandleFunc(s.handlerGuild))
 
-	router.HandleFunc("/guild/user", makeHTTPHandleFunc(s.handlerGuildMember))
-	router.HandleFunc("/guild/user/{id}", makeHTTPHandleFunc(s.handlerGuildMember))
+	router.HandleFunc("/guild_user", makeHTTPHandleFunc(s.handlerGuildMember))
+	router.HandleFunc("/guild_user/{id}", makeHTTPHandleFunc(s.handlerGuildMember))
 
-	router.HandleFunc("/guild/role", makeHTTPHandleFunc(s.handlerGuildRole))
-	router.HandleFunc("/guild/role/{id}", makeHTTPHandleFunc(s.handlerGuildRole))
+	router.HandleFunc("/guild_role", makeHTTPHandleFunc(s.handlerGuildRole))
+	router.HandleFunc("/guild_role/{id}", makeHTTPHandleFunc(s.handlerGuildRole))
 
 	log.Println("API server running on ", s.listenAddr)
 

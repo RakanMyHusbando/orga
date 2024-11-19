@@ -15,25 +15,27 @@ func NewSQLiteStorage(dbFile string) (*SQLiteStorage, error) {
 	if err != nil {
 		return nil, err
 	}
+	return &SQLiteStorage{
+		db: db,
+	}, nil
+}
 
+func RunSQLiteStorage(storage *SQLiteStorage, schemaFile string) error {
 	// read sql file with create table statements
 	byteContent, err := os.ReadFile("schema.sql")
 	if err != nil {
-		return nil, err
+		return err
 	}
 	// execute sql create table statements
 	queries := strings.Split(string(byteContent), ";")
 	for i := range queries {
 		query := strings.TrimSpace(queries[i])
-		_, err := db.Exec(query)
+		_, err := storage.db.Exec(query)
 		if err != nil {
-			return nil, fmt.Errorf("%v [Table: %v]", err.Error(), strings.Split(query, " ")[5])
+			return fmt.Errorf("%v [Table: %v]", err.Error(), strings.Split(query, " ")[5])
 		}
 	}
-
-	return &SQLiteStorage{
-		db: db,
-	}, nil
+	return nil
 }
 
 type Storage interface {
