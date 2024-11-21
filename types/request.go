@@ -41,3 +41,9 @@ type ReqTeam struct {
 	Name         string `json:"name"`
 	Abbreviation string `json:"abbreviation"`
 }
+
+type ReqTeamRole struct {
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}

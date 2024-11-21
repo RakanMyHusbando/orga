@@ -37,24 +37,21 @@ func WriteJSON(w http.ResponseWriter, status int, v any) error {
 
 func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := f(w, r); err != nil {
+		errChan := make(chan error)
+		go func() {
+			errChan <- f(w, r)
+		}()
+		if err := <-errChan; err != nil {
 			WriteJSON(w, http.StatusBadRequest, ApiError{err.Error()})
 		}
 	}
 }
 
 func GetId(r *http.Request) (int, error) {
-	var intId int
 	if strId := mux.Vars(r)["id"]; strId != "" {
-		fmt.Println("strId: ", strId)
-		res, err := strconv.Atoi(strId)
-		if err != nil {
-			return intId, err
-		}
-		intId = res
-		return intId, nil
+		return strconv.Atoi(strId)
 	}
-	return intId, nil
+	return -1, fmt.Errorf("id is empty")
 }
 
 func (s *APIServer) Run() {

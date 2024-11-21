@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"encoding/json"
 	"log"
 
 	"github.com/RakanMyHusbando/shogun/types"
@@ -8,19 +9,15 @@ import (
 
 // POST
 func (s *SQLiteStorage) CreateUser(user *types.ReqUser) error {
-	prep, err := s.db.Prepare(`INSERT INTO User (name, discord_id) VALUES (?, ?)`)
+	var values map[string]any
+	bytes, err := json.Marshal(user)
 	if err != nil {
 		return err
 	}
-
-	if _, err = prep.Exec(user.Name, user.DiscordID); err != nil {
+	json.Unmarshal(bytes, &values)
+	if err = s.Insert("User", values); err != nil {
 		return err
 	}
-
-	prep.Close()
-
-	log.Printf("Storage: successfully create user %v", user.Name)
-
 	return nil
 }
 
