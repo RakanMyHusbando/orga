@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/RakanMyHusbando/shogun/types"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -40,6 +41,35 @@ func RunSQLiteStorage(storage *SQLiteStorage, schemaFile string) error {
 }
 
 type Storage interface {
+	// User
+
+	// LeagueOfLegends
+
+	// GameAccount
+
+	// Guild
+
+	// Guild.Role
+
+	// Guild.Member
+
+	// Team
+	InsertTeam(team map[string]any) error
+	GetTeam() ([]*map[string]any, error)
+	GetTeamById(id int) (*map[string]any, error)
+	UpdateTeam(team *types.Team, id int) error
+	DeleteTeam(id int) error
+	// Team.Role
+	CreateTeamRole(role *types.TeamRole) error
+	GetTeamRole() ([]*map[string]any, error)
+	UpdateTeamRole(role *types.TeamRole, id int) error
+	DeletTeamRole(id int) error
+	// Team.Member
+	CreateTeamMember(member *types.TeamMember) error
+	GetTeamMemberByUserId(userId int) ([]*map[string]any, error)
+	GetTeamMemberByTeamId(teamId int) ([]*map[string]any, error)
+	UpdateTeamMember(member *types.TeamMember, id int) error
+	DeleteTeamMember(id int) error
 }
 
 type SQLiteStorage struct {

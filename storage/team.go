@@ -39,11 +39,15 @@ func (s *SQLiteStorage) UpdateTeam(team *types.Team, id int) error {
 	return s.Patch("Team", values, map[string]any{"id": id})
 }
 
+func (s *SQLiteStorage) DeleteTeam(id int) error {
+	return s.Delete("Team", map[string]any{"id": id})
+}
+
 /* ------------------------------ team role ------------------------------ */
 
-func (s *SQLiteStorage) CreateTeamRole(teamRole *types.TeamRole) error {
+func (s *SQLiteStorage) CreateTeamRole(role *types.TeamRole) error {
 	var values map[string]any
-	bytes, err := json.Marshal(teamRole)
+	bytes, err := json.Marshal(role)
 	if err != nil {
 		return err
 	}
@@ -55,9 +59,9 @@ func (s *SQLiteStorage) GetTeamRole() ([]*map[string]any, error) {
 	return s.Select("TeamRole", nil, nil)
 }
 
-func (s *SQLiteStorage) PatchTeamRole(teamRole *types.TeamRole, id int) error {
+func (s *SQLiteStorage) UpdateTeamRole(role *types.TeamRole, id int) error {
 	var values map[string]any
-	bytes, err := json.Marshal(teamRole)
+	bytes, err := json.Marshal(role)
 	if err != nil {
 		return fmt.Errorf("[storage.team] %v", err)
 	}
@@ -69,11 +73,11 @@ func (s *SQLiteStorage) DeletTeamRole(id int) error {
 	return s.Delete("TeamRole", map[string]any{"id": id})
 }
 
-/* ------------------------------ team member ------------------------------ */
+/* ------------------------------ Member ------------------------------ */
 
-func (s *SQLiteStorage) CreateTeamMember(teamMember *types.TeamMember) error {
+func (s *SQLiteStorage) CreateTeamMember(member *types.TeamMember) error {
 	var values map[string]any
-	bytes, err := json.Marshal(teamMember)
+	bytes, err := json.Marshal(member)
 	if err != nil {
 		return err
 	}
@@ -89,9 +93,9 @@ func (s *SQLiteStorage) GetTeamMemberByTeamId(teamId int) (*map[string]any, erro
 	return s.SelectUnique("TeamMember", nil, "team_id", teamId)
 }
 
-func (s *SQLiteStorage) PatchTeamMember(teamMember *types.TeamMember, id int) error {
+func (s *SQLiteStorage) UpdateTeamMember(member *types.TeamMember, id int) error {
 	var values map[string]any
-	bytes, err := json.Marshal(teamMember)
+	bytes, err := json.Marshal(member)
 	if err != nil {
 		return fmt.Errorf("[storage.team] error: %v", err)
 	}

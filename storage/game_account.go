@@ -1,85 +1,44 @@
 package storage
 
 import (
-	"log"
+	"encoding/json"
 
 	"github.com/RakanMyHusbando/shogun/types"
 )
 
-// POST
-func (s *SQLiteStorage) CreateGameAccount(account *types.ReqGameAccount) error {
-	prep, err := s.db.Prepare(`INSERT INTO GameAccount (user_id, game, name) VALUES (?, ?, ?)`)
+func (s *SQLiteStorage) CreateGameAccount(account *types.GameAccount) error {
+	var values map[string]any
+	bytes, err := json.Marshal(account)
 	if err != nil {
 		return err
 	}
-	if _, err = prep.Exec(account.UserId, account.Game, account.Name); err != nil {
-		return err
-	}
-	prep.Close()
-
-	log.Printf(
-		"Storage: successfully create %v account from user with id %v",
-		account.Game,
-		account.UserId,
-	)
-
-	return nil
+	json.Unmarshal(bytes, &values)
+	return s.Insert("GameAccount", values)
 }
 
-// GET
-func (s *SQLiteStorage) GetGameAccountByUserId(userId int, game string) ([]string, error) {
-	rows, err := s.db.Query(`SELECT name FROM GameAccount WHERE user_id = ? AND game = ?`, userId, game)
+func (s *SQLiteStorage) GetGameAccountBy(account *types.GameAccount) ([]*map[string]any, error) {
+	var searcParams map[string]any
+	bytes, err := json.Marshal(account)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-
-	accounts := []string{}
-	for rows.Next() {
-		var account string
-		if err := rows.Scan(&account); err != nil {
-			return nil, err
-		}
-		accounts = append(accounts, account)
+	json.Unmarshal(bytes, &searcParams)
+	if searcParams["userId"] == 0 {
+		searcParams["userId"] = nil
 	}
-
-	return accounts, nil
+	return s.Select("GameAccount", []string{"name"}, searcParams)
 }
 
-// DELETE
-func (s *SQLiteStorage) DeleteGameAccount(account *types.ReqGameAccount) error {
-	prep, err := s.db.Prepare(`DELETE FROM GameAccount WHERE user_id = ? AND name = ?`)
+func (s *SQLiteStorage) DeleteGameAccount(account *types.GameAccount) error {
+	return s.Delete("GameAccount", map[string]any{"name": account.Name, "user_id": account.UserId})
+}
+
+func (s *SQLiteStorage) UpdateGameAccount(account *types.GameAccount, newAccountName string) error {
+	var values map[string]any
+	bytes, err := json.Marshal(account)
 	if err != nil {
 		return err
 	}
-	if _, err = prep.Exec(account.UserId, account.Name); err != nil {
-		return err
-	}
-	prep.Close()
-
-	log.Printf("Storage: successfully deleted %v account (%v) from user with id %v", account.Game, account.Name, account.UserId)
-
-	return nil
-}
-
-// PATCH
-func (s *SQLiteStorage) UpdateGameAccount(account *types.ReqGameAccount, oldName string) error {
-	prep, err := s.db.Prepare(`UPDATE GameAccount SET name = ? WHERE user_id = ? AND name = ?`)
-	if err != nil {
-		return err
-	}
-
-	if _, err = prep.Exec(
-		account.Name,
-		account.UserId,
-		oldName,
-	); err != nil {
-		return err
-	}
-
-	prep.Close()
-
-	log.Printf("Storage: successfully updated %v account from user with id %v", account.Game, account.UserId)
-
-	return nil
+	json.Unmarshal(bytes, &values)
+	return s.Patch("GameAccount", map[string]any{"name": newAccountName}, values)
 }

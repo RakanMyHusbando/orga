@@ -6,11 +6,9 @@ import (
 	"github.com/RakanMyHusbando/shogun/types"
 )
 
-/* ------------------------------ guild ------------------------------ */
-
-func (s *SQLiteStorage) CreateGuild(Guild *types.Guild) error {
+func (s *SQLiteStorage) CreateGuild(guild *types.Guild) error {
 	var values map[string]any
-	bytes, err := json.Marshal(Guild)
+	bytes, err := json.Marshal(guild)
 	if err != nil {
 		return err
 	}
@@ -26,9 +24,9 @@ func (s *SQLiteStorage) GetGuildById(id int) (*map[string]any, error) {
 	return s.SelectUnique("Guild", nil, "id", id)
 }
 
-func (s *SQLiteStorage) UpdateGuild(Guild *types.Guild, id int) error {
+func (s *SQLiteStorage) UpdateGuild(guild *types.Guild, id int) error {
 	var values map[string]any
-	bytes, err := json.Marshal(Guild)
+	bytes, err := json.Marshal(guild)
 	if err != nil {
 		return err
 	}
@@ -36,7 +34,7 @@ func (s *SQLiteStorage) UpdateGuild(Guild *types.Guild, id int) error {
 	return s.Patch("Guild", values, map[string]any{"id": id})
 }
 
-/* ------------------------------ guild role ------------------------------ */
+/* ------------------------------ Role ------------------------------ */
 
 func (s *SQLiteStorage) CreateGuildRole(guildRole *types.GuildRole) error {
 	var values map[string]any
@@ -66,7 +64,7 @@ func (s *SQLiteStorage) UpdateGuildRole(guildRole *types.GuildRole, id int) erro
 	return s.Patch("GuildRole", values, map[string]any{"id": id})
 }
 
-/* ------------------------------ guild member ------------------------------ */
+/* ------------------------------ Member ------------------------------ */
 
 func (s *SQLiteStorage) CreateGuildMember(guildUser *types.GuildMember) error {
 	var values map[string]any

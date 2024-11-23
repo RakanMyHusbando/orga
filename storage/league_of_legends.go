@@ -2,50 +2,28 @@ package storage
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 
 	"github.com/RakanMyHusbando/shogun/types"
 )
 
-func (s *SQLiteStorage) CreateLeagueOfLegends(lol *types.LeagueOfLegends) error {
+func (s *SQLiteStorage) CreateLeagueOfLeagends(lol *types.LeagueOfLegends) error {
 	var values map[string]any
 	bytes, err := json.Marshal(lol)
 	if err != nil {
 		return err
 	}
 	json.Unmarshal(bytes, &values)
-	return s.Insert("UserLeagueOfLegends", values)
+	return s.Insert("LeagueOfLegends", values)
 }
 
-func (s *SQLiteStorage) GetLeagueOfLegendsById(userId int) (*map[string]any, error) {
-	return s.SelectUnique("UserLeagueOfLegends", nil, "user_id", userId)
+func (s *SQLiteStorage) GetLeagueOfLegends() ([]*map[string]any, error) {
+	return s.Select("LeagueOfLegends", nil, nil)
 }
 
-// PATCH
-func (s *SQLiteStorage) UpdateLeagueOfLegends(lol *types.ReqLeagueOfLegends) error {
-	var champs string
-	if lol.MainChamps != nil {
-		for i := range lol.MainChamps {
-			champs += fmt.Sprintf(", champ_%d = '%s'", i, lol.MainChamps[i])
-		}
-	}
-	query := fmt.Sprintf(
-		`UPDATE UserLeagueOfLegends SET main_role = '%s', second_role = '%s' %s WHERE user_id = %d`,
-		lol.MainRole, lol.SecondRole, champs, lol.UserId,
-	)
+func (s *SQLiteStorage) GetLeagueOfLegendsByUserId(userId int) (*map[string]any, error) {
+	return s.SelectUnique("LeagueOfLegends", nil, "user_id", userId)
+}
 
-	prep, err := s.db.Prepare(query)
-	if err != nil {
-		return err
-	}
-	if _, err = prep.Exec(); err != nil {
-		return err
-	}
-
-	prep.Close()
-
-	log.Printf("Storage: successfully update league of legends user with id %v", lol.UserId)
-
-	return nil
+func (s *SQLiteStorage) DeleteLeagueOfLegends(userId int) error {
+	return s.Delete("LeagueOfLegends", map[string]any{"user_id": userId})
 }
