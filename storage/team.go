@@ -2,127 +2,103 @@ package storage
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 
 	"github.com/RakanMyHusbando/shogun/types"
 )
 
 /* ------------------------------ team ------------------------------ */
 
-// POST
-func (s *SQLiteStorage) CreateTeam(team *types.ReqTeam) error {
-	prep, err := s.db.Prepare(`INSERT INTO Team (guild_id, name, abbreviation) VALUES (?,?,?)`)
+func (s *SQLiteStorage) CreateTeam(team *types.Team) error {
+	var values map[string]any
+	bytes, err := json.Marshal(team)
 	if err != nil {
 		return err
 	}
-
-	if _, err = prep.Exec(
-		team.GuildId,
-		team.Name,
-		team.Abbreviation,
-	); err != nil {
-		return err
-	}
-
-	prep.Close()
-	log.Println("Storage: successfully created team")
-
-	return nil
+	json.Unmarshal(bytes, &values)
+	return s.Insert("Team", values)
 }
 
-// GET
-func (s *SQLiteStorage) GetTeam() ([]*types.ResTeam, error) {
-	rows, err := s.db.Query(`SELECT * FROM Team`)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	teams := []*types.ResTeam{}
-	for rows.Next() {
-		team := new(types.ResTeam)
-		if err := rows.Scan(
-			&team.Id,
-			&team.GuildId,
-			&team.Name,
-			&team.Abbreviation,
-		); err != nil {
-			return nil, err
-		}
-		// TODO: add Team-Member relation
-		teams = append(teams, team)
-	}
-
-	log.Println("[Storage.team]: successfully get teams")
-
-	return teams, nil
-}
-
-// GET
-func (s *SQLiteStorage) GetTeamById(id int) (*types.ResTeam, error) {
-	row := s.db.QueryRow(`SELECT * FROM Team WHERE id = ?`, id)
-
-	team := new(types.ResTeam)
-	if err := row.Scan(
-		&team.Id,
-		&team.GuildId,
-		&team.Name,
-		&team.Abbreviation,
-	); err != nil {
-		return nil, err
-	}
+func (s *SQLiteStorage) GetTeam() ([]*map[string]any, error) {
 	// TODO: add Team-Member relation
-
-	return team, nil
+	return s.Select("Team", nil, nil)
 }
 
-// PATCH
-func (s *SQLiteStorage) UpdateTeam(team *types.ResTeam) error {
-	prep, err := s.db.Prepare(`UPDATE Team SET guild_id=?, name=?, abbreviation=? WHERE id=?`)
+func (s *SQLiteStorage) GetTeamById(id int) (*map[string]any, error) {
+	// TODO: add Team-Member relation
+	return s.SelectUnique("Team", nil, "id", id)
+}
+
+func (s *SQLiteStorage) UpdateTeam(team *types.Team, id int) error {
+	var values map[string]any
+	bytes, err := json.Marshal(team)
 	if err != nil {
 		return err
 	}
-	if _, err = prep.Exec(
-		team.GuildId,
-		team.Name,
-		team.Abbreviation,
-		team.Id,
-	); err != nil {
-		return err
-	}
-	prep.Close()
-	log.Println("[Storage.team]: successfully updated team")
-	return nil
+	json.Unmarshal(bytes, &values)
+	return s.Patch("Team", values, map[string]any{"id": id})
 }
 
 /* ------------------------------ team role ------------------------------ */
 
-// POST
-func (s *SQLiteStorage) CreateTeamRole(teamRole *types.ReqTeamRole) error {
+func (s *SQLiteStorage) CreateTeamRole(teamRole *types.TeamRole) error {
 	var values map[string]any
 	bytes, err := json.Marshal(teamRole)
 	if err != nil {
 		return err
 	}
 	json.Unmarshal(bytes, &values)
-	if err = s.Insert("TeamRole", values); err != nil {
-		return err
-	}
-	return nil
+	return s.Insert("TeamRole", values)
 }
 
-// GET
 func (s *SQLiteStorage) GetTeamRole() ([]*map[string]any, error) {
-	data, err := s.Select("TeamRole", nil, nil)
-	if err != nil {
-		return nil, err
-	}
-	return data, nil
+	return s.Select("TeamRole", nil, nil)
 }
 
-// DELET
+func (s *SQLiteStorage) PatchTeamRole(teamRole *types.TeamRole, id int) error {
+	var values map[string]any
+	bytes, err := json.Marshal(teamRole)
+	if err != nil {
+		return fmt.Errorf("[storage.team] %v", err)
+	}
+	json.Unmarshal(bytes, &values)
+	return s.Patch("TeamRole", values, map[string]any{"id": id})
+}
+
 func (s *SQLiteStorage) DeletTeamRole(id int) error {
-	return nil
+	return s.Delete("TeamRole", map[string]any{"id": id})
 }
 
 /* ------------------------------ team member ------------------------------ */
+
+func (s *SQLiteStorage) CreateTeamMember(teamMember *types.TeamMember) error {
+	var values map[string]any
+	bytes, err := json.Marshal(teamMember)
+	if err != nil {
+		return err
+	}
+	json.Unmarshal(bytes, &values)
+	return s.Insert("TeamMember", values)
+}
+
+func (s *SQLiteStorage) GetTeamMemberByUserId(userId int) (*map[string]any, error) {
+	return s.SelectUnique("TeamMember", nil, "user_id", userId)
+}
+
+func (s *SQLiteStorage) GetTeamMemberByTeamId(teamId int) (*map[string]any, error) {
+	return s.SelectUnique("TeamMember", nil, "team_id", teamId)
+}
+
+func (s *SQLiteStorage) PatchTeamMember(teamMember *types.TeamMember, id int) error {
+	var values map[string]any
+	bytes, err := json.Marshal(teamMember)
+	if err != nil {
+		return fmt.Errorf("[storage.team] error: %v", err)
+	}
+	json.Unmarshal(bytes, &values)
+	return s.Patch("TeamMember", values, map[string]any{"id": id})
+}
+
+func (s *SQLiteStorage) DeleteTeamMember(id int) error {
+	return s.Delete("TeamMember", map[string]any{"id": id})
+}

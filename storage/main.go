@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/RakanMyHusbando/shogun/types"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -41,47 +40,6 @@ func RunSQLiteStorage(storage *SQLiteStorage, schemaFile string) error {
 }
 
 type Storage interface {
-	Delete(table string, where map[string]any) error
-
-	// user.go
-	CreateUser(*types.ReqUser) error
-	GetUser() ([]*types.ResUser, error)
-	GetUserById(int) (*types.ResUser, error)
-	GetUserIds() ([]*int, error)
-	UpdateUser(*types.ResUser) error
-
-	// league_of_legends.go
-	CreateLeagueOfLegends(*types.ReqLeagueOfLegends) error
-	GetLeagueOfLegendsById(int) (*types.ResLeagueOfLegends, error)
-	GetLeagueOfLegendsWithAccountsById(int) (*types.ResLeagueOfLegends, error)
-	UpdateLeagueOfLegends(*types.ReqLeagueOfLegends) error
-
-	// game_accounts.go
-	CreateGameAccount(*types.ReqGameAccount) error
-	GetGameAccountByUserId(int, string) ([]string, error)
-	DeleteGameAccount(*types.ReqGameAccount) error
-	UpdateGameAccount(*types.ReqGameAccount, string) error
-
-	// guild.go guild
-	CreateGuild(*types.ReqGuild) error
-	GetGuild() ([]*types.ResGuild, error)
-	GetGuildById(int) (*types.ResGuild, error)
-	UpdateGuild(*types.ResGuild) error
-
-	// guidl.go guild role
-	CreateGuildRole(*types.ReqGuildRole) error
-	GetGuildRole() ([]*types.ReqGuildRole, error)
-	GetGuildRoleById(int) (*types.ReqGuildRole, error)
-	UpdateGuildRole(*types.ReqGuildRole) error
-
-	// guild.go guild member
-	CreateGuildMember(*types.ReqGuildMember) error
-	GetGuildMemberByGuildId(int) ([]*types.ReqGuildMember, error)
-	GetGuildMemberMapByGuildId(int) (map[string][]string, error)
-	UpdateGuildMember(*types.ReqGuildMember) error
-
-	// team.go
-
 }
 
 type SQLiteStorage struct {
@@ -95,17 +53,19 @@ func (s *SQLiteStorage) Insert(table string, insertValues map[string]any) error 
 	var keys, values string
 	first := true
 	for key, value := range insertValues {
-		if !first {
-			keys += ", "
-			values += ", "
-		} else {
-			first = false
+		if value != nil {
+			if !first {
+				keys += ", "
+				values += ", "
+			} else {
+				first = false
+			}
+			if reflect.TypeOf(value).String() == "string" {
+				value = fmt.Sprintf("'%v'", value)
+			}
+			keys += key
+			values = fmt.Sprintln(values, value)
 		}
-		if reflect.TypeOf(value).String() == "string" {
-			value = fmt.Sprintf("'%v'", value)
-		}
-		keys += key
-		values = fmt.Sprintln(values, value)
 	}
 	query := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", table, keys, values)
 	prep, err := s.db.Prepare(query)
@@ -131,12 +91,14 @@ func (s *SQLiteStorage) Select(table string, selectKeys []string, where map[stri
 	query := fmt.Sprintf("SELECT %s FROM %s WHERE ", selectKeysStr, table)
 	first := true
 	for key, value := range where {
-		if !first {
-			query += " AND "
-		} else {
-			first = false
+		if value != nil {
+			if !first {
+				query += " AND "
+			} else {
+				first = false
+			}
+			query += fmt.Sprintf("%s = %v", key, value)
 		}
-		query += fmt.Sprintf("%s = %v", key, value)
 	}
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -177,12 +139,15 @@ func (s *SQLiteStorage) Patch(table string, set map[string]any, where map[string
 	query := fmt.Sprintf(`UPDATE %s SET `, table)
 	first := true
 	for key, value := range set {
-		if !first {
-			query += ", "
-		} else {
-			first = false
+		if value != nil {
+
+			if !first {
+				query += ", "
+			} else {
+				first = false
+			}
+			query += fmt.Sprintf(`%s = %v`, key, value)
 		}
-		query += fmt.Sprintf(`%s = %v`, key, value)
 	}
 	query += " WHERE "
 	first = true
@@ -211,12 +176,14 @@ func (s *SQLiteStorage) Delete(table string, where map[string]any) error {
 	query := fmt.Sprintf(`DELETE FROM %s WHERE `, table)
 	first := true
 	for key, value := range where {
-		if !first {
-			query += " AND "
-		} else {
-			first = false
+		if value == nil {
+			if !first {
+				query += " AND "
+			} else {
+				first = false
+			}
+			query += fmt.Sprintf(`%s = %v`, key, value)
 		}
-		query += fmt.Sprintf(`%s = %v`, key, value)
 	}
 	prep, err := s.db.Prepare(query)
 	if err != nil {
@@ -231,13 +198,3 @@ func (s *SQLiteStorage) Delete(table string, where map[string]any) error {
 }
 
 /* ------------------------------ helper functions ------------------------------ */
-
-func InterfaceToMap(v interface{}) map[string]any {
-	elem := make(map[string]any)
-	val := reflect.ValueOf(v).Elem()
-	typ := val.Type()
-	for i := 0; i < val.NumField(); i++ {
-		elem[typ.Field(i).Name] = val.Field(i).Interface()
-	}
-	return elem
-}
