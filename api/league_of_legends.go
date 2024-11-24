@@ -3,63 +3,49 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/RakanMyHusbando/shogun/types"
+	"github.com/gorilla/mux"
 )
 
-// POST
 func (s *APIServer) handleCreateLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
 		return err
 	}
-
 	lol := new(types.LeagueOfLegends)
 	if err := json.NewDecoder(r.Body).Decode(&lol); err != nil {
 		return err
 	}
-
-	lol.UserId = id
-
-	if err := s.store.CreateLeagueOfLeagends(lol); err != nil {
+	if err := s.store.CreateLeagueOfLeagends(lol, id); err != nil {
 		return err
 	}
-
-	return WriteJSON(w, http.StatusOK, lol)
+	respMessage := "[api.league_of_leagends] league_of_legends added to user with id " + mux.Vars(r)["id"]
+	return WriteJSON(w, http.StatusOK, respMessage)
 }
 
-// DELETE
 func (s *APIServer) handleDeleteLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
 		return err
 	}
-
-	if err := s.store.Delete("UserLeagueOfLegends", map[string]any{"user_id": id}); err != nil {
-		return err
-	}
-
-	return WriteJSON(w, http.StatusOK, "league_of_legends deleted from user with id "+strconv.Itoa(id))
+	s.store.DeleteLeagueOfLegends(id)
+	respMessage := "[api.league_of_legends] league_of_legends deleted from user with id " + mux.Vars(r)["id"]
+	return WriteJSON(w, http.StatusOK, respMessage)
 }
 
-// PATCH
 func (s *APIServer) handleUpdateLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
 		return err
 	}
-
-	reqUserLol := new(types.ReqLeagueOfLegends)
-	if err := json.NewDecoder(r.Body).Decode(&reqUserLol); err != nil {
+	lol := new(types.LeagueOfLegends)
+	if err := json.NewDecoder(r.Body).Decode(&lol); err != nil {
 		return err
 	}
-
-	reqUserLol.UserId = id
-
-	if err := s.store.UpdateLeagueOfLegends(reqUserLol); err != nil {
+	if err := s.store.UpdateLeagueOfLegends(lol, id); err != nil {
 		return err
 	}
-
-	return WriteJSON(w, http.StatusOK, reqUserLol)
+	respMessage := "[api.league_of_legends] league_of_legends updated for user with id " + mux.Vars(r)["id"]
+	return WriteJSON(w, http.StatusOK, respMessage)
 }

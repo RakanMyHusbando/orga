@@ -51,7 +51,7 @@ type Storage interface {
 
 	// LeagueOfLegends
 
-	CreateLeagueOfLeagends(lol *types.LeagueOfLegends) error
+	CreateLeagueOfLeagends(lol *types.LeagueOfLegends, userId int) error
 	GetLeagueOfLegends() ([]*map[string]any, error)
 	GetLeagueOfLegendsByUserId(userId int) ([]*map[string]any, error)
 	UpdateLeagueOfLegends(lol *types.LeagueOfLegends, userId int) error
