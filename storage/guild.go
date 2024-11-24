@@ -31,7 +31,7 @@ func (s *SQLiteStorage) UpdateGuild(guild *types.Guild, id int) error {
 		return err
 	}
 	json.Unmarshal(bytes, &values)
-	return s.Patch("Guild", values, map[string]any{"id": id})
+	return s.Update("Guild", values, map[string]any{"id": id})
 }
 
 /* ------------------------------ Role ------------------------------ */
@@ -61,7 +61,11 @@ func (s *SQLiteStorage) UpdateGuildRole(guildRole *types.GuildRole, id int) erro
 		return err
 	}
 	json.Unmarshal(bytes, &values)
-	return s.Patch("GuildRole", values, map[string]any{"id": id})
+	return s.Update("GuildRole", values, map[string]any{"id": id})
+}
+
+func (s *SQLiteStorage) DeleteGuildRole(id int) error {
+	return s.Delete("GuildRole", map[string]any{"id": id})
 }
 
 /* ------------------------------ Member ------------------------------ */
@@ -80,6 +84,10 @@ func (s *SQLiteStorage) GetGuildMemberByGuildId(guildId int) ([]*map[string]any,
 	return s.Select("GuildUser", nil, map[string]any{"guild_id": guildId})
 }
 
+func (s *SQLiteStorage) GetGuildMemberByUserId(userId int) ([]*map[string]any, error) {
+	return s.Select("GuildUser", nil, map[string]any{"user_id": userId})
+}
+
 func (s *SQLiteStorage) UpdateGuildMember(guildUser *types.GuildMember, userId int) error {
 	var values map[string]any
 	bytes, err := json.Marshal(guildUser)
@@ -87,7 +95,7 @@ func (s *SQLiteStorage) UpdateGuildMember(guildUser *types.GuildMember, userId i
 		return err
 	}
 	json.Unmarshal(bytes, &values)
-	return s.Patch("GuildUser", values, map[string]any{"user_id": userId})
+	return s.Update("GuildUser", values, map[string]any{"user_id": userId})
 }
 
 func (s *SQLiteStorage) DeleteGuildMember(userId int) error {

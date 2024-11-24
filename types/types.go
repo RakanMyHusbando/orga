@@ -16,6 +16,7 @@ type LeagueOfLegends struct {
 	MainRole   string   `json:"main_role"`
 	SecondRole string   `json:"second_role"`
 	MainChamps []string `json:"main_champs"`
+	Accounts   []string `json:"accounts"`
 }
 
 type Guild struct {

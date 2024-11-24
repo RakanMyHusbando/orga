@@ -33,7 +33,7 @@ func (s *SQLiteStorage) UpdateUser(user *types.User, id int) error {
 		return err
 	}
 	json.Unmarshal(bytes, &values)
-	return s.Patch("User", values, map[string]any{"id": id})
+	return s.Update("User", values, map[string]any{"id": id})
 }
 
 func (s *SQLiteStorage) DeleteUser(id int) error {

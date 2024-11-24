@@ -36,7 +36,7 @@ func (s *SQLiteStorage) UpdateTeam(team *types.Team, id int) error {
 		return err
 	}
 	json.Unmarshal(bytes, &values)
-	return s.Patch("Team", values, map[string]any{"id": id})
+	return s.Update("Team", values, map[string]any{"id": id})
 }
 
 func (s *SQLiteStorage) DeleteTeam(id int) error {
@@ -66,7 +66,7 @@ func (s *SQLiteStorage) UpdateTeamRole(role *types.TeamRole, id int) error {
 		return fmt.Errorf("[storage.team] %v", err)
 	}
 	json.Unmarshal(bytes, &values)
-	return s.Patch("TeamRole", values, map[string]any{"id": id})
+	return s.Update("TeamRole", values, map[string]any{"id": id})
 }
 
 func (s *SQLiteStorage) DeletTeamRole(id int) error {
@@ -100,7 +100,7 @@ func (s *SQLiteStorage) UpdateTeamMember(member *types.TeamMember, id int) error
 		return fmt.Errorf("[storage.team] error: %v", err)
 	}
 	json.Unmarshal(bytes, &values)
-	return s.Patch("TeamMember", values, map[string]any{"id": id})
+	return s.Update("TeamMember", values, map[string]any{"id": id})
 }
 
 func (s *SQLiteStorage) DeleteTeamMember(id int) error {

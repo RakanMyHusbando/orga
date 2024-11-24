@@ -27,3 +27,13 @@ func (s *SQLiteStorage) GetLeagueOfLegendsByUserId(userId int) (*map[string]any,
 func (s *SQLiteStorage) DeleteLeagueOfLegends(userId int) error {
 	return s.Delete("LeagueOfLegends", map[string]any{"user_id": userId})
 }
+
+func (s *SQLiteStorage) UpdateLeagueOfLegends(lol *types.LeagueOfLegends, userId int) error {
+	var values map[string]any
+	bytes, err := json.Marshal(lol)
+	if err != nil {
+		return err
+	}
+	json.Unmarshal(bytes, &values)
+	return s.Update("LeagueOfLegends", values, map[string]any{"user_id": userId})
+}

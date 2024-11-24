@@ -43,28 +43,67 @@ func RunSQLiteStorage(storage *SQLiteStorage, schemaFile string) error {
 type Storage interface {
 	// User
 
+	CreateUser(user *types.User) error
+	GetUser(selectKeys []string) ([]*map[string]any, error)
+	GetUserById(id int) (*map[string]any, error)
+	UpdateUser(user *types.User, id int) error
+	DeleteUser(id int) error
+
 	// LeagueOfLegends
+
+	CreateLeagueOfLeagends(lol *types.LeagueOfLegends) error
+	GetLeagueOfLegends() ([]*map[string]any, error)
+	GetLeagueOfLegendsByUserId(userId int) (*map[string]any, error)
+	UpdateLeagueOfLegends(lol *types.LeagueOfLegends, userId int) error
+	DeleteLeagueOfLegends(userId int) error
 
 	// GameAccount
 
+	CreateGameAccount(account *types.GameAccount) error
+	GetGameAccountBy(account *types.GameAccount) ([]*map[string]any, error)
+	UpdateGameAccount(userId int, oldName string, newName string) error
+	DeleteGameAccount(userId int, name string) error
+
 	// Guild
+
+	CreateGuild(guild *types.Guild) error
+	GetGuild() ([]*map[string]any, error)
+	GetGuildById(id int) (*map[string]any, error)
+	UpdateGuild(guild *types.Guild, id int) error
 
 	// Guild.Role
 
+	CreateGuildRole(guildRole *types.GuildRole) error
+	GetGuildRole() ([]*map[string]any, error)
+	GetGuildRoleById(id int) (*map[string]any, error)
+	UpdateGuildRole(guildRole *types.GuildRole, id int) error
+	DeleteGuildRole(id int) error
+
 	// Guild.Member
 
+	CreateGuildMember(guildUser *types.GuildMember) error
+	GetGuildMemberByGuildId(guildId int) ([]*map[string]any, error)
+	GetGuildMemberByUserId(userId int) ([]*map[string]any, error)
+	UpdateGuildMember(guildUser *types.GuildMember, userId int) error
+	DeleteGuildMember(userId int) error
+
 	// Team
+
 	InsertTeam(team map[string]any) error
 	GetTeam() ([]*map[string]any, error)
 	GetTeamById(id int) (*map[string]any, error)
 	UpdateTeam(team *types.Team, id int) error
 	DeleteTeam(id int) error
+
 	// Team.Role
+
 	CreateTeamRole(role *types.TeamRole) error
 	GetTeamRole() ([]*map[string]any, error)
 	UpdateTeamRole(role *types.TeamRole, id int) error
 	DeletTeamRole(id int) error
+
 	// Team.Member
+
 	CreateTeamMember(member *types.TeamMember) error
 	GetTeamMemberByUserId(userId int) ([]*map[string]any, error)
 	GetTeamMemberByTeamId(teamId int) ([]*map[string]any, error)
@@ -78,7 +117,6 @@ type SQLiteStorage struct {
 
 /* ------------------------------ SQLite reqs ------------------------------ */
 
-// CREATE
 func (s *SQLiteStorage) Insert(table string, insertValues map[string]any) error {
 	var keys, values string
 	first := true
@@ -110,7 +148,6 @@ func (s *SQLiteStorage) Insert(table string, insertValues map[string]any) error 
 	return nil
 }
 
-// GET
 func (s *SQLiteStorage) Select(table string, selectKeys []string, where map[string]any) ([]*map[string]any, error) {
 	var selectKeysStr string
 	if len(selectKeys) == 0 || selectKeys == nil {
@@ -147,7 +184,6 @@ func (s *SQLiteStorage) Select(table string, selectKeys []string, where map[stri
 	return elems, nil
 }
 
-// GET
 func (s *SQLiteStorage) SelectUnique(table string, selectKeys []string, whereKey string, whereValeu any) (*map[string]any, error) {
 	query := fmt.Sprintf(
 		"SELECT %s FROM %s WHERE %s = %v",
@@ -164,8 +200,7 @@ func (s *SQLiteStorage) SelectUnique(table string, selectKeys []string, whereKey
 	return &elem, nil
 }
 
-// PATCH
-func (s *SQLiteStorage) Patch(table string, set map[string]any, where map[string]any) error {
+func (s *SQLiteStorage) Update(table string, set map[string]any, where map[string]any) error {
 	query := fmt.Sprintf(`UPDATE %s SET `, table)
 	first := true
 	for key, value := range set {
@@ -201,7 +236,6 @@ func (s *SQLiteStorage) Patch(table string, set map[string]any, where map[string
 	return nil
 }
 
-// DELETE
 func (s *SQLiteStorage) Delete(table string, where map[string]any) error {
 	query := fmt.Sprintf(`DELETE FROM %s WHERE `, table)
 	first := true
@@ -226,5 +260,3 @@ func (s *SQLiteStorage) Delete(table string, where map[string]any) error {
 	log.Println("[Storage.main] delete element from ", table)
 	return nil
 }
-
-/* ------------------------------ helper functions ------------------------------ */

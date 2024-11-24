@@ -15,18 +15,18 @@ func (s *APIServer) handleCreateLeagueOfLegends(w http.ResponseWriter, r *http.R
 		return err
 	}
 
-	reqUserLol := new(types.ReqLeagueOfLegends)
-	if err := json.NewDecoder(r.Body).Decode(&reqUserLol); err != nil {
+	lol := new(types.LeagueOfLegends)
+	if err := json.NewDecoder(r.Body).Decode(&lol); err != nil {
 		return err
 	}
 
-	reqUserLol.UserId = id
+	lol.UserId = id
 
-	if err := s.store.CreateLeagueOfLegends(reqUserLol); err != nil {
+	if err := s.store.CreateLeagueOfLeagends(lol); err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, reqUserLol)
+	return WriteJSON(w, http.StatusOK, lol)
 }
 
 // DELETE

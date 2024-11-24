@@ -29,16 +29,12 @@ func (s *SQLiteStorage) GetGameAccountBy(account *types.GameAccount) ([]*map[str
 	return s.Select("GameAccount", []string{"name"}, searcParams)
 }
 
-func (s *SQLiteStorage) DeleteGameAccount(account *types.GameAccount) error {
-	return s.Delete("GameAccount", map[string]any{"name": account.Name, "user_id": account.UserId})
+func (s *SQLiteStorage) UpdateGameAccount(userId int, oldName string, newName string) error {
+	set := map[string]any{"name": newName}
+	where := map[string]any{"name": oldName, "user_id": userId}
+	return s.Update("GameAccount", set, where)
 }
 
-func (s *SQLiteStorage) UpdateGameAccount(account *types.GameAccount, newAccountName string) error {
-	var values map[string]any
-	bytes, err := json.Marshal(account)
-	if err != nil {
-		return err
-	}
-	json.Unmarshal(bytes, &values)
-	return s.Patch("GameAccount", map[string]any{"name": newAccountName}, values)
+func (s *SQLiteStorage) DeleteGameAccount(userId int, name string) error {
+	return s.Delete("GameAccount", map[string]any{"name": name, "user_id": userId})
 }
