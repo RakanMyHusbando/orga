@@ -34,6 +34,10 @@ func (s *SQLiteStorage) UpdateGuild(guild *types.Guild, id int) error {
 	return s.Update("Guild", values, map[string]any{"id": id})
 }
 
+func (s *SQLiteStorage) DeleteGuild(id int) error {
+	return s.Delete("Guild", map[string]any{"id": id})
+}
+
 /* ------------------------------ Role ------------------------------ */
 
 func (s *SQLiteStorage) CreateGuildRole(guildRole *types.GuildRole) error {

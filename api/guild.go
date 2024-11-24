@@ -2,8 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/RakanMyHusbando/shogun/types"
@@ -11,215 +9,140 @@ import (
 
 /* --------------------------------- handler guild --------------------------------- */
 
-// POST
 func (s *APIServer) handleCreateGuild(w http.ResponseWriter, r *http.Request) error {
-	reqGuild := new(types.ReqGuild)
-	if err := json.NewDecoder(r.Body).Decode(&reqGuild); err != nil {
-		log.Println("[api.guild.(s)handleCreateGuild(w,r)] error while executing 'json.NewDecoder(r.Body).Decode(&reqGuild)': ", err)
+	guild := new(types.Guild)
+	if err := json.NewDecoder(r.Body).Decode(&guild); err != nil {
 		return err
 	}
-
-	if err := s.store.CreateGuild(reqGuild); err != nil {
-		log.Println("[api.guild.(s)handleCreateGuild(w,r)] error while executing 's.store.CreateGuild(reqGuild)': ", err)
+	if err := s.store.CreateGuild(guild); err != nil {
 		return err
 	}
-
 	return WriteJSON(w, http.StatusOK, "guild created")
 }
 
-// GET
 func (s *APIServer) handleGetGuild(w http.ResponseWriter, r *http.Request) error {
-	guildList, err := s.store.GetGuild()
-	if err != nil {
-		log.Println("[api.guild.(s)handleGetGuild(w,r)] error while executing 's.store.GetGuild()': ", err)
-		return err
-	}
-
-	return WriteJSON(w, http.StatusOK, guildList)
-}
-
-// GET
-func (s *APIServer) handleGetGuildById(w http.ResponseWriter, r *http.Request) error {
+	var guild []*map[string]any
 	id, err := GetId(r)
 	if err != nil {
-		log.Println("[api.guild.(s)handleGetGuildById(w,r)] error while executing 'GetId(r)': ", err)
-		return err
+		guild, err = s.store.GetGuild()
+	} else {
+		guild, err = s.store.GetGuildById(id)
 	}
-
-	guild, err := s.store.GetGuildById(id)
 	if err != nil {
-		log.Println("[api.guild.(s)handleGetGuildById(w,r)] error while executing 'GetId(r)': ", err)
 		return err
 	}
-
 	return WriteJSON(w, http.StatusOK, guild)
 }
 
-// DELETE
-func (s *APIServer) handleDeleteGuild(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		log.Println("[api.guild.handleDeleteGuild(w,r)] error while executing 'GetId(r)': ", err)
-		return err
-	}
-
-	if err := s.store.Delete("Guild", map[string]any{"id": id}); err != nil {
-		log.Println("[api.guild.(s)handleDeleteGuild(w,r)] error while executing 's.store.DeleteGuild(id)': ", err)
-		return err
-	}
-
-	return WriteJSON(w, http.StatusOK, fmt.Sprintln("deleted guild with id ", id))
-}
-
-// PATCH
 func (s *APIServer) handleUpdateGuild(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
-		log.Println("[api.guild.(s)handleUpdateGuild(w,r)] error while executing 'GetId(r)': ", err)
 		return err
 	}
-
-	resGuild := new(types.ResGuild)
-	if err := json.NewDecoder(r.Body).Decode(&resGuild); err != nil {
-		log.Println("[api.guild.(s)handleUpdateGuild(w,r)] error while executing 'json.NewDecoder(r.Body).Decode(&resGuild)': ", err)
+	guild := new(types.Guild)
+	if err := json.NewDecoder(r.Body).Decode(&guild); err != nil {
 		return err
 	}
-
-	resGuild.Id = id
-
-	if err := s.store.UpdateGuild(resGuild); err != nil {
-		log.Println("[api.guild.(s)handleUpdateGuild(w,r)] error while executing 's.store.UpdateGuild(resGuild)': ", err)
+	if err := s.store.UpdateGuild(guild, id); err != nil {
 		return err
 	}
+	return WriteJSON(w, http.StatusOK, "guild updated")
+}
 
-	return WriteJSON(w, http.StatusOK, resGuild)
+func (s *APIServer) handleDeleteGuild(w http.ResponseWriter, r *http.Request) error {
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+	if err := s.store.DeleteGuild(id); err != nil {
+		return err
+	}
+	return WriteJSON(w, http.StatusOK, "deleted guild")
 }
 
 /* --------------------------------- handler guild role --------------------------------- */
 
-// POST
 func (s *APIServer) handleCreateGuildRole(w http.ResponseWriter, r *http.Request) error {
-
-	reqGuildRole := new(types.ReqGuildRole)
-	if err := json.NewDecoder(r.Body).Decode(&reqGuildRole); err != nil {
-		log.Println("[api.guild.(s)handleCreateGuildRole(w,r)] error while executing 'json.NewDecoder(r.Body).Decode(&reqGuildRole)': ", err)
+	role := new(types.GuildRole)
+	if err := json.NewDecoder(r.Body).Decode(&role); err != nil {
 		return err
 	}
-
-	if err := s.store.CreateGuildRole(reqGuildRole); err != nil {
-		log.Println("[api.guild.(s)handleCreateGuildRole(w,r)] error while executing 's.store.CreateGuildRole(reqGuildRole)': ", err)
+	if err := s.store.CreateGuildRole(role); err != nil {
 		return err
 	}
-
-	return WriteJSON(w, http.StatusOK, reqGuildRole)
+	return WriteJSON(w, http.StatusOK, "guild role created")
 }
 
-// GET
 func (s *APIServer) handleGetGuildRole(w http.ResponseWriter, r *http.Request) error {
-	guildRoleList, err := s.store.GetGuildRole()
+	role, err := s.store.GetGuildRole()
 	if err != nil {
-		log.Println("[api.guild.(s)handleGetGuildRole(w,r)] error while executing 's.store.GetGuildRole()': ", err)
 		return err
 	}
-	return WriteJSON(w, http.StatusOK, guildRoleList)
+	return WriteJSON(w, http.StatusOK, role)
 }
 
-// DELETE
-func (s *APIServer) handleDeleteGuildRole(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		log.Println("[api.guild.(s)handleDeleteGuildRole(w,r)] error while executing 'GetId(r)': ", err)
-		return err
-	}
-
-	if err := s.store.Delete("GuildRole", map[string]any{"id": id}); err != nil {
-		log.Println("[api.guild.(s)handleDeleteGuildRole(w,r)] error while executing 's.store.DeleteGuildRole(id)': ", err)
-		return err
-	}
-
-	return WriteJSON(w, http.StatusOK, fmt.Sprintln("deleted guild role with id ", id))
-}
-
-// PATCH
 func (s *APIServer) handleUpdateGuildRole(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
-		log.Println("[api.guild.(s)handleUpdateGuildRole(w,r)] error while executing 'GetId(r)': ", err)
+		return err
+	}
+	role := new(types.GuildRole)
+	if err := json.NewDecoder(r.Body).Decode(&role); err != nil {
+		return err
+	}
+	if err := s.store.UpdateGuildRole(role, id); err != nil {
+		return err
+	}
+	return WriteJSON(w, http.StatusOK, "guild role updated")
+}
+
+func (s *APIServer) handleDeleteGuildRole(w http.ResponseWriter, r *http.Request) error {
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+	if err := s.store.DeleteGuildRole(id); err != nil {
 		return err
 	}
 
-	reqGuildRole := new(types.ReqGuildRole)
-	if err := json.NewDecoder(r.Body).Decode(&reqGuildRole); err != nil {
-		log.Println("[api.guild.(s)handleUpdateGuildRole(w,r)] error while executing 'json.NewDecoder(r.Body).Decode(&reqGuildRole)': ", err)
-		return err
-	}
-
-	reqGuildRole.Id = id
-
-	if err := s.store.UpdateGuildRole(reqGuildRole); err != nil {
-		log.Println("[api.guild.(s)handleUpdateGuildRole(w,r)] error while executing 's.store.UpdateGuildRole(reqGuildRole)': ", err)
-		return err
-	}
-
-	return WriteJSON(w, http.StatusOK, reqGuildRole)
+	return WriteJSON(w, http.StatusOK, "deleted guild role")
 }
 
 /* --------------------------------- handler guild member --------------------------------- */
 
-// POST
 func (s *APIServer) handleCreateGuildMember(w http.ResponseWriter, r *http.Request) error {
-	guildMember := new(types.ReqGuildMember)
-
-	if err := json.NewDecoder(r.Body).Decode(&guildMember); err != nil {
-		log.Println("[api.guild.(s)handleCreateGuildMember(w,r)] error while executing 'json.NewDecoder(r.Body).Decode(&guildMember)': ", err)
+	member := new(types.GuildMember)
+	if err := json.NewDecoder(r.Body).Decode(&member); err != nil {
 		return err
 	}
-
-	if err := s.store.CreateGuildMember(guildMember); err != nil {
-		log.Println("[api.guild.(s)handleCreateGuildMember(w,r)] error while executing 's.store.CreateGuildMember(guildMember)': ", err)
+	if err := s.store.CreateGuildMember(member); err != nil {
 		return err
 	}
-
-	return WriteJSON(w, http.StatusOK, guildMember)
+	return WriteJSON(w, http.StatusOK, "guild member created")
 }
 
-// DELETE
-func (s *APIServer) handleDeleteGuildMember(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		log.Println("[api.guild.(s)handleDeleteGuildMember(w,r)] error while executing 'GetId(r)': ", err)
-		return err
-	}
-
-	if err := s.store.Delete("GuildUser", map[string]any{"user_id": id}); err != nil {
-		log.Println("[api.guild.(s)handleDeleteGuildMember(w,r)] error while executing 's.store.DeleteGuildMember(id)': ", err)
-		return err
-	}
-
-	return WriteJSON(w, http.StatusOK, fmt.Sprintln("deleted guild member with id ", id))
-}
-
-// PATCH
 func (s *APIServer) handleUpdateGuildMember(w http.ResponseWriter, r *http.Request) error {
 	id, err := GetId(r)
 	if err != nil {
-		log.Println("[api.guild.(s)handleUpdateGuildMember(w,r)] error while executing 'GetId(r)': ", err)
 		return err
 	}
-
-	guildMember := new(types.ReqGuildMember)
-
-	if err := json.NewDecoder(r.Body).Decode(&guildMember); err != nil {
-		log.Println("[api.guild.(s)handleUpdateGuildMember(w,r)] error while executing 'json.NewDecoder(r.Body).Decode(&guildMember)': ", err)
+	member := new(types.GuildMember)
+	if err := json.NewDecoder(r.Body).Decode(&member); err != nil {
 		return err
 	}
-
-	guildMember.UserId = id
-
-	if err := s.store.UpdateGuildMember(guildMember); err != nil {
-		log.Println("[api.guild.(s)handleUpdateGuildMember(w,r)] error while executing 's.store.UpdateGuildMember(guildMember)': ", err)
+	if err := s.store.UpdateGuildMember(member, id); err != nil {
 		return err
 	}
+	return WriteJSON(w, http.StatusOK, "guild member updated")
+}
 
-	return WriteJSON(w, http.StatusOK, guildMember)
+func (s *APIServer) handleDeleteGuildMember(w http.ResponseWriter, r *http.Request) error {
+	id, err := GetId(r)
+	if err != nil {
+		return err
+	}
+	if err := s.store.DeleteGuildMember(id); err != nil {
+		return err
+	}
+	return WriteJSON(w, http.StatusOK, "deleted guild member")
 }

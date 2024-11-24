@@ -6,13 +6,14 @@ import (
 	"github.com/RakanMyHusbando/shogun/types"
 )
 
-func (s *SQLiteStorage) CreateLeagueOfLeagends(lol *types.LeagueOfLegends) error {
+func (s *SQLiteStorage) CreateLeagueOfLeagends(lol *types.LeagueOfLegends, userId int) error {
 	var values map[string]any
 	bytes, err := json.Marshal(lol)
 	if err != nil {
 		return err
 	}
 	json.Unmarshal(bytes, &values)
+	values["user_id"] = userId
 	return s.Insert("LeagueOfLegends", values)
 }
 

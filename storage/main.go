@@ -70,6 +70,7 @@ type Storage interface {
 	GetGuild() ([]*map[string]any, error)
 	GetGuildById(id int) ([]*map[string]any, error)
 	UpdateGuild(guild *types.Guild, id int) error
+	DeleteGuild(id int) error
 
 	// Guild.Role
 
@@ -89,7 +90,7 @@ type Storage interface {
 
 	// Team
 
-	InsertTeam(team map[string]any) error
+	CreateTeam(team *types.Team) error
 	GetTeam() ([]*map[string]any, error)
 	GetTeamById(id int) ([]*map[string]any, error)
 	UpdateTeam(team *types.Team, id int) error
