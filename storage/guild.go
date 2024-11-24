@@ -20,7 +20,7 @@ func (s *SQLiteStorage) GetGuild() ([]*map[string]any, error) {
 	return s.Select("Guild", nil, nil)
 }
 
-func (s *SQLiteStorage) GetGuildById(id int) (*map[string]any, error) {
+func (s *SQLiteStorage) GetGuildById(id int) ([]*map[string]any, error) {
 	return s.SelectUnique("Guild", nil, "id", id)
 }
 
@@ -50,7 +50,7 @@ func (s *SQLiteStorage) GetGuildRole() ([]*map[string]any, error) {
 	return s.Select("GuildRole", nil, nil)
 }
 
-func (s *SQLiteStorage) GetGuildRoleById(id int) (*map[string]any, error) {
+func (s *SQLiteStorage) GetGuildRoleById(id int) ([]*map[string]any, error) {
 	return s.SelectUnique("GuildRole", nil, "id", id)
 }
 

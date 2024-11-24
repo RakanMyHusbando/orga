@@ -24,7 +24,7 @@ func (s *SQLiteStorage) GetTeam() ([]*map[string]any, error) {
 	return s.Select("Team", nil, nil)
 }
 
-func (s *SQLiteStorage) GetTeamById(id int) (*map[string]any, error) {
+func (s *SQLiteStorage) GetTeamById(id int) ([]*map[string]any, error) {
 	// TODO: add Team-Member relation
 	return s.SelectUnique("Team", nil, "id", id)
 }
@@ -85,11 +85,11 @@ func (s *SQLiteStorage) CreateTeamMember(member *types.TeamMember) error {
 	return s.Insert("TeamMember", values)
 }
 
-func (s *SQLiteStorage) GetTeamMemberByUserId(userId int) (*map[string]any, error) {
+func (s *SQLiteStorage) GetTeamMemberByUserId(userId int) ([]*map[string]any, error) {
 	return s.SelectUnique("TeamMember", nil, "user_id", userId)
 }
 
-func (s *SQLiteStorage) GetTeamMemberByTeamId(teamId int) (*map[string]any, error) {
+func (s *SQLiteStorage) GetTeamMemberByTeamId(teamId int) ([]*map[string]any, error) {
 	return s.SelectUnique("TeamMember", nil, "team_id", teamId)
 }
 

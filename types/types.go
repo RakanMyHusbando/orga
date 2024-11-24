@@ -1,8 +1,10 @@
 package types
 
 type User struct {
-	Name      string `json:"name"`
-	DiscordID string `json:"discord_id"`
+	Id              int              `json:"id"`
+	Name            string           `json:"name"`
+	DiscordID       string           `json:"discord_id"`
+	LeagueOfLegends *LeagueOfLegends `json:"league_of_legends"`
 }
 
 type GameAccount struct {
@@ -12,7 +14,6 @@ type GameAccount struct {
 }
 
 type LeagueOfLegends struct {
-	UserId     int      `json:"user_id"`
 	MainRole   string   `json:"main_role"`
 	SecondRole string   `json:"second_role"`
 	MainChamps []string `json:"main_champs"`

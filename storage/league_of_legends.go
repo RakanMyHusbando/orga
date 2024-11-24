@@ -20,7 +20,7 @@ func (s *SQLiteStorage) GetLeagueOfLegends() ([]*map[string]any, error) {
 	return s.Select("LeagueOfLegends", nil, nil)
 }
 
-func (s *SQLiteStorage) GetLeagueOfLegendsByUserId(userId int) (*map[string]any, error) {
+func (s *SQLiteStorage) GetLeagueOfLegendsByUserId(userId int) ([]*map[string]any, error) {
 	return s.SelectUnique("LeagueOfLegends", nil, "user_id", userId)
 }
 

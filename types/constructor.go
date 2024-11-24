@@ -1,9 +1,11 @@
 package types
 
-func NewUser(name, discordId string) *User {
+func NewUser(name, discordId string, id int, leagueOfLegends *LeagueOfLegends) *User {
 	return &User{
-		Name:      name,
-		DiscordID: discordId,
+		Id:              id,
+		Name:            name,
+		DiscordID:       discordId,
+		LeagueOfLegends: leagueOfLegends,
 	}
 }
 

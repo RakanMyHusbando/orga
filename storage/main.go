@@ -45,15 +45,15 @@ type Storage interface {
 
 	CreateUser(user *types.User) error
 	GetUser(selectKeys []string) ([]*map[string]any, error)
-	GetUserById(id int) (*map[string]any, error)
-	UpdateUser(user *types.User, id int) error
+	GetUserById(id int) ([]*map[string]any, error)
+	UpdateUser(user *types.User) error
 	DeleteUser(id int) error
 
 	// LeagueOfLegends
 
 	CreateLeagueOfLeagends(lol *types.LeagueOfLegends) error
 	GetLeagueOfLegends() ([]*map[string]any, error)
-	GetLeagueOfLegendsByUserId(userId int) (*map[string]any, error)
+	GetLeagueOfLegendsByUserId(userId int) ([]*map[string]any, error)
 	UpdateLeagueOfLegends(lol *types.LeagueOfLegends, userId int) error
 	DeleteLeagueOfLegends(userId int) error
 
@@ -68,14 +68,14 @@ type Storage interface {
 
 	CreateGuild(guild *types.Guild) error
 	GetGuild() ([]*map[string]any, error)
-	GetGuildById(id int) (*map[string]any, error)
+	GetGuildById(id int) ([]*map[string]any, error)
 	UpdateGuild(guild *types.Guild, id int) error
 
 	// Guild.Role
 
 	CreateGuildRole(guildRole *types.GuildRole) error
 	GetGuildRole() ([]*map[string]any, error)
-	GetGuildRoleById(id int) (*map[string]any, error)
+	GetGuildRoleById(id int) ([]*map[string]any, error)
 	UpdateGuildRole(guildRole *types.GuildRole, id int) error
 	DeleteGuildRole(id int) error
 
@@ -91,7 +91,7 @@ type Storage interface {
 
 	InsertTeam(team map[string]any) error
 	GetTeam() ([]*map[string]any, error)
-	GetTeamById(id int) (*map[string]any, error)
+	GetTeamById(id int) ([]*map[string]any, error)
 	UpdateTeam(team *types.Team, id int) error
 	DeleteTeam(id int) error
 
@@ -184,7 +184,8 @@ func (s *SQLiteStorage) Select(table string, selectKeys []string, where map[stri
 	return elems, nil
 }
 
-func (s *SQLiteStorage) SelectUnique(table string, selectKeys []string, whereKey string, whereValeu any) (*map[string]any, error) {
+func (s *SQLiteStorage) SelectUnique(table string, selectKeys []string, whereKey string, whereValeu any) ([]*map[string]any, error) {
+	var elems []*map[string]any
 	query := fmt.Sprintf(
 		"SELECT %s FROM %s WHERE %s = %v",
 		strings.Join(selectKeys, ","),
@@ -197,7 +198,8 @@ func (s *SQLiteStorage) SelectUnique(table string, selectKeys []string, whereKey
 	if err := row.Scan(&elem); err != nil {
 		return nil, err
 	}
-	return &elem, nil
+	elems = append(elems, &elem)
+	return elems, nil
 }
 
 func (s *SQLiteStorage) Update(table string, set map[string]any, where map[string]any) error {

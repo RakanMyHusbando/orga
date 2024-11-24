@@ -21,19 +21,19 @@ func (s *SQLiteStorage) GetUser(selectKeys []string) ([]*map[string]any, error) 
 	return s.Select("User", selectKeys, nil)
 }
 
-func (s *SQLiteStorage) GetUserById(id int) (*map[string]any, error) {
+func (s *SQLiteStorage) GetUserById(id int) ([]*map[string]any, error) {
 	// TODO: add User-Game relation
 	return s.SelectUnique("User", nil, "id", id)
 }
 
-func (s *SQLiteStorage) UpdateUser(user *types.User, id int) error {
+func (s *SQLiteStorage) UpdateUser(user *types.User) error {
 	var values map[string]any
 	bytes, err := json.Marshal(user)
 	if err != nil {
 		return err
 	}
 	json.Unmarshal(bytes, &values)
-	return s.Update("User", values, map[string]any{"id": id})
+	return s.Update("User", values, map[string]any{"id": user.Id})
 }
 
 func (s *SQLiteStorage) DeleteUser(id int) error {
