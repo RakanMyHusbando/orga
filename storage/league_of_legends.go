@@ -8,6 +8,7 @@ import (
 
 func (s *SQLiteStorage) CreateLeagueOfLeagends(lol *types.LeagueOfLegends, userId int) error {
 	return s.Insert("UserLeagueOfLegends", map[string]any{
+		"user_id":     userId,
 		"main_role":   lol.MainRole,
 		"second_role": lol.SecondRole,
 		"champ_0":     lol.MainChamps[0],

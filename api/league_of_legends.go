@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/RakanMyHusbando/shogun/types"
@@ -18,7 +17,6 @@ func (s *APIServer) handleCreateLeagueOfLegends(w http.ResponseWriter, r *http.R
 	if err := json.NewDecoder(r.Body).Decode(&lol); err != nil {
 		return err
 	}
-	fmt.Println(lol)
 	if err := s.store.CreateLeagueOfLeagends(lol, id); err != nil {
 		return err
 	}

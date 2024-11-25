@@ -21,12 +21,14 @@ type LeagueOfLegends struct {
 }
 
 type Guild struct {
+	Id           int    `json:"id"`
 	Name         string `json:"name"`
 	Abbreviation string `json:"abbreviation"`
 	Description  string `json:"description"`
 }
 
 type GuildRole struct {
+	Id          int    `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
@@ -45,6 +47,7 @@ type Team struct {
 }
 
 type TeamRole struct {
+	Id          int    `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }

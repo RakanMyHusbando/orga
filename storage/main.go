@@ -129,7 +129,7 @@ func (s *SQLiteStorage) Insert(table string, insertValues map[string]any) error 
 				first = false
 			}
 			if reflect.TypeOf(value).String() == "string" {
-				value = fmt.Sprintf("'%v'", value)
+				value = fmt.Sprintf("'%s'", value)
 			}
 			keys += key
 			values = fmt.Sprintln(values, value)
@@ -144,70 +144,15 @@ func (s *SQLiteStorage) Insert(table string, insertValues map[string]any) error 
 		return err
 	}
 	prep.Close()
-	log.Println("[Srotage.main] inserted element in table ", table)
+	log.Println("[storage.main] inserted element in table ", table)
 	return nil
-}
-
-func (s *SQLiteStorage) Select(table string, selectKeys []string, where map[string]any) ([]*map[string]any, error) {
-	var selectKeysStr string
-	if len(selectKeys) == 0 || selectKeys == nil {
-		selectKeysStr = "*"
-	} else {
-		selectKeysStr = strings.Join(selectKeys, ",")
-	}
-	query := fmt.Sprintf("SELECT %s FROM %s WHERE ", selectKeysStr, table)
-	first := true
-	for key, value := range where {
-		if value != nil {
-			if !first {
-				query += " AND "
-			} else {
-				first = false
-			}
-			query += fmt.Sprintf("%s = %v", key, value)
-		}
-	}
-	rows, err := s.db.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var elems []*map[string]any
-	for rows.Next() {
-		elem := make(map[string]any)
-		if err := rows.Scan(&elem); err != nil {
-			return nil, err
-		}
-		elems = append(elems, &elem)
-	}
-	log.Println("[Storage.main] get elements from table: ", table)
-	return elems, nil
-}
-
-func (s *SQLiteStorage) SelectUnique(table string, selectKeys []string, whereKey string, whereValeu any) ([]*map[string]any, error) {
-	var elems []*map[string]any
-	query := fmt.Sprintf(
-		"SELECT %s FROM %s WHERE %s = %v",
-		strings.Join(selectKeys, ","),
-		table,
-		whereKey,
-		whereValeu,
-	)
-	row := s.db.QueryRow(query)
-	elem := make(map[string]any)
-	if err := row.Scan(&elem); err != nil {
-		return nil, err
-	}
-	elems = append(elems, &elem)
-	return elems, nil
 }
 
 func (s *SQLiteStorage) Update(table string, set map[string]any, where map[string]any) error {
 	query := fmt.Sprintf(`UPDATE %s SET `, table)
 	first := true
 	for key, value := range set {
-		if value != nil {
-
+		if value != nil && value != "" && value != 0 {
 			if !first {
 				query += ", "
 			} else {
@@ -234,7 +179,7 @@ func (s *SQLiteStorage) Update(table string, set map[string]any, where map[strin
 		return err
 	}
 	prep.Close()
-	log.Println("[Storage.main] element updated from table: ", table)
+	log.Println("[storage.main] element updated from table: ", table)
 	return nil
 }
 
@@ -259,6 +204,6 @@ func (s *SQLiteStorage) Delete(table string, where map[string]any) error {
 		return err
 	}
 	prep.Close()
-	log.Println("[Storage.main] delete element from ", table)
+	log.Println("[storage.main] delete element from ", table)
 	return nil
 }
