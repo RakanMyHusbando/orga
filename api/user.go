@@ -20,37 +20,28 @@ func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) err
 }
 
 func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error {
-	var getUser []*map[string]any
+	var userLst []*types.User
 	id, err := GetId(r)
 	if err != nil {
-		getUser, err = s.store.GetUser(nil)
+		userLst, err = s.store.GetUser()
 	} else {
-		getUser, err = s.store.GetUserById(id)
+		userLst, err = s.store.GetUserById(id)
 	}
 	if err != nil {
 		return err
 	}
-	var userLst []*types.User
-	for _, user := range getUser {
-		newUser := types.NewUser(
-			(*user)["name"].(string),
-			(*user)["discord_id"].(string),
-			(*user)["id"].(int),
-			nil,
-		)
-		getLol, err := s.store.GetLeagueOfLegendsByUserId((*user)["id"].(int))
+	for i := range userLst {
+		lol, err := s.store.GetLeagueOfLegendsByUserId(userLst[i].Id)
 		if err != nil {
-			log.Println(err)
+			log.Println("[api.user] cant get league_of_legends for user with id ", userLst[i].Id)
 		} else {
-			getAccs, err := s.store.GetGameAccountBy(
-				types.NewGameAccount((*user)["id"].(int), "", "league_of_legends"),
-			)
+			accs, err := s.store.GetGameAccountBy(userLst[i].Id, "league_of_legends")
 			if err != nil {
 				return err
 			}
-			LeagueOfLegendsMapToStruct(getLol[0], getAccs)
+			lol.Accounts = accs
 		}
-		userLst = append(userLst, newUser)
+		userLst[i].LeagueOfLegends = lol
 	}
 	return WriteJSON(w, http.StatusOK, userLst)
 }

@@ -10,12 +10,13 @@ func NewUser(name, discordId string, id int, leagueOfLegends *LeagueOfLegends) *
 }
 
 func NewLeagueOfLegends(mainRole, secondRole string, mainChamps, accounts []string) *LeagueOfLegends {
-	return &LeagueOfLegends{
+	resp := &LeagueOfLegends{
 		MainRole:   mainRole,
 		SecondRole: secondRole,
-		MainChamps: mainChamps,
 		Accounts:   accounts,
 	}
+	copy(resp.MainChamps[:], mainChamps)
+	return resp
 }
 
 func NewGameAccount(userId int, name string, game string) *GameAccount {

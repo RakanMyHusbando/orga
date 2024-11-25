@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/RakanMyHusbando/shogun/storage"
-	"github.com/RakanMyHusbando/shogun/types"
 	"github.com/gorilla/mux"
 )
 
@@ -169,25 +168,4 @@ func GetId(r *http.Request) (int, error) {
 		return strconv.Atoi(strId)
 	}
 	return -1, fmt.Errorf("id is empty")
-}
-
-func LeagueOfLegendsMapToStruct(lol *map[string]any, userLolAccs []*map[string]any) *types.LeagueOfLegends {
-	newLol := &types.LeagueOfLegends{
-		MainRole:   (*lol)["mainRole"].(string),
-		SecondRole: (*lol)["secondRole"].(string),
-		Accounts:   []string{},
-		MainChamps: []string{},
-	}
-	for i := 0; i < 3; i++ {
-		if (*lol)[fmt.Sprintln("champ_", i)] != nil {
-			newLol.MainChamps = append(
-				newLol.MainChamps,
-				(*lol)[fmt.Sprintln("champ_", i)].(string),
-			)
-		}
-	}
-	for _, acc := range userLolAccs {
-		newLol.Accounts = append(newLol.Accounts, (*acc)["name"].(string))
-	}
-	return newLol
 }

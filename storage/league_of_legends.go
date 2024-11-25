@@ -7,26 +7,32 @@ import (
 )
 
 func (s *SQLiteStorage) CreateLeagueOfLeagends(lol *types.LeagueOfLegends, userId int) error {
-	var values map[string]any
-	bytes, err := json.Marshal(lol)
-	if err != nil {
-		return err
+	return s.Insert("UserLeagueOfLegends", map[string]any{
+		"main_role":   lol.MainRole,
+		"second_role": lol.SecondRole,
+		"champ_0":     lol.MainChamps[0],
+		"champ_1":     lol.MainChamps[1],
+		"champ_2":     lol.MainChamps[2],
+	})
+}
+
+func (s *SQLiteStorage) GetLeagueOfLegendsByUserId(userId int) (*types.LeagueOfLegends, error) {
+	row := s.db.QueryRow("SELECT main_role, second_role, champ_0, champ_1, champ_2 FROM UserLeagueOfLegends WHERE user_id = ?", userId)
+	lol := new(types.LeagueOfLegends)
+	if err := row.Scan(
+		&lol.MainChamps,
+		&lol.SecondRole,
+		&lol.MainChamps[0],
+		&lol.MainChamps[1],
+		&lol.MainChamps[2],
+	); err != nil {
+		return nil, err
 	}
-	json.Unmarshal(bytes, &values)
-	values["user_id"] = userId
-	return s.Insert("LeagueOfLegends", values)
-}
-
-func (s *SQLiteStorage) GetLeagueOfLegends() ([]*map[string]any, error) {
-	return s.Select("LeagueOfLegends", nil, nil)
-}
-
-func (s *SQLiteStorage) GetLeagueOfLegendsByUserId(userId int) ([]*map[string]any, error) {
-	return s.SelectUnique("LeagueOfLegends", nil, "user_id", userId)
+	return lol, nil
 }
 
 func (s *SQLiteStorage) DeleteLeagueOfLegends(userId int) error {
-	return s.Delete("LeagueOfLegends", map[string]any{"user_id": userId})
+	return s.Delete("UserLeagueOfLegends", map[string]any{"user_id": userId})
 }
 
 func (s *SQLiteStorage) UpdateLeagueOfLegends(lol *types.LeagueOfLegends, userId int) error {
@@ -36,5 +42,5 @@ func (s *SQLiteStorage) UpdateLeagueOfLegends(lol *types.LeagueOfLegends, userId
 		return err
 	}
 	json.Unmarshal(bytes, &values)
-	return s.Update("LeagueOfLegends", values, map[string]any{"user_id": userId})
+	return s.Update("UserLeagueOfLegends", values, map[string]any{"user_id": userId})
 }

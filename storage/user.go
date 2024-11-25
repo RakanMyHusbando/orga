@@ -7,23 +7,36 @@ import (
 )
 
 func (s *SQLiteStorage) CreateUser(user *types.User) error {
-	var values map[string]any
-	bytes, err := json.Marshal(user)
+	return s.Insert("User", map[string]any{
+		"name":       user.Name,
+		"discord_id": user.DiscordID,
+	})
+}
+
+func (s *SQLiteStorage) GetUser() ([]*types.User, error) {
+	rows, err := s.db.Query("SELECT * FROM User")
 	if err != nil {
-		return err
+		return nil, err
 	}
-	json.Unmarshal(bytes, &values)
-	return s.Insert("User", values)
+	defer rows.Close()
+	var userLst []*types.User
+	for rows.Next() {
+		user := new(types.User)
+		if err := rows.Scan(&user.Id, &user.Name, &user.DiscordID); err != nil {
+			return nil, err
+		}
+		userLst = append(userLst, user)
+	}
+	return userLst, nil
 }
 
-func (s *SQLiteStorage) GetUser(selectKeys []string) ([]*map[string]any, error) {
-	// TODO: add User-Game relation
-	return s.Select("User", selectKeys, nil)
-}
-
-func (s *SQLiteStorage) GetUserById(id int) ([]*map[string]any, error) {
-	// TODO: add User-Game relation
-	return s.SelectUnique("User", nil, "id", id)
+func (s *SQLiteStorage) GetUserById(id int) ([]*types.User, error) {
+	row := s.db.QueryRow("SELECT * FROM User WHERE id = ?", id)
+	user := new(types.User)
+	if err := row.Scan(&user.Id, &user.Name, &user.DiscordID); err != nil {
+		return nil, err
+	}
+	return []*types.User{user}, nil
 }
 
 func (s *SQLiteStorage) UpdateUser(user *types.User) error {

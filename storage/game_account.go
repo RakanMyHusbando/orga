@@ -16,17 +16,21 @@ func (s *SQLiteStorage) CreateGameAccount(account *types.GameAccount) error {
 	return s.Insert("GameAccount", values)
 }
 
-func (s *SQLiteStorage) GetGameAccountBy(account *types.GameAccount) ([]*map[string]any, error) {
-	var searcParams map[string]any
-	bytes, err := json.Marshal(account)
+func (s *SQLiteStorage) GetGameAccountBy(userId int, game string) ([]string, error) {
+	accs := []string{}
+	rows, err := s.db.Query("SELECT name FROM User WHERE user_id = ? AND game = ?", userId, game)
 	if err != nil {
-		return nil, err
+		return accs, err
 	}
-	json.Unmarshal(bytes, &searcParams)
-	if searcParams["userId"] == 0 {
-		searcParams["userId"] = nil
+	defer rows.Close()
+	for rows.Next() {
+		var acc string
+		if err := rows.Scan(&acc); err != nil {
+			return accs, err
+		}
+		accs = append(accs, acc)
 	}
-	return s.Select("GameAccount", []string{"name"}, searcParams)
+	return accs, nil
 }
 
 func (s *SQLiteStorage) UpdateGameAccount(userId int, oldName string, newName string) error {

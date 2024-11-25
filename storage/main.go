@@ -44,23 +44,22 @@ type Storage interface {
 	// User
 
 	CreateUser(user *types.User) error
-	GetUser(selectKeys []string) ([]*map[string]any, error)
-	GetUserById(id int) ([]*map[string]any, error)
+	GetUser() ([]*types.User, error)
+	GetUserById(id int) ([]*types.User, error)
 	UpdateUser(user *types.User) error
 	DeleteUser(id int) error
 
 	// LeagueOfLegends
 
 	CreateLeagueOfLeagends(lol *types.LeagueOfLegends, userId int) error
-	GetLeagueOfLegends() ([]*map[string]any, error)
-	GetLeagueOfLegendsByUserId(userId int) ([]*map[string]any, error)
+	GetLeagueOfLegendsByUserId(userId int) (*types.LeagueOfLegends, error)
 	UpdateLeagueOfLegends(lol *types.LeagueOfLegends, userId int) error
 	DeleteLeagueOfLegends(userId int) error
 
 	// GameAccount
 
 	CreateGameAccount(account *types.GameAccount) error
-	GetGameAccountBy(account *types.GameAccount) ([]*map[string]any, error)
+	GetGameAccountBy(userId int, game string) ([]string, error)
 	UpdateGameAccount(userId int, oldName string, newName string) error
 	DeleteGameAccount(userId int, name string) error
 
