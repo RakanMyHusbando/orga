@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/RakanMyHusbando/shogun/types"
@@ -22,7 +23,9 @@ func (s *APIServer) handleCreateGameAccount(w http.ResponseWriter, r *http.Reque
 	if err := s.store.CreateGameAccount(account); err != nil {
 		return err
 	}
-	return WriteJSON(w, http.StatusOK, "game account created")
+	respMessage := "game account created for user with id " + mux.Vars(r)["id"]
+	log.Print("[api.game_account] " + respMessage)
+	return WriteJSON(w, http.StatusOK, respMessage)
 }
 
 func (s *APIServer) handleUpdateGameAccount(w http.ResponseWriter, r *http.Request) error {
@@ -41,7 +44,9 @@ func (s *APIServer) handleUpdateGameAccount(w http.ResponseWriter, r *http.Reque
 	if err := s.store.UpdateGameAccount(id, oldName, newName["name"]); err != nil {
 		return err
 	}
-	return WriteJSON(w, http.StatusOK, "game account updated")
+	respMessage := "game account updated for user with id " + mux.Vars(r)["id"]
+	log.Print("[api.game_account] " + respMessage)
+	return WriteJSON(w, http.StatusOK, respMessage)
 }
 
 func (s *APIServer) handleDeleteGameAccount(w http.ResponseWriter, r *http.Request) error {
@@ -56,5 +61,7 @@ func (s *APIServer) handleDeleteGameAccount(w http.ResponseWriter, r *http.Reque
 	if err := s.store.DeleteGameAccount(id, name); err != nil {
 		return err
 	}
-	return WriteJSON(w, http.StatusOK, "game account deleted")
+	respMessage := "game account deleted for user with id " + mux.Vars(r)["id"]
+	log.Print("[api.game_account] " + respMessage)
+	return WriteJSON(w, http.StatusOK, respMessage)
 }

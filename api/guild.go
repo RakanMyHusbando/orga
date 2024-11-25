@@ -2,9 +2,12 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/RakanMyHusbando/shogun/types"
+	"github.com/gorilla/mux"
 )
 
 /* --------------------------------- handler guild --------------------------------- */
@@ -17,7 +20,9 @@ func (s *APIServer) handleCreateGuild(w http.ResponseWriter, r *http.Request) er
 	if err := s.store.CreateGuild(guild); err != nil {
 		return err
 	}
-	return WriteJSON(w, http.StatusOK, "guild created")
+	respMessage := "guild created"
+	log.Print("[api.guild] " + respMessage)
+	return WriteJSON(w, http.StatusOK, respMessage)
 }
 
 func (s *APIServer) handleGetGuild(w http.ResponseWriter, r *http.Request) error {
@@ -31,6 +36,8 @@ func (s *APIServer) handleGetGuild(w http.ResponseWriter, r *http.Request) error
 	if err != nil {
 		return err
 	}
+	respMessage := "" // TODO
+	log.Print("[api.guild] " + respMessage)
 	return WriteJSON(w, http.StatusOK, guild)
 }
 
@@ -46,7 +53,9 @@ func (s *APIServer) handleUpdateGuild(w http.ResponseWriter, r *http.Request) er
 	if err := s.store.UpdateGuild(guild, id); err != nil {
 		return err
 	}
-	return WriteJSON(w, http.StatusOK, "guild updated")
+	respMessage := "guild updated with id " + mux.Vars(r)["id"]
+	log.Print("[api.guild] " + respMessage)
+	return WriteJSON(w, http.StatusOK, respMessage)
 }
 
 func (s *APIServer) handleDeleteGuild(w http.ResponseWriter, r *http.Request) error {
@@ -57,7 +66,9 @@ func (s *APIServer) handleDeleteGuild(w http.ResponseWriter, r *http.Request) er
 	if err := s.store.DeleteGuild(id); err != nil {
 		return err
 	}
-	return WriteJSON(w, http.StatusOK, "deleted guild")
+	respMessage := "guild deleted with id " + mux.Vars(r)["id"]
+	log.Print("[api.guild] " + respMessage)
+	return WriteJSON(w, http.StatusOK, respMessage)
 }
 
 /* --------------------------------- handler guild role --------------------------------- */
@@ -70,7 +81,9 @@ func (s *APIServer) handleCreateGuildRole(w http.ResponseWriter, r *http.Request
 	if err := s.store.CreateGuildRole(role); err != nil {
 		return err
 	}
-	return WriteJSON(w, http.StatusOK, "guild role created")
+	respMessage := "guild role created"
+	log.Print("[api.guild.role] " + respMessage)
+	return WriteJSON(w, http.StatusOK, respMessage)
 }
 
 func (s *APIServer) handleGetGuildRole(w http.ResponseWriter, r *http.Request) error {
@@ -93,7 +106,9 @@ func (s *APIServer) handleUpdateGuildRole(w http.ResponseWriter, r *http.Request
 	if err := s.store.UpdateGuildRole(role, id); err != nil {
 		return err
 	}
-	return WriteJSON(w, http.StatusOK, "guild role updated")
+	respMessage := fmt.Sprintf("guild role with id %v updated", id)
+	log.Print("[api.guild.role] " + respMessage)
+	return WriteJSON(w, http.StatusOK, respMessage)
 }
 
 func (s *APIServer) handleDeleteGuildRole(w http.ResponseWriter, r *http.Request) error {
@@ -104,8 +119,9 @@ func (s *APIServer) handleDeleteGuildRole(w http.ResponseWriter, r *http.Request
 	if err := s.store.DeleteGuildRole(id); err != nil {
 		return err
 	}
-
-	return WriteJSON(w, http.StatusOK, "deleted guild role")
+	respMessage := fmt.Sprintf("guild role with id %v deleted", id)
+	log.Print("[api.guild.role] " + respMessage)
+	return WriteJSON(w, http.StatusOK, respMessage)
 }
 
 /* --------------------------------- handler guild member --------------------------------- */
@@ -118,7 +134,9 @@ func (s *APIServer) handleCreateGuildMember(w http.ResponseWriter, r *http.Reque
 	if err := s.store.CreateGuildMember(member); err != nil {
 		return err
 	}
-	return WriteJSON(w, http.StatusOK, "guild member created")
+	respMessage := "guild member created"
+	log.Print("[api.guild.member] " + respMessage)
+	return WriteJSON(w, http.StatusOK, respMessage)
 }
 
 func (s *APIServer) handleUpdateGuildMember(w http.ResponseWriter, r *http.Request) error {
@@ -133,7 +151,9 @@ func (s *APIServer) handleUpdateGuildMember(w http.ResponseWriter, r *http.Reque
 	if err := s.store.UpdateGuildMember(member, id); err != nil {
 		return err
 	}
-	return WriteJSON(w, http.StatusOK, "guild member updated")
+	respMessage := fmt.Sprintf("guild member with id %v updated", id)
+	log.Print("[api.guild.member] " + respMessage)
+	return WriteJSON(w, http.StatusOK, respMessage)
 }
 
 func (s *APIServer) handleDeleteGuildMember(w http.ResponseWriter, r *http.Request) error {
@@ -144,5 +164,7 @@ func (s *APIServer) handleDeleteGuildMember(w http.ResponseWriter, r *http.Reque
 	if err := s.store.DeleteGuildMember(id); err != nil {
 		return err
 	}
-	return WriteJSON(w, http.StatusOK, "deleted guild member")
+	respMessage := fmt.Sprintf("guild member with id %v deleted", id)
+	log.Print("[api.guild.member] " + respMessage)
+	return WriteJSON(w, http.StatusOK, respMessage)
 }

@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -64,7 +63,7 @@ func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) err
 	if err := s.store.DeleteUser(id); err != nil {
 		return err
 	}
-	return WriteJSON(w, http.StatusOK, fmt.Sprintf("[api.user] user deleted"))
+	return WriteJSON(w, http.StatusOK, "user deleted")
 }
 
 func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) error {
@@ -80,6 +79,5 @@ func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) err
 	if err := s.store.UpdateUser(user); err != nil {
 		return err
 	}
-
 	return WriteJSON(w, http.StatusOK, user)
 }
