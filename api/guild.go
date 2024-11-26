@@ -36,8 +36,7 @@ func (s *APIServer) handleGetGuild(w http.ResponseWriter, r *http.Request) error
 	if err != nil {
 		return err
 	}
-	respMessage := "" // TODO
-	log.Print("[api.guild] " + respMessage)
+	log.Print("[api.guild] got guilds")
 	return WriteJSON(w, http.StatusOK, guild)
 }
 
