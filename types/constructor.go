@@ -4,7 +4,7 @@ func NewUser(name, discordId string, id int, leagueOfLegends *LeagueOfLegends) *
 	return &User{
 		Id:              id,
 		Name:            name,
-		DiscordID:       discordId,
+		DiscordId:       discordId,
 		LeagueOfLegends: leagueOfLegends,
 	}
 }

@@ -3,7 +3,7 @@ package types
 type User struct {
 	Id              int              `json:"id"`
 	Name            string           `json:"name"`
-	DiscordID       string           `json:"discord_id"`
+	DiscordId       string           `json:"discord_id"`
 	LeagueOfLegends *LeagueOfLegends `json:"league_of_legends"`
 }
 
@@ -56,4 +56,20 @@ type TeamMember struct {
 	UserId int `json:"user_id"`
 	TeamId int `json:"team_id"`
 	RoleId int `json:"role_id"`
+}
+
+type DiscordServer struct {
+	Id          int                 `json:"id"`
+	Discord_id  string              `json:"discord_id"`
+	Name        string              `json:"name"`
+	Description string              `json:"description"`
+	GuildId     int                 `json:"guild_id"`
+	TeamId      int                 `json:"team_id"`
+	Member      map[string][]string `json:"member"`
+}
+
+type DiscordRole struct {
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }

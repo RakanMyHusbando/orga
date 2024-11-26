@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-/* --------------------------------- handler team --------------------------------- */
+/* --------------------------------- Team --------------------------------- */
 
 func (s *APIServer) handleCreateTeam(w http.ResponseWriter, r *http.Request) error {
 	team := new(types.Team)
@@ -20,7 +20,7 @@ func (s *APIServer) handleCreateTeam(w http.ResponseWriter, r *http.Request) err
 	if err := s.store.CreateTeam(team); err != nil {
 		return err
 	}
-	resp := "guild created"
+	resp := "team created"
 	log.Print("[api.guild] " + resp)
 	return WriteJSON(w, http.StatusOK, resp)
 }
@@ -52,7 +52,7 @@ func (s *APIServer) handleUpdateTeam(w http.ResponseWriter, r *http.Request) err
 	if err := s.store.UpdateTeam(team, id); err != nil {
 		return err
 	}
-	resp := "team updated with id " + mux.Vars(r)["id"]
+	resp := fmt.Sprintf("team with id %v updated ", mux.Vars(r)["id"])
 	log.Print("[api.team] " + resp)
 	return WriteJSON(w, http.StatusOK, resp)
 }
@@ -70,7 +70,7 @@ func (s *APIServer) handleDeleteTeam(w http.ResponseWriter, r *http.Request) err
 	return WriteJSON(w, http.StatusOK, resp)
 }
 
-/* --------------------------------- handler team role --------------------------------- */
+/* -------------------------------- Role --------------------------------- */
 
 func (s *APIServer) handleCreateTeamRole(w http.ResponseWriter, r *http.Request) error {
 	role := new(types.TeamRole)
@@ -124,7 +124,7 @@ func (s *APIServer) handleDeleteTeamRole(w http.ResponseWriter, r *http.Request)
 	return WriteJSON(w, http.StatusOK, resp)
 }
 
-/* --------------------------------- handler team member --------------------------------- */
+/* --------------------------------- Member --------------------------------- */
 
 func (s *APIServer) handleCreateTeamMember(w http.ResponseWriter, r *http.Request) error {
 	member := new(types.TeamMember)

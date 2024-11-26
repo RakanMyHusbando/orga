@@ -7,7 +7,7 @@ import (
 	"github.com/RakanMyHusbando/shogun/types"
 )
 
-/* ------------------------------ team ------------------------------ */
+/* ------------------------------ Team ------------------------------ */
 
 func (s *SQLiteStorage) CreateTeam(team *types.Team) error {
 	return s.Insert("Team", map[string]any{
@@ -57,7 +57,7 @@ func (s *SQLiteStorage) DeleteTeam(id int) error {
 	return s.Delete("Team", map[string]any{"id": id})
 }
 
-/* ------------------------------ team role ------------------------------ */
+/* ------------------------------ Role ------------------------------ */
 
 func (s *SQLiteStorage) CreateTeamRole(role *types.TeamRole) error {
 	return s.Insert("TeamRole", map[string]any{
