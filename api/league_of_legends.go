@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/RakanMyHusbando/shogun/types"
@@ -9,9 +10,9 @@ import (
 )
 
 func (s *APIServer) handleCreateLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		return err
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
 	}
 	lol := new(types.LeagueOfLegends)
 	if err := json.NewDecoder(r.Body).Decode(&lol); err != nil {
@@ -25,9 +26,9 @@ func (s *APIServer) handleCreateLeagueOfLegends(w http.ResponseWriter, r *http.R
 }
 
 func (s *APIServer) handleDeleteLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		return err
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
 	}
 	s.store.DeleteLeagueOfLegends(id)
 	respMessage := "[api.league_of_legends] league_of_legends deleted from user with id " + mux.Vars(r)["id"]
@@ -35,9 +36,9 @@ func (s *APIServer) handleDeleteLeagueOfLegends(w http.ResponseWriter, r *http.R
 }
 
 func (s *APIServer) handleUpdateLeagueOfLegends(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		return err
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
 	}
 	lol := new(types.LeagueOfLegends)
 	if err := json.NewDecoder(r.Body).Decode(&lol); err != nil {

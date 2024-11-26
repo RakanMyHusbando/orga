@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -21,8 +22,8 @@ func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) err
 
 func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error {
 	var userLst []*types.User
-	id, err := GetId(r)
-	if err != nil {
+	var err error
+	if id := GetId(r); id == -1 {
 		userLst, err = s.store.GetUser()
 	} else {
 		userLst, err = s.store.GetUserById(id)
@@ -46,29 +47,28 @@ func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error 
 	return WriteJSON(w, http.StatusOK, userLst)
 }
 
-func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		return err
-	}
-	if err := s.store.DeleteUser(id); err != nil {
-		return err
-	}
-	return WriteJSON(w, http.StatusOK, "user deleted")
-}
-
 func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		return err
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
 	}
 	user := new(types.User)
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		return err
 	}
-	user.Id = id
-	if err := s.store.UpdateUser(user); err != nil {
+	if err := s.store.UpdateUser(user, id); err != nil {
 		return err
 	}
-	return WriteJSON(w, http.StatusOK, user)
+	return WriteJSON(w, http.StatusOK, "user updated")
+}
+
+func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) error {
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
+	}
+	if err := s.store.DeleteUser(id); err != nil {
+		return err
+	}
+	return WriteJSON(w, http.StatusOK, "user deleted")
 }

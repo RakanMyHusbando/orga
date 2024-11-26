@@ -39,13 +39,14 @@ func (s *SQLiteStorage) GetUserById(id int) ([]*types.User, error) {
 	return []*types.User{user}, nil
 }
 
-func (s *SQLiteStorage) UpdateUser(user *types.User) error {
+func (s *SQLiteStorage) UpdateUser(user *types.User, id int) error {
 	var values map[string]any
 	bytes, err := json.Marshal(user)
 	if err != nil {
 		return err
 	}
 	json.Unmarshal(bytes, &values)
+	values["id"] = nil
 	return s.Update("User", values, map[string]any{"id": user.Id})
 }
 

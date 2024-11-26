@@ -11,9 +11,9 @@ import (
 )
 
 func (s *APIServer) handleCreateGameAccount(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		return err
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
 	}
 	account := new(types.GameAccount)
 	if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
@@ -29,9 +29,9 @@ func (s *APIServer) handleCreateGameAccount(w http.ResponseWriter, r *http.Reque
 }
 
 func (s *APIServer) handleUpdateGameAccount(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		return err
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
 	}
 	oldName := mux.Vars(r)["accountName"]
 	if oldName == "" {
@@ -50,9 +50,9 @@ func (s *APIServer) handleUpdateGameAccount(w http.ResponseWriter, r *http.Reque
 }
 
 func (s *APIServer) handleDeleteGameAccount(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		return err
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
 	}
 	name := mux.Vars(r)["accountName"]
 	if name == "" {

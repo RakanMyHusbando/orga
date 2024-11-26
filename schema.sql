@@ -4,8 +4,8 @@ CREATE TABLE IF NOT EXISTS User (
     discord_id TEXT UNIQUE NOT NULL
 );
 CREATE TABLE IF NOT EXISTS GameAccount (
-    name TEXT UNIQUE NOT NULL,
     user_id INTEGER NOT NULL,
+    name TEXT UNIQUE NOT NULL,
     game TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(id)
 );

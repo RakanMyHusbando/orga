@@ -26,9 +26,9 @@ func (s *APIServer) handleCreateGuild(w http.ResponseWriter, r *http.Request) er
 }
 
 func (s *APIServer) handleGetGuild(w http.ResponseWriter, r *http.Request) error {
-	var guild []*map[string]any
-	id, err := GetId(r)
-	if err != nil {
+	var guild []*types.Guild
+	var err error
+	if id := GetId(r); id == -1 {
 		guild, err = s.store.GetGuild()
 	} else {
 		guild, err = s.store.GetGuildById(id)
@@ -42,9 +42,9 @@ func (s *APIServer) handleGetGuild(w http.ResponseWriter, r *http.Request) error
 }
 
 func (s *APIServer) handleUpdateGuild(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		return err
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
 	}
 	guild := new(types.Guild)
 	if err := json.NewDecoder(r.Body).Decode(&guild); err != nil {
@@ -59,9 +59,9 @@ func (s *APIServer) handleUpdateGuild(w http.ResponseWriter, r *http.Request) er
 }
 
 func (s *APIServer) handleDeleteGuild(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		return err
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
 	}
 	if err := s.store.DeleteGuild(id); err != nil {
 		return err
@@ -95,9 +95,9 @@ func (s *APIServer) handleGetGuildRole(w http.ResponseWriter, r *http.Request) e
 }
 
 func (s *APIServer) handleUpdateGuildRole(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		return err
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
 	}
 	role := new(types.GuildRole)
 	if err := json.NewDecoder(r.Body).Decode(&role); err != nil {
@@ -112,9 +112,9 @@ func (s *APIServer) handleUpdateGuildRole(w http.ResponseWriter, r *http.Request
 }
 
 func (s *APIServer) handleDeleteGuildRole(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		return err
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
 	}
 	if err := s.store.DeleteGuildRole(id); err != nil {
 		return err
@@ -140,9 +140,9 @@ func (s *APIServer) handleCreateGuildMember(w http.ResponseWriter, r *http.Reque
 }
 
 func (s *APIServer) handleUpdateGuildMember(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		return err
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
 	}
 	member := new(types.GuildMember)
 	if err := json.NewDecoder(r.Body).Decode(&member); err != nil {
@@ -157,9 +157,9 @@ func (s *APIServer) handleUpdateGuildMember(w http.ResponseWriter, r *http.Reque
 }
 
 func (s *APIServer) handleDeleteGuildMember(w http.ResponseWriter, r *http.Request) error {
-	id, err := GetId(r)
-	if err != nil {
-		return err
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
 	}
 	if err := s.store.DeleteGuildMember(id); err != nil {
 		return err

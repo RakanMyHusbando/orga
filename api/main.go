@@ -67,6 +67,9 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/guild_role", makeHTTPHandleFunc(s.handlerGuildRole))
 	router.HandleFunc("/guild_role/{id}", makeHTTPHandleFunc(s.handlerGuildRole))
 
+	router.HandleFunc("/team", makeHTTPHandleFunc(s.handleTeam))
+	router.HandleFunc("/team/{id}", makeHTTPHandleFunc(s.handleTeam))
+
 	log.Println("API server running on ", s.listenAddr)
 
 	err := http.ListenAndServe(s.listenAddr, router)
@@ -161,11 +164,30 @@ func (s *APIServer) handlerGuildMember(w http.ResponseWriter, r *http.Request) e
 	}
 }
 
+func (s *APIServer) handleTeam(w http.ResponseWriter, r *http.Request) error {
+	switch r.Method {
+	case "POST":
+		return s.handleCreateTeam(w, r)
+	case "GET":
+		return s.handleGetTeam(w, r)
+	case "DELETE":
+		return s.handleDeleteTeam(w, r)
+	case "PATCH":
+		return s.handleUpdateTeam(w, r)
+	default:
+		return fmt.Errorf("unsupported method: %s", r.Method)
+	}
+}
+
 /* ------------------------------ helper functions ------------------------------ */
 
-func GetId(r *http.Request) (int, error) {
+func GetId(r *http.Request) int {
 	if strId := mux.Vars(r)["id"]; strId != "" {
-		return strconv.Atoi(strId)
+		id, err := strconv.Atoi(strId)
+		if err != nil {
+			return -1
+		}
+		return id
 	}
-	return -1, fmt.Errorf("id is empty")
+	return -1
 }

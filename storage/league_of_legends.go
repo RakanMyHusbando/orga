@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"encoding/json"
+	"fmt"
 
 	"github.com/RakanMyHusbando/shogun/types"
 )
@@ -18,10 +18,10 @@ func (s *SQLiteStorage) CreateLeagueOfLeagends(lol *types.LeagueOfLegends, userI
 }
 
 func (s *SQLiteStorage) GetLeagueOfLegendsByUserId(userId int) (*types.LeagueOfLegends, error) {
-	row := s.db.QueryRow("SELECT main_role, second_role, champ_0, champ_1, champ_2 FROM UserLeagueOfLegends WHERE user_id = ?", userId)
+	row := s.db.QueryRow("SELECT main_role, second_role, IFNULL(champ_0,''), IFNULL(champ_1,''), IFNULL(champ_2,'') FROM UserLeagueOfLegends WHERE user_id = ? ", userId)
 	lol := new(types.LeagueOfLegends)
 	if err := row.Scan(
-		&lol.MainChamps,
+		&lol.MainRole,
 		&lol.SecondRole,
 		&lol.MainChamps[0],
 		&lol.MainChamps[1],
@@ -37,11 +37,14 @@ func (s *SQLiteStorage) DeleteLeagueOfLegends(userId int) error {
 }
 
 func (s *SQLiteStorage) UpdateLeagueOfLegends(lol *types.LeagueOfLegends, userId int) error {
-	var values map[string]any
-	bytes, err := json.Marshal(lol)
-	if err != nil {
-		return err
+	values := map[string]any{
+		"main_role":   lol.MainRole,
+		"second_role": lol.SecondRole,
 	}
-	json.Unmarshal(bytes, &values)
+	for i, champ := range lol.MainChamps {
+		if champ != "" {
+			values[fmt.Sprintf("champ_%v", i)] = champ
+		}
+	}
 	return s.Update("UserLeagueOfLegends", values, map[string]any{"user_id": userId})
 }

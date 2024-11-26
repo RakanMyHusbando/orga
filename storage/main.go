@@ -46,7 +46,7 @@ type Storage interface {
 	CreateUser(user *types.User) error
 	GetUser() ([]*types.User, error)
 	GetUserById(id int) ([]*types.User, error)
-	UpdateUser(user *types.User) error
+	UpdateUser(user *types.User, id int) error
 	DeleteUser(id int) error
 
 	// LeagueOfLegends
@@ -66,47 +66,47 @@ type Storage interface {
 	// Guild
 
 	CreateGuild(guild *types.Guild) error
-	GetGuild() ([]*map[string]any, error)
-	GetGuildById(id int) ([]*map[string]any, error)
+	GetGuild() ([]*types.Guild, error)
+	GetGuildById(id int) ([]*types.Guild, error)
 	UpdateGuild(guild *types.Guild, id int) error
 	DeleteGuild(id int) error
 
 	// Guild.Role
 
 	CreateGuildRole(guildRole *types.GuildRole) error
-	GetGuildRole() ([]*map[string]any, error)
-	GetGuildRoleById(id int) ([]*map[string]any, error)
+	GetGuildRole() ([]*types.GuildRole, error)
+	GetGuildRoleById(id int) ([]*types.GuildRole, error)
 	UpdateGuildRole(guildRole *types.GuildRole, id int) error
 	DeleteGuildRole(id int) error
 
 	// Guild.Member
 
 	CreateGuildMember(guildUser *types.GuildMember) error
-	GetGuildMemberByGuildId(guildId int) ([]*map[string]any, error)
-	GetGuildMemberByUserId(userId int) ([]*map[string]any, error)
+	GetGuildMemberByGuildId(guildId int) ([]*types.GuildMember, error)
+	GetGuildMemberByUserId(userId int) ([]*types.GuildMember, error)
 	UpdateGuildMember(guildUser *types.GuildMember, userId int) error
 	DeleteGuildMember(userId int) error
 
 	// Team
 
 	CreateTeam(team *types.Team) error
-	GetTeam() ([]*map[string]any, error)
-	GetTeamById(id int) ([]*map[string]any, error)
+	GetTeam() ([]*types.Team, error)
+	GetTeamById(id int) ([]*types.Team, error)
 	UpdateTeam(team *types.Team, id int) error
 	DeleteTeam(id int) error
 
 	// Team.Role
 
 	CreateTeamRole(role *types.TeamRole) error
-	GetTeamRole() ([]*map[string]any, error)
+	GetTeamRole() ([]*types.TeamRole, error)
 	UpdateTeamRole(role *types.TeamRole, id int) error
 	DeletTeamRole(id int) error
 
 	// Team.Member
 
 	CreateTeamMember(member *types.TeamMember) error
-	GetTeamMemberByUserId(userId int) ([]*map[string]any, error)
-	GetTeamMemberByTeamId(teamId int) ([]*map[string]any, error)
+	GetTeamMemberByUserId(userId int) ([]*types.TeamMember, error)
+	GetTeamMemberByTeamId(teamId int) ([]*types.TeamMember, error)
 	UpdateTeamMember(member *types.TeamMember, id int) error
 	DeleteTeamMember(id int) error
 }
@@ -121,7 +121,7 @@ func (s *SQLiteStorage) Insert(table string, insertValues map[string]any) error 
 	var keys, values string
 	first := true
 	for key, value := range insertValues {
-		if value != nil {
+		if value != nil && value != "" && value != 0 {
 			if !first {
 				keys += ", "
 				values += ", "
@@ -158,7 +158,12 @@ func (s *SQLiteStorage) Update(table string, set map[string]any, where map[strin
 			} else {
 				first = false
 			}
-			query += fmt.Sprintf(`%s = %v`, key, value)
+			query += fmt.Sprintf(`%s = `, key)
+			if reflect.TypeOf(value).String() == "string" {
+				query += fmt.Sprintf("'%s'", value)
+			} else {
+				query = fmt.Sprintln(query, value)
+			}
 		}
 	}
 	query += " WHERE "
@@ -169,7 +174,12 @@ func (s *SQLiteStorage) Update(table string, set map[string]any, where map[strin
 		} else {
 			first = false
 		}
-		query += fmt.Sprintf(`%s = %v`, key, value)
+		query += fmt.Sprintf(`%s = `, key)
+		if reflect.TypeOf(value).String() == "string" {
+			query += fmt.Sprintf("'%s'", value)
+		} else {
+			query = fmt.Sprintln(query, value)
+		}
 	}
 	prep, err := s.db.Prepare(query)
 	if err != nil {
@@ -187,13 +197,18 @@ func (s *SQLiteStorage) Delete(table string, where map[string]any) error {
 	query := fmt.Sprintf(`DELETE FROM %s WHERE `, table)
 	first := true
 	for key, value := range where {
-		if value == nil {
+		if value != nil {
 			if !first {
 				query += " AND "
 			} else {
 				first = false
 			}
-			query += fmt.Sprintf(`%s = %v`, key, value)
+			query += fmt.Sprintf(`%s = `, key)
+			if reflect.TypeOf(value).String() == "string" {
+				query += fmt.Sprintf("'%s'", value)
+			} else {
+				query = fmt.Sprintln(query, value)
+			}
 		}
 	}
 	prep, err := s.db.Prepare(query)

@@ -1,24 +1,20 @@
 package storage
 
 import (
-	"encoding/json"
-
 	"github.com/RakanMyHusbando/shogun/types"
 )
 
 func (s *SQLiteStorage) CreateGameAccount(account *types.GameAccount) error {
-	var values map[string]any
-	bytes, err := json.Marshal(account)
-	if err != nil {
-		return err
-	}
-	json.Unmarshal(bytes, &values)
-	return s.Insert("GameAccount", values)
+	return s.Insert("GameAccount", map[string]any{
+		"user_id": account.UserId,
+		"game":    account.Game,
+		"name":    account.Name,
+	})
 }
 
 func (s *SQLiteStorage) GetGameAccountBy(userId int, game string) ([]string, error) {
 	accs := []string{}
-	rows, err := s.db.Query("SELECT name FROM User WHERE user_id = ? AND game = ?", userId, game)
+	rows, err := s.db.Query("SELECT name FROM GameAccount WHERE user_id = ? AND game = ?", userId, game)
 	if err != nil {
 		return accs, err
 	}
@@ -34,9 +30,11 @@ func (s *SQLiteStorage) GetGameAccountBy(userId int, game string) ([]string, err
 }
 
 func (s *SQLiteStorage) UpdateGameAccount(userId int, oldName string, newName string) error {
-	set := map[string]any{"name": newName}
-	where := map[string]any{"name": oldName, "user_id": userId}
-	return s.Update("GameAccount", set, where)
+	return s.Update(
+		"GameAccount",
+		map[string]any{"name": newName},
+		map[string]any{"name": oldName, "user_id": userId},
+	)
 }
 
 func (s *SQLiteStorage) DeleteGameAccount(userId int, name string) error {
