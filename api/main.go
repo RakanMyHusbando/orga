@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/RakanMyHusbando/shogun/storage"
+	"github.com/RakanMyHusbando/shogun/types"
 	"github.com/gorilla/mux"
 )
 
@@ -34,7 +35,7 @@ func NewAPIServer(listenAddr string, store storage.Storage) *APIServer {
 func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(status)
-	return json.NewEncoder(w).Encode(v)
+	return json.NewEncoder(w).Encode(types.NewJSONResponse(status, v))
 }
 
 func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
@@ -44,7 +45,7 @@ func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 			errChan <- f(w, r)
 		}()
 		if err := <-errChan; err != nil {
-			WriteJSON(w, http.StatusBadRequest, ApiError{err.Error()})
+			WriteJSON(w, http.StatusBadRequest, err)
 		}
 	}
 }

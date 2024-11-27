@@ -64,7 +64,6 @@ CREATE TABLE IF NOT EXISTS Discord (
     description TEXT,
     guild_id INTEGER NOT NULL,
     FOREIGN KEY (guild_id) REFERENCES Guild(id)
-    FOREIGN KEY (team_id) REFERENCES Team(id)
 );
 CREATE TABLE IF NOT EXISTS DiscordRole (
     id INTEGER PRIMARY KEY AUTOINCREMENT,  

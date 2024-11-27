@@ -4,7 +4,10 @@ import "github.com/RakanMyHusbando/shogun/types"
 
 func (s *SQLiteStorage) CreateDiscord(discord *types.Discord) error {
 	return s.Insert("Discord", map[string]any{
-		"name": discord.Name,
+		"name":        discord.Name,
+		"discord_id":  discord.Discord_id,
+		"description": discord.Description,
+		"guild_id":    discord.GuildId,
 	})
 }
 

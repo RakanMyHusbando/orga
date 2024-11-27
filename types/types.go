@@ -1,5 +1,9 @@
 package types
 
+import (
+	"reflect"
+)
+
 type User struct {
 	Id              int              `json:"id"`
 	Name            string           `json:"name"`
@@ -80,4 +84,20 @@ type DiscordMember struct {
 	UserId   int `json:"user_id"`
 	RoleId   int `json:"role_id"`
 	ServerId int `json:"server_id"`
+}
+
+type JSONResponse struct {
+	Status   int    `json:"status"`
+	Response any    `json:"response"`
+	Error    string `json:"error"`
+}
+
+func NewJSONResponse(status int, v any) *JSONResponse {
+	result := &JSONResponse{Status: status}
+	if reflect.TypeOf(v).String() == "error" {
+		result.Error = v.(error).Error()
+	} else {
+		result.Response = v
+	}
+	return result
 }
