@@ -83,6 +83,15 @@ func (s *SQLiteStorage) GetTeamRole() ([]*types.TeamRole, error) {
 	return roles, nil
 }
 
+func (s *SQLiteStorage) GetTeamRoleByUserId(userId int) ([]*types.TeamRole, error) {
+	row := s.db.QueryRow("SELECT * FROM TeamRole WHERE user_id = ?", userId)
+	role := new(types.TeamRole)
+	if err := row.Scan(&role.Id, &role.Name, &role.Description); err != nil {
+		return nil, err
+	}
+	return []*types.TeamRole{role}, nil
+}
+
 func (s *SQLiteStorage) UpdateTeamRole(role *types.TeamRole, id int) error {
 	var values map[string]any
 	bytes, err := json.Marshal(role)

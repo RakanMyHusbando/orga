@@ -40,10 +40,11 @@ type GuildMember struct {
 }
 
 type Team struct {
-	Id           int    `json:"id"`
-	GuildId      int    `json:"guild_id"`
-	Name         string `json:"name"`
-	Abbreviation string `json:"abbreviation"`
+	Id           int                 `json:"id"`
+	GuildId      int                 `json:"guild_id"`
+	Name         string              `json:"name"`
+	Abbreviation string              `json:"abbreviation"`
+	Member       map[string][]string `json:"member"`
 }
 
 type TeamRole struct {

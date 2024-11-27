@@ -36,6 +36,26 @@ func (s *APIServer) handleGetTeam(w http.ResponseWriter, r *http.Request) error 
 	if err != nil {
 		return err
 	}
+	for _, t := range team {
+		member, err := s.store.GetTeamMemberByTeamId(t.Id)
+		if err != nil {
+			log.Println("[api.team] no team members found for team with id ", t.Id)
+		} else {
+			for _, m := range member {
+				role, err := s.store.GetTeamRoleByUserId(m.UserId)
+				if err != nil {
+					log.Println("[api.team] no role found for team member with id ", m.UserId)
+				} else {
+					user, err := s.store.GetUserById(m.UserId)
+					if err != nil {
+						log.Println("[api.team] no user found for team member with id ", m.UserId)
+					} else {
+						t.Member[role[0].Name] = append(t.Member[role[0].Name], user[0].Name)
+					}
+				}
+			}
+		}
+	}
 	log.Print("[api.team] got teams")
 	return WriteJSON(w, http.StatusOK, team)
 }

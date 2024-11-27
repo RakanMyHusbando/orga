@@ -99,6 +99,7 @@ type Storage interface {
 
 	CreateTeamRole(role *types.TeamRole) error
 	GetTeamRole() ([]*types.TeamRole, error)
+	GetTeamRoleByUserId(id int) ([]*types.TeamRole, error)
 	UpdateTeamRole(role *types.TeamRole, id int) error
 	DeletTeamRole(id int) error
 
