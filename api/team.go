@@ -94,6 +94,19 @@ func (s *APIServer) handleGetTeamRole(w http.ResponseWriter, r *http.Request) er
 	return WriteJSON(w, http.StatusOK, role)
 }
 
+func (s *APIServer) handleDeleteTeamRole(w http.ResponseWriter, r *http.Request) error {
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
+	}
+	if err := s.store.DeletTeamRole(id); err != nil {
+		return err
+	}
+	resp := "role deleted with id " + mux.Vars(r)["id"]
+	log.Print("[api.team] " + resp)
+	return WriteJSON(w, http.StatusOK, resp)
+}
+
 func (s *APIServer) handleUpdateTeamRole(w http.ResponseWriter, r *http.Request) error {
 	id := GetId(r)
 	if id == -1 {
@@ -107,19 +120,6 @@ func (s *APIServer) handleUpdateTeamRole(w http.ResponseWriter, r *http.Request)
 		return err
 	}
 	resp := "role updated with id " + mux.Vars(r)["id"]
-	log.Print("[api.team] " + resp)
-	return WriteJSON(w, http.StatusOK, resp)
-}
-
-func (s *APIServer) handleDeleteTeamRole(w http.ResponseWriter, r *http.Request) error {
-	id := GetId(r)
-	if id == -1 {
-		return fmt.Errorf("id not found")
-	}
-	if err := s.store.DeletTeamRole(id); err != nil {
-		return err
-	}
-	resp := "role deleted with id " + mux.Vars(r)["id"]
 	log.Print("[api.team] " + resp)
 	return WriteJSON(w, http.StatusOK, resp)
 }
@@ -152,19 +152,6 @@ func (s *APIServer) handleGetTeamMember(w http.ResponseWriter, r *http.Request) 
 	return WriteJSON(w, http.StatusOK, member)
 }
 
-func (s *APIServer) handleDeleteTeamMember(w http.ResponseWriter, r *http.Request) error {
-	id := GetId(r)
-	if id == -1 {
-		return fmt.Errorf("id not found")
-	}
-	if err := s.store.DeleteTeamMember(id); err != nil {
-		return err
-	}
-	resp := "member deleted with id " + mux.Vars(r)["id"]
-	log.Print("[api.team] " + resp)
-	return WriteJSON(w, http.StatusOK, resp)
-}
-
 func (s *APIServer) handleUpdateTeamMember(w http.ResponseWriter, r *http.Request) error {
 	id := GetId(r)
 	if id == -1 {
@@ -179,6 +166,19 @@ func (s *APIServer) handleUpdateTeamMember(w http.ResponseWriter, r *http.Reques
 
 	}
 	resp := "member updated with id " + mux.Vars(r)["id"]
+	log.Print("[api.team] " + resp)
+	return WriteJSON(w, http.StatusOK, resp)
+}
+
+func (s *APIServer) handleDeleteTeamMember(w http.ResponseWriter, r *http.Request) error {
+	id := GetId(r)
+	if id == -1 {
+		return fmt.Errorf("id not found")
+	}
+	if err := s.store.DeleteTeamMember(id); err != nil {
+		return err
+	}
+	resp := "member deleted with id " + mux.Vars(r)["id"]
 	log.Print("[api.team] " + resp)
 	return WriteJSON(w, http.StatusOK, resp)
 }

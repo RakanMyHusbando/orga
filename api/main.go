@@ -70,6 +70,9 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/team", makeHTTPHandleFunc(s.handleTeam))
 	router.HandleFunc("/team/{id}", makeHTTPHandleFunc(s.handleTeam))
 
+	router.HandleFunc("/team_role/", makeHTTPHandleFunc(s.handleTeamRole))
+	router.HandleFunc("/team_role/{id}", makeHTTPHandleFunc(s.handleTeamRole))
+
 	log.Println("API server running on ", s.listenAddr)
 
 	err := http.ListenAndServe(s.listenAddr, router)
@@ -99,10 +102,10 @@ func (s *APIServer) handleLeagueOfLegends(w http.ResponseWriter, r *http.Request
 	switch r.Method {
 	case "POST":
 		return s.handleCreateLeagueOfLegends(w, r)
-	case "DELETE":
-		return s.handleDeleteLeagueOfLegends(w, r)
 	case "PATCH":
 		return s.handleUpdateLeagueOfLegends(w, r)
+	case "DELETE":
+		return s.handleDeleteLeagueOfLegends(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
 	}
@@ -112,10 +115,10 @@ func (s *APIServer) handleGameAccount(w http.ResponseWriter, r *http.Request) er
 	switch r.Method {
 	case "POST":
 		return s.handleCreateGameAccount(w, r)
-	case "DELETE":
-		return s.handleDeleteGameAccount(w, r)
 	case "PATCH":
 		return s.handleUpdateGameAccount(w, r)
+	case "DELETE":
+		return s.handleDeleteGameAccount(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
 	}
@@ -127,10 +130,10 @@ func (s *APIServer) handlerGuild(w http.ResponseWriter, r *http.Request) error {
 		return s.handleCreateGuild(w, r)
 	case "GET":
 		return s.handleGetGuild(w, r)
-	case "DELETE":
-		return s.handleDeleteGuild(w, r)
 	case "PATCH":
 		return s.handleUpdateGuild(w, r)
+	case "DELETE":
+		return s.handleDeleteGuild(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
 	}
@@ -142,10 +145,10 @@ func (s *APIServer) handlerGuildRole(w http.ResponseWriter, r *http.Request) err
 		return s.handleCreateGuildRole(w, r)
 	case "GET":
 		return s.handleGetGuildRole(w, r)
-	case "DELETE":
-		return s.handleDeleteGuildRole(w, r)
 	case "PATCH":
 		return s.handleUpdateGuildRole(w, r)
+	case "DELETE":
+		return s.handleDeleteGuildRole(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
 	}
@@ -155,10 +158,10 @@ func (s *APIServer) handlerGuildMember(w http.ResponseWriter, r *http.Request) e
 	switch r.Method {
 	case "POST":
 		return s.handleCreateGuildMember(w, r)
-	case "DELETE":
-		return s.handleDeleteGuildMember(w, r)
 	case "PATCH":
 		return s.handleUpdateGuildMember(w, r)
+	case "DELETE":
+		return s.handleDeleteGuildMember(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
 	}
@@ -170,10 +173,25 @@ func (s *APIServer) handleTeam(w http.ResponseWriter, r *http.Request) error {
 		return s.handleCreateTeam(w, r)
 	case "GET":
 		return s.handleGetTeam(w, r)
-	case "DELETE":
-		return s.handleDeleteTeam(w, r)
 	case "PATCH":
 		return s.handleUpdateTeam(w, r)
+	case "DELETE":
+		return s.handleDeleteTeam(w, r)
+	default:
+		return fmt.Errorf("unsupported method: %s", r.Method)
+	}
+}
+
+func (s *APIServer) handleTeamRole(w http.ResponseWriter, r *http.Request) error {
+	switch r.Method {
+	case "POST":
+		return s.handleCreateTeamRole(w, r)
+	case "GET":
+		return s.handleGetTeamRole(w, r)
+	case "PATCH":
+		return s.handleUpdateTeamRole(w, r)
+	case "DELETE":
+		return s.handleDeleteTeamRole(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
 	}
