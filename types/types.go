@@ -21,16 +21,18 @@ type LeagueOfLegends struct {
 }
 
 type Guild struct {
-	Id           int    `json:"id"`
-	Name         string `json:"name"`
-	Abbreviation string `json:"abbreviation"`
-	Description  string `json:"description"`
+	Id           int                `json:"id"`
+	Name         string             `json:"name"`
+	Abbreviation string             `json:"abbreviation"`
+	Description  string             `json:"description"`
+	Member       map[string][]*User `json:"member"`
 }
 
 type GuildRole struct {
-	Id          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Id          int                `json:"id"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Member      map[string][]*User `json:"member"`
 }
 
 type GuildMember struct {
@@ -40,11 +42,11 @@ type GuildMember struct {
 }
 
 type Team struct {
-	Id           int                 `json:"id"`
-	GuildId      int                 `json:"guild_id"`
-	Name         string              `json:"name"`
-	Abbreviation string              `json:"abbreviation"`
-	Member       map[string][]string `json:"member"`
+	Id           int                `json:"id"`
+	GuildId      int                `json:"guild_id"`
+	Name         string             `json:"name"`
+	Abbreviation string             `json:"abbreviation"`
+	Member       map[string][]*User `json:"member"`
 }
 
 type TeamRole struct {
@@ -60,13 +62,13 @@ type TeamMember struct {
 }
 
 type DiscordServer struct {
-	Id          int                 `json:"id"`
-	Discord_id  string              `json:"discord_id"`
-	Name        string              `json:"name"`
-	Description string              `json:"description"`
-	GuildId     int                 `json:"guild_id"`
-	TeamId      int                 `json:"team_id"`
-	Member      map[string][]string `json:"member"`
+	Id          int                `json:"id"`
+	Discord_id  string             `json:"discord_id"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	GuildId     int                `json:"guild_id"`
+	TeamId      int                `json:"team_id"`
+	Member      map[string][]*User `json:"member"`
 }
 
 type DiscordRole struct {

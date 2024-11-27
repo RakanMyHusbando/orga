@@ -50,7 +50,7 @@ func (s *APIServer) handleGetTeam(w http.ResponseWriter, r *http.Request) error 
 					if err != nil {
 						log.Println("[api.team] no user found for team member with id ", m.UserId)
 					} else {
-						t.Member[role[0].Name] = append(t.Member[role[0].Name], user[0].Name)
+						t.Member[role[0].Name] = append(t.Member[role[0].Name], user[0])
 					}
 				}
 			}

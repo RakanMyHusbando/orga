@@ -36,6 +36,26 @@ func (s *APIServer) handleGetGuild(w http.ResponseWriter, r *http.Request) error
 	if err != nil {
 		return err
 	}
+	for _, g := range guild {
+		member, err := s.store.GetGuildMemberByGuildId(g.Id)
+		if err != nil {
+			log.Println("[api.guild] no team members found for guild with id ", g.Id)
+		} else {
+			for _, m := range member {
+				role, err := s.store.GetGuildRoleById(m.RoleId)
+				if err != nil {
+					log.Println("[api.guild] no role found for guild member with user_id ", m.UserId)
+				} else {
+					user, err := s.store.GetUserById(m.UserId)
+					if err != nil {
+						log.Println("[api.guild] no user found for guild member with user_id ", m.UserId)
+					} else {
+						g.Member[role[0].Name] = append(g.Member[role[0].Name], user[0])
+					}
+				}
+			}
+		}
+	}
 	log.Print("[api.guild] got guilds")
 	return WriteJSON(w, http.StatusOK, guild)
 }
