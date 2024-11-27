@@ -108,6 +108,29 @@ type Storage interface {
 	GetTeamMemberByUserId(userId int) ([]*types.TeamMember, error)
 	GetTeamMemberByTeamId(teamId int) ([]*types.TeamMember, error)
 	DeleteTeamMember(id int) error
+
+	// Discord
+
+	CreateDiscord(discord *types.Discord) error
+	GetDiscord() ([]*types.Discord, error)
+	GetDiscordById(id int) ([]*types.Discord, error)
+	UpdateDiscord(discord *types.Discord, id int) error
+	DeleteDiscord(id int) error
+
+	// Discord.Role
+
+	CreateDiscordRole(role *types.DiscordRole) error
+	GetDiscordRole() ([]*types.DiscordRole, error)
+	GetDiscordRoleById(id int) ([]*types.DiscordRole, error)
+	UpdateDiscordRole(role *types.DiscordRole, id int) error
+	DeleteDiscordRole(id int) error
+
+	// Discord.Member
+
+	CreateDiscordMember(member *types.DiscordMember) error
+	GetDiscordMemberByServerId(serverId int) ([]*types.DiscordMember, error)
+	GetDiscordMemberByUserId(userId int) ([]*types.DiscordMember, error)
+	DeleteDiscordMember(userId, serverId int) error
 }
 
 type SQLiteStorage struct {
