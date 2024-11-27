@@ -130,7 +130,7 @@ type Storage interface {
 	CreateDiscordMember(member *types.DiscordMember) error
 	GetDiscordMemberByServerId(serverId int) ([]*types.DiscordMember, error)
 	GetDiscordMemberByUserId(userId int) ([]*types.DiscordMember, error)
-	DeleteDiscordMember(userId, serverId int) error
+	DeleteDiscordMember(userId int) error
 }
 
 type SQLiteStorage struct {

@@ -134,9 +134,6 @@ func (s *SQLiteStorage) GetDiscordMemberByUserId(userId int) ([]*types.DiscordMe
 	return members, nil
 }
 
-func (s *SQLiteStorage) DeleteDiscordMember(userId int, serverId int) error {
-	return s.Delete("DiscordMember", map[string]any{
-		"user_id":   userId,
-		"server_id": serverId,
-	})
+func (s *SQLiteStorage) DeleteDiscordMember(userId int) error {
+	return s.Delete("DiscordMember", map[string]any{"user_id": userId})
 }

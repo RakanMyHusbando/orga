@@ -11,6 +11,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var ErrNoId = fmt.Errorf("id not found")
+
 type apiFunc func(http.ResponseWriter, *http.Request) error
 
 type ApiError struct {
@@ -221,13 +223,13 @@ func (s *APIServer) handleTeamMember(w http.ResponseWriter, r *http.Request) err
 func (s *APIServer) handleDiscord(w http.ResponseWriter, r *http.Request) error {
 	switch r.Method {
 	case "POST":
-		return s.handleCreateDiscordServer(w, r)
+		return s.handleCreateDiscord(w, r)
 	case "GET":
-		return s.handleGetDiscordServer(w, r)
+		return s.handleGetDiscord(w, r)
 	case "PATCH":
-		return s.handleUpdateDiscordServer(w, r)
+		return s.handleUpdateDiscord(w, r)
 	case "DELETE":
-		return s.handleDeleteDiscordServer(w, r)
+		return s.handleDeleteDiscord(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
 	}
