@@ -3,53 +3,57 @@ package storage
 import "github.com/RakanMyHusbando/shogun/types"
 
 func (s *SQLiteStorage) CreateDiscord(discord *types.Discord) error {
-	return s.Insert("Server", map[string]any{
+	return s.Insert("Discord", map[string]any{
 		"name": discord.Name,
 	})
 }
 
 func (s *SQLiteStorage) GetDiscord() ([]*types.Discord, error) {
-	rows, err := s.db.Query("SELECT * FROM Server")
+	rows, err := s.db.Query("SELECT * FROM Discord")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var servers []*types.Discord
+	var discordLst []*types.Discord
 	for rows.Next() {
-		server := new(types.Discord)
-		if err := rows.Scan(&server.Id, &server.Name); err != nil {
+		discord := new(types.Discord)
+		if err := rows.Scan(
+			&discord.Id,
+			&discord.Discord_id,
+			&discord.Name,
+			&discord.Description,
+			&discord.GuildId,
+		); err != nil {
 			return nil, err
 		}
-		servers = append(servers, server)
+		discordLst = append(discordLst, discord)
 	}
-	return servers, nil
+	return discordLst, nil
 }
 
-func (s *SQLiteStorage) GetServerById(id int) ([]*types.Discord, error) {
-	row := s.db.QueryRow("SELECT * FROM Server WHERE id = ?", id)
-	server := new(types.Discord)
-	if err := row.Scan(&server.Id, &server.Name); err != nil {
+func (s *SQLiteStorage) GetDiscordById(id int) ([]*types.Discord, error) {
+	row := s.db.QueryRow("SELECT * FROM Discord WHERE id = ?", id)
+	discord := new(types.Discord)
+	if err := row.Scan(
+		&discord.Id,
+		&discord.Discord_id,
+		&discord.Name,
+		&discord.Description,
+		&discord.GuildId,
+	); err != nil {
 		return nil, err
 	}
-	return []*types.Discord{server}, nil
+	return []*types.Discord{discord}, nil
 }
 
-func (s *SQLiteStorage) GetDiscordById(id int) ([]*types.DiscordRole, error) {
-	row := s.db.QueryRow("SELECT * FROM DiscordRole WHERE id = ?", id)
-	role := new(types.DiscordRole)
-	if err := row.Scan(&role.Id, &role.Name, &role.Description); err != nil {
-		return nil, err
-	}
-	return []*types.DiscordRole{role}, nil
-}
-
-func (s *SQLiteStorage) UpdateServer(server *types.Discord, id int) error {
+func (s *SQLiteStorage) UpdateDiscord(discord *types.Discord, id int) error {
 	return s.Update("Server", map[string]any{
-		"name": server.Name,
+		"name":        discord.Name,
+		"description": discord.Description,
 	}, map[string]any{"id": id})
 }
 
-func (s *SQLiteStorage) DeleteServer(id int) error {
+func (s *SQLiteStorage) DeleteDiscord(id int) error {
 	return s.Delete("Server", map[string]any{"id": id})
 }
 
@@ -77,6 +81,15 @@ func (s *SQLiteStorage) GetDiscordRole() ([]*types.DiscordRole, error) {
 		roles = append(roles, role)
 	}
 	return roles, nil
+}
+
+func (s *SQLiteStorage) GetDiscordRoleById(id int) ([]*types.DiscordRole, error) {
+	row := s.db.QueryRow("SELECT * FROM DiscordRole WHERE id = ?", id)
+	role := new(types.DiscordRole)
+	if err := row.Scan(&role.Id, &role.Name, &role.Description); err != nil {
+		return nil, err
+	}
+	return []*types.DiscordRole{role}, nil
 }
 
 func (s *SQLiteStorage) UpdateDiscordRole(role *types.DiscordRole, id int) error {

@@ -9,8 +9,6 @@ import (
 	"github.com/RakanMyHusbando/shogun/types"
 )
 
-/* ------------------------------ handle discord ------------------------------ */
-
 func (s *APIServer) handleCreateDiscord(w http.ResponseWriter, r *http.Request) error {
 	discord := new(types.Discord)
 	if err := json.NewDecoder(r.Body).Decode(&discord); err != nil {
@@ -69,7 +67,7 @@ func (s *APIServer) handleDeleteDiscord(w http.ResponseWriter, r *http.Request) 
 	return WriteJSON(w, http.StatusOK, resp)
 }
 
-/* ------------------------------ Role ------------------------------ */
+/* ------------------------------ handle role ------------------------------ */
 
 func (s *APIServer) handleCreateDiscordRole(w http.ResponseWriter, r *http.Request) error {
 	role := new(types.DiscordRole)
@@ -129,7 +127,7 @@ func (s *APIServer) handleDeleteDiscordRole(w http.ResponseWriter, r *http.Reque
 	return WriteJSON(w, http.StatusOK, resp)
 }
 
-/* ------------------------------ Member ------------------------------ */
+/* ------------------------------ handle member ------------------------------ */
 
 func (s *APIServer) handleCreateDiscordMember(w http.ResponseWriter, r *http.Request) error {
 	member := new(types.DiscordMember)

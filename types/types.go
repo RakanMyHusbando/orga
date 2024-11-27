@@ -67,7 +67,6 @@ type Discord struct {
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	GuildId     int                `json:"guild_id"`
-	TeamId      int                `json:"team_id"`
 	Member      map[string][]*User `json:"member"`
 }
 

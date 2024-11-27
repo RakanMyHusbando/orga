@@ -32,10 +32,6 @@ func (s *SQLiteStorage) GetLeagueOfLegendsByUserId(userId int) (*types.LeagueOfL
 	return lol, nil
 }
 
-func (s *SQLiteStorage) DeleteLeagueOfLegends(userId int) error {
-	return s.Delete("UserLeagueOfLegends", map[string]any{"user_id": userId})
-}
-
 func (s *SQLiteStorage) UpdateLeagueOfLegends(lol *types.LeagueOfLegends, userId int) error {
 	values := map[string]any{
 		"main_role":   lol.MainRole,
@@ -47,4 +43,8 @@ func (s *SQLiteStorage) UpdateLeagueOfLegends(lol *types.LeagueOfLegends, userId
 		}
 	}
 	return s.Update("UserLeagueOfLegends", values, map[string]any{"user_id": userId})
+}
+
+func (s *SQLiteStorage) DeleteLeagueOfLegends(userId int) error {
+	return s.Delete("UserLeagueOfLegends", map[string]any{"user_id": userId})
 }

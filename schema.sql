@@ -57,13 +57,12 @@ CREATE TABLE IF NOT EXISTS TeamUser (
     FOREIGN KEY (team_id) REFERENCES Team(id),
     FOREIGN KEY (role_id) REFERENCES TeamRole(id)
 );
-CREATE TABLE IF NOT EXISTS DiscordServer (
+CREATE TABLE IF NOT EXISTS Discord (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    discord_id TEXT UNIQUE,
-    name TEXT,
+    discord_id TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
     description TEXT,
-    guild_id INTEGER,
-    team_id INTEGER,
+    guild_id INTEGER NOT NULL,
     FOREIGN KEY (guild_id) REFERENCES Guild(id)
     FOREIGN KEY (team_id) REFERENCES Team(id)
 );
