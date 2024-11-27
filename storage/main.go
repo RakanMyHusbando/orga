@@ -107,7 +107,6 @@ type Storage interface {
 	CreateTeamMember(member *types.TeamMember) error
 	GetTeamMemberByUserId(userId int) ([]*types.TeamMember, error)
 	GetTeamMemberByTeamId(teamId int) ([]*types.TeamMember, error)
-	UpdateTeamMember(member *types.TeamMember, id int) error
 	DeleteTeamMember(id int) error
 }
 
