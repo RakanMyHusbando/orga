@@ -44,11 +44,11 @@ func (s *APIServer) handleGetTeam(w http.ResponseWriter, r *http.Request) error 
 			for _, m := range member {
 				role, err := s.store.GetTeamRoleByUserId(m.UserId)
 				if err != nil {
-					log.Println("[api.team] no role found for team member with id ", m.UserId)
+					log.Println("[api.team] no role found for team member with user_id ", m.UserId)
 				} else {
 					user, err := s.store.GetUserById(m.UserId)
 					if err != nil {
-						log.Println("[api.team] no user found for team member with id ", m.UserId)
+						log.Println("[api.team] no user found for team member with user_id ", m.UserId)
 					} else {
 						t.Member[role[0].Name] = append(t.Member[role[0].Name], user[0])
 					}

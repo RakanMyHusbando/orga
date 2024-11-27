@@ -33,6 +33,25 @@ func (s *APIServer) handleGetDiscord(w http.ResponseWriter, r *http.Request) err
 	if err != nil {
 		return err
 	}
+	for _, d := range discord {
+		member, err := s.store.GetDiscordMemberByServerId(d.Id)
+		if err != nil {
+			log.Println("[api.discord] no member found for discord with id ", d.Id)
+		} else {
+			for _, m := range member {
+				role, err := s.store.GetDiscordRoleById(m.RoleId)
+				if err != nil {
+					log.Println("[api.discord] no role found with id ", m.RoleId)
+				} else {
+					user, err := s.store.GetUserById(m.UserId)
+					if err != nil {
+						log.Println("[api.discord] no user found with id ", m.UserId)
+					}
+					d.Member[role[0].Name] = append(d.Member[role[0].Name], user[0])
+				}
+			}
+		}
+	}
 	log.Print("[api.discord] got discord servers")
 	return WriteJSON(w, http.StatusOK, discord)
 }
