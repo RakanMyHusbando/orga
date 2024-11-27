@@ -73,10 +73,10 @@ CREATE TABLE IF NOT EXISTS DiscordRole (
     description TEXT
     -- TODO: add some role privileges (type: boolean)
 );
-CREATE TABLE IF NOT EXISTS DiscordServerRole (
-    discord_id TEXT UNIQUE,
+CREATE TABLE IF NOT EXISTS DiscordUser (
+    user_id INTEGER NOT NULL,
     role_id INTEGER NOT NULL,
-    server_id INTEGER,
+    server_id INTEGER NOT NULL,
     FOREIGN KEY (role_id) REFERENCES DiscordRole(id),
     FOREIGN KEY (server_id) REFERENCES DiscordServer(id)
 );

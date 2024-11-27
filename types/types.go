@@ -73,3 +73,9 @@ type DiscordRole struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
+
+type DiscordMember struct {
+	UserId   int `json:"user_id"`
+	RoleId   int `json:"role_id"`
+	ServerId int `json:"server_id"`
+}

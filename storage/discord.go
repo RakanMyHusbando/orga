@@ -91,3 +91,54 @@ func (s *SQLiteStorage) UpdateDiscordRole(role *types.DiscordRole, id int) error
 func (s *SQLiteStorage) DeleteDiscordRole(id int) error {
 	return s.Delete("DiscordRole", map[string]any{"id": id})
 }
+
+/* ------------------------------ Member ------------------------------ */
+
+func (s *SQLiteStorage) CreateDiscordMember(member *types.DiscordMember) error {
+	return s.Insert("DiscordMember", map[string]any{
+		"user_id":   member.UserId,
+		"role_id":   member.RoleId,
+		"server_id": member.ServerId,
+	})
+}
+
+func (s *SQLiteStorage) GetDiscordMemberByServerId(serverId int) ([]*types.DiscordMember, error) {
+	rows, err := s.db.Query("SELECT * FROM DiscordMember WHERE server_id = ?", serverId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var members []*types.DiscordMember
+	for rows.Next() {
+		member := new(types.DiscordMember)
+		if err := rows.Scan(&member.UserId, &member.RoleId, &member.ServerId); err != nil {
+			return nil, err
+		}
+		members = append(members, member)
+	}
+	return members, nil
+}
+
+func (s *SQLiteStorage) GetDiscordMemberByUserId(userId int) ([]*types.DiscordMember, error) {
+	rows, err := s.db.Query("SELECT * FROM DiscordMember WHERE user_id = ?", userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var members []*types.DiscordMember
+	for rows.Next() {
+		member := new(types.DiscordMember)
+		if err := rows.Scan(&member.UserId, &member.RoleId, &member.ServerId); err != nil {
+			return nil, err
+		}
+		members = append(members, member)
+	}
+	return members, nil
+}
+
+func (s *SQLiteStorage) DeleteDiscordMember(userId int, serverId int) error {
+	return s.Delete("DiscordMember", map[string]any{
+		"user_id":   userId,
+		"server_id": serverId,
+	})
+}
