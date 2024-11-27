@@ -76,6 +76,15 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/team_member/", makeHTTPHandleFunc(s.handleTeamMember))
 	router.HandleFunc("/team_member/{id}", makeHTTPHandleFunc(s.handleTeamMember))
 
+	router.HandleFunc("/discord", makeHTTPHandleFunc(s.handleDiscord))
+	router.HandleFunc("/discord/{id}", makeHTTPHandleFunc(s.handleDiscord))
+
+	router.HandleFunc("/discord_role/", makeHTTPHandleFunc(s.handleDiscordRole))
+	router.HandleFunc("/discord_role/{id}", makeHTTPHandleFunc(s.handleDiscordRole))
+
+	router.HandleFunc("/discord_member/", makeHTTPHandleFunc(s.handleDiscordMember))
+	router.HandleFunc("/discord_member/{id}", makeHTTPHandleFunc(s.handleDiscordMember))
+
 	log.Println("API server running on ", s.listenAddr)
 
 	err := http.ListenAndServe(s.listenAddr, router)
@@ -161,8 +170,6 @@ func (s *APIServer) handlerGuildMember(w http.ResponseWriter, r *http.Request) e
 	switch r.Method {
 	case "POST":
 		return s.handleCreateGuildMember(w, r)
-	case "PATCH":
-		return s.handleUpdateGuildMember(w, r)
 	case "DELETE":
 		return s.handleDeleteGuildMember(w, r)
 	default:
@@ -204,10 +211,49 @@ func (s *APIServer) handleTeamMember(w http.ResponseWriter, r *http.Request) err
 	switch r.Method {
 	case "POST":
 		return s.handleCreateTeamMember(w, r)
-	case "PATCH":
-		return s.handleUpdateTeamMember(w, r)
 	case "DELETE":
 		return s.handleDeleteTeamMember(w, r)
+	default:
+		return fmt.Errorf("unsupported method: %s", r.Method)
+	}
+}
+
+func (s *APIServer) handleDiscord(w http.ResponseWriter, r *http.Request) error {
+	switch r.Method {
+	case "POST":
+		return s.handleCreateDiscordServer(w, r)
+	case "GET":
+		return s.handleGetDiscordServer(w, r)
+	case "PATCH":
+		return s.handleUpdateDiscordServer(w, r)
+	case "DELETE":
+		return s.handleDeleteDiscordServer(w, r)
+	default:
+		return fmt.Errorf("unsupported method: %s", r.Method)
+	}
+}
+
+func (s *APIServer) handleDiscordRole(w http.ResponseWriter, r *http.Request) error {
+	switch r.Method {
+	case "POST":
+		return s.handleCreateDiscordRole(w, r)
+	case "GET":
+		return s.handleGetDiscordRole(w, r)
+	case "PATCH":
+		return s.handleUpdateDiscordRole(w, r)
+	case "DELETE":
+		return s.handleDeleteDiscordRole(w, r)
+	default:
+		return fmt.Errorf("unsupported method: %s", r.Method)
+	}
+}
+
+func (s *APIServer) handleDiscordMember(w http.ResponseWriter, r *http.Request) error {
+	switch r.Method {
+	case "POST":
+		return s.handleCreateDiscordMember(w, r)
+	case "DELETE":
+		return s.handleDeleteDiscordMember(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
 	}

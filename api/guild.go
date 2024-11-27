@@ -158,23 +158,6 @@ func (s *APIServer) handleCreateGuildMember(w http.ResponseWriter, r *http.Reque
 	return WriteJSON(w, http.StatusOK, respMessage)
 }
 
-func (s *APIServer) handleUpdateGuildMember(w http.ResponseWriter, r *http.Request) error {
-	id := GetId(r)
-	if id == -1 {
-		return fmt.Errorf("id not found")
-	}
-	member := new(types.GuildMember)
-	if err := json.NewDecoder(r.Body).Decode(&member); err != nil {
-		return err
-	}
-	if err := s.store.UpdateGuildMember(member, id); err != nil {
-		return err
-	}
-	respMessage := fmt.Sprintf("guild member with id %v updated", id)
-	log.Print("[api.guild.member] " + respMessage)
-	return WriteJSON(w, http.StatusOK, respMessage)
-}
-
 func (s *APIServer) handleDeleteGuildMember(w http.ResponseWriter, r *http.Request) error {
 	id := GetId(r)
 	if id == -1 {

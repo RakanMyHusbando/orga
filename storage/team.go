@@ -150,16 +150,6 @@ func (s *SQLiteStorage) GetTeamMemberByTeamId(teamId int) ([]*types.TeamMember, 
 	return members, nil
 }
 
-func (s *SQLiteStorage) UpdateTeamMember(member *types.TeamMember, id int) error {
-	var values map[string]any
-	bytes, err := json.Marshal(member)
-	if err != nil {
-		return fmt.Errorf("[storage.team] error: %v", err)
-	}
-	json.Unmarshal(bytes, &values)
-	return s.Update("TeamMember", values, map[string]any{"id": id})
-}
-
 func (s *SQLiteStorage) DeleteTeamMember(id int) error {
 	return s.Delete("TeamMember", map[string]any{"id": id})
 }

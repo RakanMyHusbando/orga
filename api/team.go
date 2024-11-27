@@ -159,24 +159,6 @@ func (s *APIServer) handleCreateTeamMember(w http.ResponseWriter, r *http.Reques
 	return WriteJSON(w, http.StatusOK, resp)
 }
 
-func (s *APIServer) handleUpdateTeamMember(w http.ResponseWriter, r *http.Request) error {
-	id := GetId(r)
-	if id == -1 {
-		return fmt.Errorf("id not found")
-	}
-	member := new(types.TeamMember)
-	if err := json.NewDecoder(r.Body).Decode(&member); err != nil {
-		return err
-	}
-	if err := s.store.UpdateTeamMember(member, id); err != nil {
-		return err
-
-	}
-	resp := "member updated with id " + mux.Vars(r)["id"]
-	log.Print("[api.team] " + resp)
-	return WriteJSON(w, http.StatusOK, resp)
-}
-
 func (s *APIServer) handleDeleteTeamMember(w http.ResponseWriter, r *http.Request) error {
 	id := GetId(r)
 	if id == -1 {

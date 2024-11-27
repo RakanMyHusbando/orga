@@ -61,7 +61,7 @@ type TeamMember struct {
 	RoleId int `json:"role_id"`
 }
 
-type DiscordServer struct {
+type Discord struct {
 	Id          int                `json:"id"`
 	Discord_id  string             `json:"discord_id"`
 	Name        string             `json:"name"`

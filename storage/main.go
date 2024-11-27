@@ -84,7 +84,6 @@ type Storage interface {
 	CreateGuildMember(guildUser *types.GuildMember) error
 	GetGuildMemberByGuildId(guildId int) ([]*types.GuildMember, error)
 	GetGuildMemberByUserId(userId int) ([]*types.GuildMember, error)
-	UpdateGuildMember(guildUser *types.GuildMember, userId int) error
 	DeleteGuildMember(userId int) error
 
 	// Team

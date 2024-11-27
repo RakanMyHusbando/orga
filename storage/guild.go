@@ -148,16 +148,6 @@ func (s *SQLiteStorage) GetGuildMemberByUserId(userId int) ([]*types.GuildMember
 	return guildUsers, nil
 }
 
-func (s *SQLiteStorage) UpdateGuildMember(guildUser *types.GuildMember, userId int) error {
-	var values map[string]any
-	bytes, err := json.Marshal(guildUser)
-	if err != nil {
-		return err
-	}
-	json.Unmarshal(bytes, &values)
-	return s.Update("GuildUser", values, map[string]any{"user_id": userId})
-}
-
 func (s *SQLiteStorage) DeleteGuildMember(userId int) error {
 	return s.Delete("GuildUser", map[string]any{"user_id": userId})
 }
