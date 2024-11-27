@@ -73,6 +73,9 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/team_role/", makeHTTPHandleFunc(s.handleTeamRole))
 	router.HandleFunc("/team_role/{id}", makeHTTPHandleFunc(s.handleTeamRole))
 
+	router.HandleFunc("/team_member/", makeHTTPHandleFunc(s.handleTeamMember))
+	router.HandleFunc("/team_member/{id}", makeHTTPHandleFunc(s.handleTeamMember))
+
 	log.Println("API server running on ", s.listenAddr)
 
 	err := http.ListenAndServe(s.listenAddr, router)
@@ -192,6 +195,19 @@ func (s *APIServer) handleTeamRole(w http.ResponseWriter, r *http.Request) error
 		return s.handleUpdateTeamRole(w, r)
 	case "DELETE":
 		return s.handleDeleteTeamRole(w, r)
+	default:
+		return fmt.Errorf("unsupported method: %s", r.Method)
+	}
+}
+
+func (s *APIServer) handleTeamMember(w http.ResponseWriter, r *http.Request) error {
+	switch r.Method {
+	case "POST":
+		return s.handleCreateTeamMember(w, r)
+	case "PATCH":
+		return s.handleUpdateTeamMember(w, r)
+	case "DELETE":
+		return s.handleDeleteTeamMember(w, r)
 	default:
 		return fmt.Errorf("unsupported method: %s", r.Method)
 	}
