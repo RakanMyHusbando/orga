@@ -1,6 +1,6 @@
 package storage
 
-import "github.com/RakanMyHusbando/shogun/types"
+import "github.com/RakanMyHusbando/orga/types"
 
 func (s *SQLiteStorage) CreateDiscord(discord *types.Discord) error {
 	return s.Insert("Discord", map[string]any{

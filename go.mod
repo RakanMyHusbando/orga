@@ -1,4 +1,4 @@
-module github.com/RakanMyHusbando/shogun
+module github.com/RakanMyHusbando/orga
 
 go 1.23.2
 

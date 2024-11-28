@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/Kinveil/Riot-API-Golang/apiclient"
-	"github.com/RakanMyHusbando/shogun/types"
+	"github.com/RakanMyHusbando/orga/types"
 	_ "github.com/mattn/go-sqlite3"
 )
 

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/Kinveil/Riot-API-Golang/constants/continent"
-	"github.com/RakanMyHusbando/shogun/types"
+	"github.com/RakanMyHusbando/orga/types"
 )
 
 func (s *SQLiteStorage) CreateGameAccount(account *types.GameAccount) error {

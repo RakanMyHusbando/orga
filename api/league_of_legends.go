@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/RakanMyHusbando/shogun/types"
+	"github.com/RakanMyHusbando/orga/types"
 	"github.com/gorilla/mux"
 )
 

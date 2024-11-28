@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/RakanMyHusbando/shogun/types"
+	"github.com/RakanMyHusbando/orga/types"
 )
 
 /* ------------------------------ Team ------------------------------ */

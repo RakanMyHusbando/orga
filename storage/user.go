@@ -3,7 +3,7 @@ package storage
 import (
 	"encoding/json"
 
-	"github.com/RakanMyHusbando/shogun/types"
+	"github.com/RakanMyHusbando/orga/types"
 )
 
 func (s *SQLiteStorage) CreateUser(user *types.User) error {

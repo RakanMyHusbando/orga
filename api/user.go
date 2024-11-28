@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/RakanMyHusbando/shogun/types"
+	"github.com/RakanMyHusbando/orga/types"
 )
 
 func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) error {

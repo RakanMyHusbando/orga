@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/RakanMyHusbando/shogun/api"
-	"github.com/RakanMyHusbando/shogun/storage"
+	"github.com/RakanMyHusbando/orga/api"
+	"github.com/RakanMyHusbando/orga/storage"
 	"github.com/joho/godotenv"
 )
 

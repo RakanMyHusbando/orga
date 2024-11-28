@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/RakanMyHusbando/shogun/storage"
-	"github.com/RakanMyHusbando/shogun/types"
+	"github.com/RakanMyHusbando/orga/storage"
+	"github.com/RakanMyHusbando/orga/types"
 	"github.com/gorilla/mux"
 )
 
