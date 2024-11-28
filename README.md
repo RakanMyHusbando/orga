@@ -1,6 +1,11 @@
 # ORGA
 "ORGA" is a Go-based application that integrates with the Riot API to manage user data, game accounts, teams, and guilds (and guild discord server with roles). It uses SQLite for data storage and provides an API server for interaction.
 
+## Status 
+
+- in progress
+- not all endpoints are tested 
+
 ## Features
 
 - User management (game-accounts, game-stats)
