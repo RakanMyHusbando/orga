@@ -1,5 +1,5 @@
 # ORGA
-Shogun is a Go-based application that integrates with the Riot API to manage user data, game accounts, and guilds. It uses SQLite for data storage and provides an API server for interaction.
+"ORGA" is a Go-based application that integrates with the Riot API to manage user data, game accounts, teams, and guilds (and guild discord server with roles). It uses SQLite for data storage and provides an API server for interaction.
 
 ## Features
 
