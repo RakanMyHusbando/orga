@@ -11,20 +11,28 @@ import (
 
 func main() {
 	godotenv.Load(".env")
+	env := map[string]string{
+		"API_KEY": "",
+		"DB_FILE": "",
+		"PORT":    ":",
+	}
+	for key := range env {
+		env[key] += os.Getenv(key)
+		if env[key] == "" || (key == "PORT" && env[key] == ":") {
+			log.Fatalf("Error getting %v", key)
+		}
+	}
 
-	DB_FILE := os.Getenv("DB_FILE")
-	PORT := ":" + os.Getenv("PORT")
-
-	db, err := storage.NewSQLiteStorage(DB_FILE)
+	db, err := storage.NewSQLiteStorage(env["DB_FILE"])
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = storage.RunSQLiteStorage(db, "schema.sql")
+	err = storage.RunSQLiteStorage(db, "schema.sql", env["API_KEY"])
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	server := api.NewAPIServer(PORT, db)
+	server := api.NewAPIServer(env["PORT"], db)
 	server.Run()
 }

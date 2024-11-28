@@ -36,7 +36,7 @@ func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error 
 		if err != nil {
 			log.Println("[api.user] cant get league_of_legends for user with id ", userLst[i].Id)
 		} else {
-			accs, err := s.store.GetGameAccountBy(userLst[i].Id, "league_of_legends")
+			accs, err := s.store.GetGameAccountByUserId(userLst[i].Id, "league_of_legends")
 			if err != nil {
 				return err
 			}

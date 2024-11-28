@@ -15,6 +15,7 @@ type GameAccount struct {
 	UserId int    `json:"user_id"`
 	Game   string `json:"game"`
 	Name   string `json:"name"`
+	Puuid  string `json:"puuid"`
 }
 
 type LeagueOfLegends struct {

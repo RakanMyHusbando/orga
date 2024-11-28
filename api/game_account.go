@@ -28,27 +28,6 @@ func (s *APIServer) handleCreateGameAccount(w http.ResponseWriter, r *http.Reque
 	return WriteJSON(w, http.StatusOK, respMessage)
 }
 
-func (s *APIServer) handleUpdateGameAccount(w http.ResponseWriter, r *http.Request) error {
-	id := GetId(r)
-	if id == -1 {
-		return fmt.Errorf("id not found")
-	}
-	oldName := mux.Vars(r)["accountName"]
-	if oldName == "" {
-		return fmt.Errorf("account name is empty")
-	}
-	var newName map[string]string
-	if err := json.NewDecoder(r.Body).Decode(&newName); err != nil {
-		return err
-	}
-	if err := s.store.UpdateGameAccount(id, oldName, newName["name"]); err != nil {
-		return err
-	}
-	respMessage := "game account updated for user with id " + mux.Vars(r)["id"]
-	log.Print("[api.game_account] " + respMessage)
-	return WriteJSON(w, http.StatusOK, respMessage)
-}
-
 func (s *APIServer) handleDeleteGameAccount(w http.ResponseWriter, r *http.Request) error {
 	id := GetId(r)
 	if id == -1 {

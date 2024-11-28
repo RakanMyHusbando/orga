@@ -8,9 +8,12 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/Kinveil/Riot-API-Golang/apiclient"
 	"github.com/RakanMyHusbando/shogun/types"
 	_ "github.com/mattn/go-sqlite3"
 )
+
+var apiClient apiclient.Client
 
 func NewSQLiteStorage(dbFile string) (*SQLiteStorage, error) {
 	db, err := sql.Open("sqlite3", dbFile)
@@ -22,7 +25,9 @@ func NewSQLiteStorage(dbFile string) (*SQLiteStorage, error) {
 	}, nil
 }
 
-func RunSQLiteStorage(storage *SQLiteStorage, schemaFile string) error {
+func RunSQLiteStorage(storage *SQLiteStorage, schemaFile string, apiKey string) error {
+	// set riot api client
+	apiClient = apiclient.New(apiKey)
 	// read sql file with create table statements
 	byteContent, err := os.ReadFile("schema.sql")
 	if err != nil {
@@ -59,8 +64,7 @@ type Storage interface {
 	// GameAccount
 
 	CreateGameAccount(account *types.GameAccount) error
-	GetGameAccountBy(userId int, game string) ([]string, error)
-	UpdateGameAccount(userId int, oldName string, newName string) error
+	GetGameAccountByUserId(userId int, game string) ([]string, error)
 	DeleteGameAccount(userId int, name string) error
 
 	// Guild

@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS User (
 );
 CREATE TABLE IF NOT EXISTS GameAccount (
     user_id INTEGER NOT NULL,
-    name TEXT UNIQUE NOT NULL,
     game TEXT NOT NULL,
+    puuid TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(id)
 );
 CREATE TABLE IF NOT EXISTS UserLeagueOfLegends (

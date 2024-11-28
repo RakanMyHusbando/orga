@@ -64,8 +64,8 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/guild", makeHTTPHandleFunc(s.handlerGuild))
 	router.HandleFunc("/guild/{id}", makeHTTPHandleFunc(s.handlerGuild))
 
-	router.HandleFunc("/guild_user", makeHTTPHandleFunc(s.handlerGuildMember))
-	router.HandleFunc("/guild_user/{id}", makeHTTPHandleFunc(s.handlerGuildMember))
+	router.HandleFunc("/guild_member", makeHTTPHandleFunc(s.handlerGuildMember))
+	router.HandleFunc("/guild_member/{id}", makeHTTPHandleFunc(s.handlerGuildMember))
 
 	router.HandleFunc("/guild_role", makeHTTPHandleFunc(s.handlerGuildRole))
 	router.HandleFunc("/guild_role/{id}", makeHTTPHandleFunc(s.handlerGuildRole))
@@ -130,8 +130,6 @@ func (s *APIServer) handleGameAccount(w http.ResponseWriter, r *http.Request) er
 	switch r.Method {
 	case "POST":
 		return s.handleCreateGameAccount(w, r)
-	case "PATCH":
-		return s.handleUpdateGameAccount(w, r)
 	case "DELETE":
 		return s.handleDeleteGameAccount(w, r)
 	default:
