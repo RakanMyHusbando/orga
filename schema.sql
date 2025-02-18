@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS User (
     name TEXT UNIQUE NOT NULL,
     discord_id TEXT UNIQUE NOT NULL,
     session_cookie TEXT NOT NULL,
-    csrf_token TEXT NOT NULL,
+    csrf_token TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS GameAccount (
