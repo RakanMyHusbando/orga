@@ -22,7 +22,9 @@ func (s *SQLiteStorage) GetUser() ([]*types.User, error) {
 	var userLst []*types.User
 	for rows.Next() {
 		user := new(types.User)
-		if err := rows.Scan(&user.Id, &user.Name, &user.DiscordId); err != nil {
+		if err := rows.Scan(
+			&user.Id, &user.Name, &user.DiscordId, &user.SessionCoockie, &user.CSRFToken,
+		); err != nil {
 			return nil, err
 		}
 		userLst = append(userLst, user)
@@ -33,7 +35,9 @@ func (s *SQLiteStorage) GetUser() ([]*types.User, error) {
 func (s *SQLiteStorage) GetUserById(id int) ([]*types.User, error) {
 	row := s.db.QueryRow("SELECT * FROM User WHERE id = ?", id)
 	user := new(types.User)
-	if err := row.Scan(&user.Id, &user.Name, &user.DiscordId); err != nil {
+	if err := row.Scan(
+		&user.Id, &user.Name, &user.DiscordId, &user.SessionCoockie, &user.CSRFToken,
+	); err != nil {
 		return nil, err
 	}
 	return []*types.User{user}, nil

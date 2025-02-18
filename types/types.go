@@ -9,6 +9,8 @@ type User struct {
 	Name            string           `json:"name"`
 	DiscordId       string           `json:"discord_id"`
 	LeagueOfLegends *LeagueOfLegends `json:"league_of_legends"`
+	SessionCoockie  string           `json:"session_coockie"`
+	CSRFToken       string           `json:"csrf_token"`
 }
 
 type GameAccount struct {
