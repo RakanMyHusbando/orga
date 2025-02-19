@@ -9,30 +9,35 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var (
+	apiKey  string
+	dbFile  string
+	baseUrl string
+)
+
 func main() {
 	godotenv.Load(".env")
-	env := map[string]string{
-		"API_KEY": "",
-		"DB_FILE": "",
-		"PORT":    ":",
+	apiKey = os.Getenv("API_KEY")
+	dbFile = os.Getenv("DB_FILE")
+	baseUrl = os.Getenv("API_PORT")
+	if baseUrl == "" {
+		log.Fatal("Missing API_PORT in .env file")
 	}
-	for key := range env {
-		env[key] += os.Getenv(key)
-		if env[key] == "" || (key == "PORT" && env[key] == ":") {
-			log.Fatalf("Error getting %v", key)
-		}
+	baseUrl = os.Getenv("API_HOST") + ":" + baseUrl
+	if os.Getenv("API_HOST") == "" {
+		baseUrl = "127.0.0.1" + baseUrl
 	}
 
-	db, err := storage.NewSQLiteStorage(env["DB_FILE"])
+	db, err := storage.NewSQLiteStorage(dbFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = storage.RunSQLiteStorage(db, "schema.sql", env["API_KEY"])
+	err = storage.RunSQLiteStorage(db, "schema.sql", apiKey)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	server := api.NewAPIServer(env["PORT"], db)
+	server := api.NewAPIServer(baseUrl, db)
 	server.Run()
 }
