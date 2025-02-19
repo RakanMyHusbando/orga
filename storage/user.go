@@ -2,14 +2,17 @@ package storage
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/RakanMyHusbando/orga/types"
 )
 
 func (s *SQLiteStorage) CreateUser(user *types.User) error {
 	return s.Insert("User", map[string]any{
-		"name":       user.Name,
-		"discord_id": user.DiscordId,
+		"name":            user.Name,
+		"discord_id":      user.DiscordId,
+		"session_coockie": user.SessionCoockie,
+		"csrf_token":      user.CSRFToken,
 	})
 }
 

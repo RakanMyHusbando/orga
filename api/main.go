@@ -88,7 +88,7 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/discord_member/", makeHTTPHandleFunc(s.handleDiscordMember))
 	router.HandleFunc("/discord_member/{id}", makeHTTPHandleFunc(s.handleDiscordMember))
 
-	log.Println("API server running on ", s.listenAddr)
+	log.Println("API server running on", "http://"+s.listenAddr)
 
 	err := http.ListenAndServe(s.listenAddr, router)
 	if err != nil {

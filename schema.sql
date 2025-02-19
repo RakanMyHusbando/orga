@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS User (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL,
     discord_id TEXT UNIQUE NOT NULL,
-    session_cookie TEXT NOT NULL,
+    session_coockie TEXT NOT NULL,
     csrf_token TEXT NOT NULL
 );
 
