@@ -1,0 +1,39 @@
+body {
+    background-color: #2c3037;
+    color: #a8aeba;
+}
+a {
+    color: #a8aeba;
+    text-decoration: none;
+}
+
+header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+header nav {
+    display: flex;
+    gap: 14px;
+    width: 100%;
+    justify-content: end;
+}
+header a {
+    display: flex;
+    background-color: #3e444f;
+    font-weight: bold;
+    font-size: 2em;
+    padding: 8px 14px;
+    gap: 14px;
+    width: fit-content;
+    justify-content: center;
+    align-items: center;
+    border-radius: 14px;
+}
+header a p {
+    margin: 0;
+}
+
+.login img {
+    height: 42px;
+}
