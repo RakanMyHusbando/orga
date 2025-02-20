@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/RakanMyHusbando/orga/httpHandler"
+	api "github.com/RakanMyHusbando/orga/httpHandler"
 	"github.com/RakanMyHusbando/orga/storage"
 	"github.com/RakanMyHusbando/orga/website"
 	"github.com/gorilla/mux"
@@ -40,7 +40,6 @@ func main() {
 
 	website.Init(dcClientId, dcClientSecret, domain)
 
-
 	db, err := storage.NewSQLiteStorage("data.db")
 	if err != nil {
 		log.Fatal(err)
@@ -53,7 +52,7 @@ func main() {
 
 	router := mux.NewRouter()
 
-	httpHandler.NewStore(db).Routes(router)
+	api.NewStore(db).Routes(router)
 	website.Routes(router)
 
 	log.Println("Server running on", domain)
