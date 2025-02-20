@@ -13,7 +13,7 @@ import (
 
 var ErrNoId = fmt.Errorf("id not found")
 
-type apiFunc func(http.ResponseWriter, *http.Request) error
+type ApiFunc func(http.ResponseWriter, *http.Request) error
 
 type ApiError struct {
 	Error string `json:"error"`
@@ -33,7 +33,7 @@ func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	return json.NewEncoder(w).Encode(types.NewJSONResponse(status, v))
 }
 
-func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
+func MakeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		errChan := make(chan error)
 		go func() {
@@ -46,40 +46,42 @@ func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 }
 
 func (s *Store) Routes(router *mux.Router) {
-	router.HandleFunc("/user", makeHTTPHandleFunc(s.handleUser))
-	router.HandleFunc("/user/{id}", makeHTTPHandleFunc(s.handleUser))
+	router = router.PathPrefix("/api").Subrouter()
 
-	router.HandleFunc("/user/{id}/league_of_legends", makeHTTPHandleFunc(s.handleLeagueOfLegends))
+	router.HandleFunc("/user", MakeHTTPHandleFunc(s.handleUser))
+	router.HandleFunc("/user/{id}", MakeHTTPHandleFunc(s.handleUser))
 
-	router.HandleFunc("/user/{id}/game_account", makeHTTPHandleFunc(s.handleGameAccount))
-	router.HandleFunc("/user/{id}/game_account/{accountName}", makeHTTPHandleFunc(s.handleGameAccount))
+	router.HandleFunc("/user/{id}/league_of_legends", MakeHTTPHandleFunc(s.handleLeagueOfLegends))
 
-	router.HandleFunc("/guild", makeHTTPHandleFunc(s.handlerGuild))
-	router.HandleFunc("/guild/{id}", makeHTTPHandleFunc(s.handlerGuild))
+	router.HandleFunc("/user/{id}/game_account", MakeHTTPHandleFunc(s.handleGameAccount))
+	router.HandleFunc("/user/{id}/game_account/{accountName}", MakeHTTPHandleFunc(s.handleGameAccount))
 
-	router.HandleFunc("/guild_member", makeHTTPHandleFunc(s.handlerGuildMember))
-	router.HandleFunc("/guild_member/{id}", makeHTTPHandleFunc(s.handlerGuildMember))
+	router.HandleFunc("/guild", MakeHTTPHandleFunc(s.handlerGuild))
+	router.HandleFunc("/guild/{id}", MakeHTTPHandleFunc(s.handlerGuild))
 
-	router.HandleFunc("/guild_role", makeHTTPHandleFunc(s.handlerGuildRole))
-	router.HandleFunc("/guild_role/{id}", makeHTTPHandleFunc(s.handlerGuildRole))
+	router.HandleFunc("/guild_member", MakeHTTPHandleFunc(s.handlerGuildMember))
+	router.HandleFunc("/guild_member/{id}", MakeHTTPHandleFunc(s.handlerGuildMember))
 
-	router.HandleFunc("/team", makeHTTPHandleFunc(s.handleTeam))
-	router.HandleFunc("/team/{id}", makeHTTPHandleFunc(s.handleTeam))
+	router.HandleFunc("/guild_role", MakeHTTPHandleFunc(s.handlerGuildRole))
+	router.HandleFunc("/guild_role/{id}", MakeHTTPHandleFunc(s.handlerGuildRole))
 
-	router.HandleFunc("/team_role/", makeHTTPHandleFunc(s.handleTeamRole))
-	router.HandleFunc("/team_role/{id}", makeHTTPHandleFunc(s.handleTeamRole))
+	router.HandleFunc("/team", MakeHTTPHandleFunc(s.handleTeam))
+	router.HandleFunc("/team/{id}", MakeHTTPHandleFunc(s.handleTeam))
 
-	router.HandleFunc("/team_member/", makeHTTPHandleFunc(s.handleTeamMember))
-	router.HandleFunc("/team_member/{id}", makeHTTPHandleFunc(s.handleTeamMember))
+	router.HandleFunc("/team_role/", MakeHTTPHandleFunc(s.handleTeamRole))
+	router.HandleFunc("/team_role/{id}", MakeHTTPHandleFunc(s.handleTeamRole))
 
-	router.HandleFunc("/discord", makeHTTPHandleFunc(s.handleDiscord))
-	router.HandleFunc("/discord/{id}", makeHTTPHandleFunc(s.handleDiscord))
+	router.HandleFunc("/team_member/", MakeHTTPHandleFunc(s.handleTeamMember))
+	router.HandleFunc("/team_member/{id}", MakeHTTPHandleFunc(s.handleTeamMember))
 
-	router.HandleFunc("/discord_role/", makeHTTPHandleFunc(s.handleDiscordRole))
-	router.HandleFunc("/discord_role/{id}", makeHTTPHandleFunc(s.handleDiscordRole))
+	router.HandleFunc("/discord", MakeHTTPHandleFunc(s.handleDiscord))
+	router.HandleFunc("/discord/{id}", MakeHTTPHandleFunc(s.handleDiscord))
 
-	router.HandleFunc("/discord_member/", makeHTTPHandleFunc(s.handleDiscordMember))
-	router.HandleFunc("/discord_member/{id}", makeHTTPHandleFunc(s.handleDiscordMember))
+	router.HandleFunc("/discord_role/", MakeHTTPHandleFunc(s.handleDiscordRole))
+	router.HandleFunc("/discord_role/{id}", MakeHTTPHandleFunc(s.handleDiscordRole))
+
+	router.HandleFunc("/discord_member/", MakeHTTPHandleFunc(s.handleDiscordMember))
+	router.HandleFunc("/discord_member/{id}", MakeHTTPHandleFunc(s.handleDiscordMember))
 }
 
 /* ------------------------------ method handler ------------------------------ */

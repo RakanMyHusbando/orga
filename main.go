@@ -22,7 +22,7 @@ var (
 
 func main() {
 	godotenv.Load(".env")
-	domain = os.Getenv("DOMAIN")
+	domain = "http://" + os.Getenv("DOMAIN")
 	apiKey = os.Getenv("API_KEY")
 	baseUrl = os.Getenv("PORT")
 	dcClientSecret = os.Getenv("DC_CLIENT_SECRET")
@@ -34,9 +34,12 @@ func main() {
 	if os.Getenv("HOST") == "" {
 		baseUrl = "127.0.0.1" + baseUrl
 	}
-	if domain == "" {
+	if domain == "http://" {
 		domain = "http://" + baseUrl
 	}
+
+	website.Init(dcClientId, dcClientSecret, domain)
+
 
 	db, err := storage.NewSQLiteStorage("data.db")
 	if err != nil {
@@ -49,11 +52,8 @@ func main() {
 	}
 
 	router := mux.NewRouter()
-	apiRoute := router.PathPrefix("/api").Subrouter()
 
-	store := httpHandler.NewStore(db)
-	store.Routes(apiRoute)
-
+	httpHandler.NewStore(db).Routes(router)
 	website.Routes(router)
 
 	log.Println("Server running on", domain)

@@ -16,12 +16,21 @@ var (
 	dc        *disgoauth.Client
 )
 
+func Init(dcClientId, dcClientSecret, domain string) {
+	dc = disgoauth.Init(&disgoauth.Client{
+		ClientID:     dcClientId,
+		ClientSecret: dcClientSecret,
+		RedirectURI:  domain + "/discord/auth/callback",
+		Scopes:       []string{disgoauth.ScopeIdentify},
+	})
+}
+
 func Routes(router *mux.Router) {
+	router.HandleFunc("/discord", discordLoginHandler)
+	router.HandleFunc("/discord/auth/callback", dcOAuthHandler)
 
 	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./public/"))))
 
-	router.HandleFunc("/discord", discordLoginHandler)
-	router.HandleFunc("/discord/auth/callback", dcOAuthHandler)
 }
 
 func createToken(lenght int) string {
