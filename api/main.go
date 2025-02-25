@@ -8,7 +8,6 @@ import (
 
 	"github.com/RakanMyHusbando/orga/storage"
 	"github.com/RakanMyHusbando/orga/types"
-	"github.com/gorilla/mux"
 )
 
 var ErrNoId = fmt.Errorf("id not found")
@@ -45,41 +44,41 @@ func MakeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 	}
 }
 
-func (s *Store) Routes(router *mux.Router) {
-	router.HandleFunc("/user", MakeHTTPHandleFunc(s.handleUser))
-	router.HandleFunc("/user/{id}", MakeHTTPHandleFunc(s.handleUser))
+func (s *Store) Routes() {
+	http.HandleFunc("/api/user", MakeHTTPHandleFunc(s.handleUser))
+	http.HandleFunc("/api/user/{id}", MakeHTTPHandleFunc(s.handleUser))
 
-	router.HandleFunc("/user/{id}/league_of_legends", MakeHTTPHandleFunc(s.handleLeagueOfLegends))
+	http.HandleFunc("/api/user/{id}/league_of_legends", MakeHTTPHandleFunc(s.handleLeagueOfLegends))
 
-	router.HandleFunc("/user/{id}/game_account", MakeHTTPHandleFunc(s.handleGameAccount))
-	router.HandleFunc("/user/{id}/game_account/{accountName}", MakeHTTPHandleFunc(s.handleGameAccount))
+	http.HandleFunc("/api/user/{id}/game_account", MakeHTTPHandleFunc(s.handleGameAccount))
+	http.HandleFunc("/api/user/{id}/game_account/{accountName}", MakeHTTPHandleFunc(s.handleGameAccount))
 
-	router.HandleFunc("/guild", MakeHTTPHandleFunc(s.handlerGuild))
-	router.HandleFunc("/guild/{id}", MakeHTTPHandleFunc(s.handlerGuild))
+	http.HandleFunc("/api/guild", MakeHTTPHandleFunc(s.handlerGuild))
+	http.HandleFunc("/api/guild/{id}", MakeHTTPHandleFunc(s.handlerGuild))
 
-	router.HandleFunc("/guild_member", MakeHTTPHandleFunc(s.handlerGuildMember))
-	router.HandleFunc("/guild_member/{id}", MakeHTTPHandleFunc(s.handlerGuildMember))
+	http.HandleFunc("/api/guild_member", MakeHTTPHandleFunc(s.handlerGuildMember))
+	http.HandleFunc("/api/guild_member/{id}", MakeHTTPHandleFunc(s.handlerGuildMember))
 
-	router.HandleFunc("/guild_role", MakeHTTPHandleFunc(s.handlerGuildRole))
-	router.HandleFunc("/guild_role/{id}", MakeHTTPHandleFunc(s.handlerGuildRole))
+	http.HandleFunc("/api/guild_role", MakeHTTPHandleFunc(s.handlerGuildRole))
+	http.HandleFunc("/api/guild_role/{id}", MakeHTTPHandleFunc(s.handlerGuildRole))
 
-	router.HandleFunc("/team", MakeHTTPHandleFunc(s.handleTeam))
-	router.HandleFunc("/team/{id}", MakeHTTPHandleFunc(s.handleTeam))
+	http.HandleFunc("/api/team", MakeHTTPHandleFunc(s.handleTeam))
+	http.HandleFunc("/api/team/{id}", MakeHTTPHandleFunc(s.handleTeam))
 
-	router.HandleFunc("/team_role/", MakeHTTPHandleFunc(s.handleTeamRole))
-	router.HandleFunc("/team_role/{id}", MakeHTTPHandleFunc(s.handleTeamRole))
+	http.HandleFunc("/api/team_role/", MakeHTTPHandleFunc(s.handleTeamRole))
+	http.HandleFunc("/api/team_role/{id}", MakeHTTPHandleFunc(s.handleTeamRole))
 
-	router.HandleFunc("/team_member/", MakeHTTPHandleFunc(s.handleTeamMember))
-	router.HandleFunc("/team_member/{id}", MakeHTTPHandleFunc(s.handleTeamMember))
+	http.HandleFunc("/api/team_member/", MakeHTTPHandleFunc(s.handleTeamMember))
+	http.HandleFunc("/api/team_member/{id}", MakeHTTPHandleFunc(s.handleTeamMember))
 
-	router.HandleFunc("/discord", MakeHTTPHandleFunc(s.handleDiscord))
-	router.HandleFunc("/discord/{id}", MakeHTTPHandleFunc(s.handleDiscord))
+	http.HandleFunc("/api/discord", MakeHTTPHandleFunc(s.handleDiscord))
+	http.HandleFunc("/api/discord/{id}", MakeHTTPHandleFunc(s.handleDiscord))
 
-	router.HandleFunc("/discord_role/", MakeHTTPHandleFunc(s.handleDiscordRole))
-	router.HandleFunc("/discord_role/{id}", MakeHTTPHandleFunc(s.handleDiscordRole))
+	http.HandleFunc("/api/discord_role/", MakeHTTPHandleFunc(s.handleDiscordRole))
+	http.HandleFunc("/api/discord_role/{id}", MakeHTTPHandleFunc(s.handleDiscordRole))
 
-	router.HandleFunc("/discord_member/", MakeHTTPHandleFunc(s.handleDiscordMember))
-	router.HandleFunc("/discord_member/{id}", MakeHTTPHandleFunc(s.handleDiscordMember))
+	http.HandleFunc("/api/discord_member/", MakeHTTPHandleFunc(s.handleDiscordMember))
+	http.HandleFunc("/api/discord_member/{id}", MakeHTTPHandleFunc(s.handleDiscordMember))
 }
 
 /* ------------------------------ method handler ------------------------------ */
@@ -249,7 +248,7 @@ func (s *Store) handleDiscordMember(w http.ResponseWriter, r *http.Request) erro
 /* ------------------------------ helper functions ------------------------------ */
 
 func GetId(r *http.Request) int {
-	if strId := mux.Vars(r)["id"]; strId != "" {
+	if strId := r.FormValue("id"); strId != "" {
 		id, err := strconv.Atoi(strId)
 		if err != nil {
 			return -1

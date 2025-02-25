@@ -9,7 +9,6 @@ import (
 	"github.com/RakanMyHusbando/orga/api"
 	"github.com/RakanMyHusbando/orga/storage"
 	"github.com/RakanMyHusbando/orga/website"
-	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
 
@@ -19,7 +18,6 @@ var (
 	domain         string
 	dcClientSecret string
 	dcClientId     string
-	router         = mux.NewRouter()
 )
 
 func main() {
@@ -36,7 +34,7 @@ func main() {
 	}
 
 	log.Println("Server running on", domain)
-	log.Fatal(http.ListenAndServe(baseUrl, router))
+	log.Fatal(http.ListenAndServe(baseUrl, nil))
 }
 
 func loadEnv() error {
@@ -67,7 +65,7 @@ func runStorageAndApi() error {
 	if err = storage.RunSQLiteStorage(db, "schema.sql", apiKey); err != nil {
 		return err
 	}
-	api.NewStore(db).Routes(router.PathPrefix("/api").Subrouter())
+	api.NewStore(db).Routes()
 	return nil
 }
 
@@ -80,6 +78,6 @@ func runWebsite() error {
 	if err != nil {
 		return err
 	}
-	web.Routes(router.PathPrefix("/").Subrouter())
+	web.Routes()
 	return nil
 }

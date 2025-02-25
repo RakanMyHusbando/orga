@@ -3,11 +3,10 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="/style.css" />
+        <script src="https://unpkg.com/htmx.org@2.0.4"></script>
         <title>ORGA</title>
         <style>
-            body {
-                background-color: #353b45;
-            }
             .menu-btn {
                 background-color: #5b616e;
                 border-radius: 10px;
@@ -25,12 +24,11 @@
         </style>
     </head>
     <body>
+        <div
+            hx-swap="outerHTML"
+            hx-get="/htmx/headline"
+            hx-trigger="load"
+        ></div>
         <header>
-            <nav>
-                <a class="menu-btn user" href="/discord/login">
-                    <img src="user.svg" alt="User" />
-                </a>
-            </nav>
-        </header>
     </body>
 </html>

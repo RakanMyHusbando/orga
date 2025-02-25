@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/RakanMyHusbando/orga/types"
-	"github.com/gorilla/mux"
 )
 
 /* --------------------------------- handler guild --------------------------------- */
@@ -72,7 +71,7 @@ func (s *Store) handleUpdateGuild(w http.ResponseWriter, r *http.Request) error 
 	if err := s.UpdateGuild(guild, id); err != nil {
 		return err
 	}
-	respMessage := "guild updated with id " + mux.Vars(r)["id"]
+	respMessage := "guild updated with id " + r.FormValue("id")
 	log.Print("[api.guild] " + respMessage)
 	return WriteJSON(w, http.StatusOK, respMessage)
 }
@@ -85,7 +84,7 @@ func (s *Store) handleDeleteGuild(w http.ResponseWriter, r *http.Request) error 
 	if err := s.DeleteGuild(id); err != nil {
 		return err
 	}
-	respMessage := "guild deleted with id " + mux.Vars(r)["id"]
+	respMessage := "guild deleted with id " + r.FormValue("id")
 	log.Print("[api.guild] " + respMessage)
 	return WriteJSON(w, http.StatusOK, respMessage)
 }

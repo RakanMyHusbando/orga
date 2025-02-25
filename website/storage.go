@@ -53,7 +53,7 @@ func (s *SessionStorage) Select(discordId string) (*User, error) {
 	defer prep.Close()
 	row := prep.QueryRow(discordId)
 	user := &User{}
-	if err = row.Scan(&user.DiscordId, &user.SessionToken); err != nil {
+	if err = row.Scan(&user.DiscordId, &user.Ip, &user.SessionToken); err != nil {
 		return nil, fmt.Errorf("failed to select session: %v", err)
 	}
 	return user, nil

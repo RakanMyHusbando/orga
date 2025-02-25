@@ -7,21 +7,29 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"strings"
 
-	"github.com/gorilla/mux"
 	disgoauth "github.com/realTristan/disgoauth"
 )
 
-func (web *Website) Routes(router *mux.Router) {
-	discordRouter := router.PathPrefix("/discord").Subrouter()
-	pagesRouter := router.PathPrefix("/").Subrouter()
+func (web *Website) Routes() {
+	http.HandleFunc("/htmx/headline", web.headlineHandler)
 
-	discordRouter.HandleFunc("/login", web.discordLoginHandler)
-	discordRouter.HandleFunc("/auth/callback", web.discordOauth2RederectHandler)
+	http.HandleFunc("/discord/login", web.discordLoginHandler)
+	http.HandleFunc("/discord/auth/callback", web.discordOauth2RederectHandler)
 
-	pagesRouter.HandleFunc("/user", web.userPageHandler)
+	http.HandleFunc("/user", web.userPageHandler)
 
-	router.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("./website/public"))))
+	http.Handle("/", http.FileServer(http.Dir("./website/public")))
+}
+
+func (web *Website) logoutHandler(w http.ResponseWriter, r *http.Request) {
+	sessionToken, err := r.Cookie("session_token")
+	if err != nil {
+		log.Println(err)
+	}
+	web.storage.Delete(sessionToken.Value)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func readIp(r *http.Request) string {
@@ -32,7 +40,7 @@ func readIp(r *http.Request) string {
 	if IPAddress == "" {
 		IPAddress = r.RemoteAddr
 	}
-	return IPAddress
+	return strings.Split(IPAddress, ":")[0]
 }
 
 func NewWebsite(storage *SessionStorage, dcClientId, dcClientSecret, domain string) (*Website, error) {
@@ -62,7 +70,9 @@ type User struct {
 
 /*
 If sessionToken is an int, it will be used to generate a random token.
+
 If sessionToken is a string, it will be used as the token.
+
 If sessionToken is any other type, an empty string will be used.
 */
 func newUser(discordId, Ip string, sessionToken any) *User {
@@ -89,10 +99,12 @@ func createToken(lenght int) string {
 }
 
 func (web *Website) authorize(r *http.Request) error {
-	user, err := web.storage.Select(r.FormValue("discord_id"))
-	sessionToken, err := r.Cookie("session_token")
-	if err != nil || sessionToken.Value == "" || sessionToken.Value != user.SessionToken {
-		return fmt.Errorf("Failed to authorize user")
+	discordId := r.FormValue("discord_id")
+	user, err := web.storage.Select(discordId)
+	stCoockie, err := r.Cookie("session_token")
+	fmt.Println("discord_id:", discordId, "\nsession_token:", stCoockie.Value)
+	if err != nil || stCoockie.Value == "" || user.SessionToken != stCoockie.Value {
+		return fmt.Errorf("Unauthorized")
 	}
 	return nil
 }

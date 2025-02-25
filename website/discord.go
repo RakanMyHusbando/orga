@@ -28,6 +28,7 @@ func (web *Website) discordOauth2RederectHandler(w http.ResponseWriter, r *http.
 		Value:    user.SessionToken,
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: true,
+		Path:     "/",
 	})
 	web.storage.Insert(user)
 	http.Redirect(w, r, "/", http.StatusSeeOther)

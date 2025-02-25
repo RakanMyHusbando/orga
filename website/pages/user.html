@@ -9,6 +9,22 @@
         <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     </head>
     <body>
-        <h1>Welcome</h1>
+        <div
+            hx-swap="outerHTML"
+            hx-get="/htmx/headline"
+            hx-trigger="load"
+        ></div>
+        <main>
+            <div class="side">
+                <div class="side-btn profile active">Profile</div>
+                <div class="side-btn settings">Settings</div>
+                <div class="side-btn dev">Developer</div>
+            </div>
+            <div class="main">
+                <div class="main-btn profile active"></div>
+                <div class="main-btn settings"></div>
+                <div class="main-btn dev"></div>
+            </div>
+        </main>
     </body>
 </html>

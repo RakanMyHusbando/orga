@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/RakanMyHusbando/orga/types"
-	"github.com/gorilla/mux"
 )
 
 /* --------------------------------- Team --------------------------------- */
@@ -72,7 +71,7 @@ func (s *Store) handleUpdateTeam(w http.ResponseWriter, r *http.Request) error {
 	if err := s.UpdateTeam(team, id); err != nil {
 		return err
 	}
-	resp := fmt.Sprintf("team with id %v updated ", mux.Vars(r)["id"])
+	resp := fmt.Sprintf("team with id %v updated ", r.FormValue("id"))
 	log.Print("[api.team] " + resp)
 	return WriteJSON(w, http.StatusOK, resp)
 }
@@ -85,7 +84,7 @@ func (s *Store) handleDeleteTeam(w http.ResponseWriter, r *http.Request) error {
 	if err := s.DeleteTeam(id); err != nil {
 		return err
 	}
-	resp := "team deleted with id " + mux.Vars(r)["id"]
+	resp := "team deleted with id " + r.FormValue("id")
 	log.Print("[api.team] " + resp)
 	return WriteJSON(w, http.StatusOK, resp)
 }
@@ -122,7 +121,7 @@ func (s *Store) handleDeleteTeamRole(w http.ResponseWriter, r *http.Request) err
 	if err := s.DeletTeamRole(id); err != nil {
 		return err
 	}
-	resp := "role deleted with id " + mux.Vars(r)["id"]
+	resp := "role deleted with id " + r.FormValue("id")
 	log.Print("[api.team] " + resp)
 	return WriteJSON(w, http.StatusOK, resp)
 }
@@ -139,7 +138,7 @@ func (s *Store) handleUpdateTeamRole(w http.ResponseWriter, r *http.Request) err
 	if err := s.UpdateTeamRole(role, id); err != nil {
 		return err
 	}
-	resp := "role updated with id " + mux.Vars(r)["id"]
+	resp := "role updated with id " + r.FormValue("id")
 	log.Print("[api.team] " + resp)
 	return WriteJSON(w, http.StatusOK, resp)
 }
@@ -167,7 +166,7 @@ func (s *Store) handleDeleteTeamMember(w http.ResponseWriter, r *http.Request) e
 	if err := s.DeleteTeamMember(id); err != nil {
 		return err
 	}
-	resp := "member deleted with id " + mux.Vars(r)["id"]
+	resp := "member deleted with id " + r.FormValue("id")
 	log.Print("[api.team] " + resp)
 	return WriteJSON(w, http.StatusOK, resp)
 }
