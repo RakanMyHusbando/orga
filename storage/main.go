@@ -15,8 +15,8 @@ import (
 
 var apiClient apiclient.Client
 
-func NewSQLiteStorage(dbFile string) (*SQLiteStorage, error) {
-	db, err := sql.Open("sqlite3", dbFile)
+func NewSQLiteStorage() (*SQLiteStorage, error) {
+	db, err := sql.Open("sqlite3", "data.db")
 	if err != nil {
 		return nil, err
 	}

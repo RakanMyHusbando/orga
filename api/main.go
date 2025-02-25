@@ -46,8 +46,6 @@ func MakeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 }
 
 func (s *Store) Routes(router *mux.Router) {
-	router = router.PathPrefix("/api").Subrouter()
-
 	router.HandleFunc("/user", MakeHTTPHandleFunc(s.handleUser))
 	router.HandleFunc("/user/{id}", MakeHTTPHandleFunc(s.handleUser))
 
